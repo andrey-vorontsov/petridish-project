@@ -34,7 +34,8 @@ public abstract class Cell {
 
 	// TODO eventually this information will be held in the genome
 	protected Color color;
-	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more friction)
+	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
+								// friction)
 	protected String species;
 
 	/**
@@ -52,7 +53,7 @@ public abstract class Cell {
 		this.xVelocity = xVelocity;
 		this.yVelocity = yVelocity;
 		this.size = size;
-		
+
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
 	}
@@ -75,18 +76,22 @@ public abstract class Cell {
 	 * The cell may expend energy to accelerate itself.
 	 */
 	abstract void move();
-	
+
 	/**
 	 * The cell may consume certain other cells.
 	 */
 	abstract void eat();
-	
+
 	/**
 	 * Cells die when they are killed.
 	 */
 	public void kill(String reason) {
+		if (isAlive = false) {
+			System.out.println("WARNING: " + this + " has died multiple times.");
+		}
+
 		isAlive = false;
-		
+
 		switch (reason) {
 		case "starvation":
 			System.out.println(this + " starved.");
@@ -98,14 +103,15 @@ public abstract class Cell {
 			System.out.println(this + "died.");
 			break;
 		}
-		
+
 	}
+
 	/**
 	 * Adjusts the cell's physical location based on its velocity and the friction
 	 * factor it experiences
 	 */
 	private void updatePhysics() {
-		
+
 		// update velocity due to friction
 		xVelocity = xVelocity * friction;
 		yVelocity = yVelocity * friction;
@@ -179,7 +185,7 @@ public abstract class Cell {
 	public int getSize() {
 		return size;
 	}
-	
+
 	/**
 	 * @return the species
 	 */
@@ -195,10 +201,10 @@ public abstract class Cell {
 		graphic.setFill(color);
 		return graphic;
 	}
-	
+
 	/**
-	 * String representation of a cell is of the form "Species #cellID"
-	 * For example, "Herbivore #5"
+	 * String representation of a cell is of the form "Species #cellID" For example,
+	 * "Herbivore #5"
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
@@ -206,16 +212,18 @@ public abstract class Cell {
 	public String toString() {
 		return species + " #" + cellID;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Cell)) // if not a cell, cannot compare
 			return false;
-		Cell otherCell = (Cell)other; // cast is safe based on above check
-		
+		Cell otherCell = (Cell) other; // cast is safe based on above check
+
 		return otherCell.cellID == cellID;
 	}
 }

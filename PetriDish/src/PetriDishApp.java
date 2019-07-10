@@ -11,7 +11,9 @@ import javafx.stage.WindowEvent;
 /**
  * @author Andrey Vorontsov
  *
- *         TODO
+ *         The App class launches the application, starts associated threads and
+ *         opens windows. It also contains all user input handling code that is
+ *         run on the JavaFX thread.
  */
 public class PetriDishApp extends Application {
 
@@ -32,7 +34,10 @@ public class PetriDishApp extends Application {
 	}
 
 	/**
-	 * TODO
+	 * Initializes the GUI and simulation windows, then starts the simulation
+	 * thread. After this method runs at launch, there are two windows open and two
+	 * threads running (one graphics thread updating both windows, one simulation
+	 * thread running the petri dish in the background)
 	 * 
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
 	 */

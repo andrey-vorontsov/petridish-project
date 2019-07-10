@@ -14,7 +14,9 @@ public class Agar extends Cell {
 		species = "Agar";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see Cell#move()
 	 */
 	@Override
@@ -22,12 +24,14 @@ public class Agar extends Cell {
 		// agar doesn't move
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see Cell#eat()
 	 */
 	@Override
 	void eat() {
 		// agar can't eat anything else
 	}
-	
+
 }

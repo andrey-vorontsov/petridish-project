@@ -9,13 +9,8 @@ import javafx.scene.Node;
  * 
  *         TODO
  * 
- *         TODO an important remark. Because of the order in which cells take
- *         their turns, and because a "death" is really just a flag for the cell
- *         to be eliminated during the next update cycle, it is possible for a
- *         cell to exist quite a while after it has been "killed". as a result
- *         multiple cells may eat the same cell and two cells may eat each other
- *         simultaneously. Consequently, a cell may die multiple times before
- *         being eliminated.
+ *         TODO an important remark. two cells may still eat each other
+ *         simultaneously.
  */
 public class PetriDish implements Runnable {
 
@@ -56,10 +51,12 @@ public class PetriDish implements Runnable {
 			allCells.add(new Herbivore(this, 100 + rng.nextInt(100) - 50, 100 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
 		for (int i = 0; i < 50; i++) { // totally random in the middle area right now
-			allCells.add(new Agar(this, app.PETRI_DISH_SIZE/2 + rng.nextInt(100) - 50, app.PETRI_DISH_SIZE/2 + rng.nextInt(100) - 50, 0, 0, 5));
+			allCells.add(new Agar(this, app.PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
+					app.PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
 
-		// on the graphics thread, initialize the display information with the contents
+		// on the graphics thread, initialize the display information with the initial
+		// contents
 		// of the petri dish
 		Platform.runLater(new Runnable() {
 
@@ -89,11 +86,13 @@ public class PetriDish implements Runnable {
 
 					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
 
+					// TODO initialize display information for any newly born cells here
+
 					// iterate through cells
 					for (int i = 0; i < allCells.size(); i++) {
 						if (allCells.get(i).isAlive()) { // update the graphic for the cell in the nodes list
 							allNodes.set(i, allCells.get(i).getGraphic());
-						} else { // if the cell has died, two cases
+						} else { // if the cell has died during the last update cycle, two cases
 							if (!(i == allCells.size() - 1)) { // the cell is not at the end of the lists, so swap it
 																// with the ending entry (this is constant rather than
 																// linear O)
@@ -106,19 +105,16 @@ public class PetriDish implements Runnable {
 							}
 						}
 					}
-
 				}
 
 			});
 
-			// scatter a bit of food randomly
-			for (int i = 0; i < rng.nextInt(6); i++) {
-				// TODO
-			}
-
-			// run the simulation by asking all the cells to take their turns
+			// run the simulation by asking all the living cells to take their turns
+			// cells that die as a result of the action of a cell earlier in the update
+			// cycle are not updated
 			for (int i = 0; i < allCells.size(); i++) {
-				allCells.get(i).update();
+				if (allCells.get(i).isAlive()) // verify the cell is living before updating it (dead cells don't talk)
+					allCells.get(i).update();
 			}
 
 			// hard delay between simulation ticks (TODO configurable)
@@ -133,7 +129,8 @@ public class PetriDish implements Runnable {
 
 	/**
 	 * Helper method for cells that want to know what objects they can see in the
-	 * petri dish (those within a certain range of them)
+	 * petri dish (those within a certain range of them) Said objects must be within
+	 * the max distance, alive, and not the querying cell itself
 	 * 
 	 * @param x           the x coordinate of the querying cell
 	 * @param y           the y coordinate of the querying cell
@@ -144,9 +141,10 @@ public class PetriDish implements Runnable {
 		ArrayList<Cell> visibleCells = new ArrayList<Cell>();
 		for (int i = 0; i < allCells.size(); i++) {
 			Cell curr = allCells.get(i);
-			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < maxDistance && !curr.equals(me)) {
-				//System.out.println(me + " detected " + curr + " at a distance of "
-				//		+ distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()));
+			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < maxDistance && curr.isAlive()
+					&& !curr.equals(me)) {
+				// System.out.println(me + " detected " + curr + " at a distance of "
+				// + distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()));
 				visibleCells.add(curr);
 			}
 		}
