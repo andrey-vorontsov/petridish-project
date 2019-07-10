@@ -1,22 +1,23 @@
-import java.util.ArrayList;
-import java.util.Random;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import java.util.Random;
+import java.util.ArrayList;
 
 /**
  * @author Andrey Vorontsov
  * 
  *         TODO
  * 
- *         TODO an important remark. two cells may still eat each other
- *         simultaneously.
  */
 public class PetriDish implements Runnable {
+
+	public static final int PETRI_DISH_SIZE = 750; // TODO retrieve this stuff from a config file
 
 	private boolean done; // true only when the simulation thread must be stopped
 	private PetriDishApp app; // refers to the application thread - aka the GUI thread, needed to send
 								// graphics updates to it
+
 	private Random rng; // used for random behavior of the overall simulation
 
 	private ArrayList<Cell> allCells; // contains all the single-celled organisms inhabiting the petri dish
@@ -45,30 +46,23 @@ public class PetriDish implements Runnable {
 		done = false;
 		rng = new Random();
 
+		ArrayList<Cell> newCells = new ArrayList<Cell>(); // any cells added by the simulation or born by reproduction
+															// of existing cells must be tracked in this list ( see below )
+															// it's very important that the order of the new cells in this list be correct
+
 		// fill the petri dish with cells
 		allCells = new ArrayList<Cell>();
 		for (int i = 0; i < 15; i++) { // totally random in the upper left hand corner right now
-			allCells.add(new Herbivore(this, 100 + rng.nextInt(100) - 50, 100 + rng.nextInt(100) - 50, 0, 0, 5));
+			Cell newCell = new Herbivore(this, 100 + rng.nextInt(100) - 50, 100 + rng.nextInt(100) - 50, 0, 0, 5);
+			allCells.add(newCell);
+			newCells.add(newCell);
 		}
 		for (int i = 0; i < 50; i++) { // totally random in the middle area right now
-			allCells.add(new Agar(this, app.PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
-					app.PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
+			Cell newCell = new Agar(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
+					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 3);
+			allCells.add(newCell);
+			newCells.add(newCell);
 		}
-
-		// on the graphics thread, initialize the display information with the initial
-		// contents
-		// of the petri dish
-		Platform.runLater(new Runnable() {
-
-			@Override
-			public void run() {
-				ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
-				for (int i = 0; i < allCells.size(); i++) {
-					allNodes.add(allCells.get(i).getGraphic());
-				}
-			}
-
-		});
 
 		// regarding the above procedure.
 		// the general contract is that at all times the list of allNodes (the children
@@ -86,7 +80,14 @@ public class PetriDish implements Runnable {
 
 					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
 
-					// TODO initialize display information for any newly born cells here
+					// initialize the graphics information for any newly spawned cells from the
+					// previous update cycle, or for the very first cycle
+
+					for (int i = 0; i < newCells.size(); i++) {
+						allNodes.add(newCells.get(i).getGraphic());
+					}
+					
+					newCells.clear(); // finished adding any new cells, cleared up
 
 					// iterate through cells
 					for (int i = 0; i < allCells.size(); i++) {
@@ -107,17 +108,29 @@ public class PetriDish implements Runnable {
 					}
 				}
 
-			});
+			}); // done updating graphics
 
 			// run the simulation by asking all the living cells to take their turns
 			// cells that die as a result of the action of a cell earlier in the update
 			// cycle are not updated
 			for (int i = 0; i < allCells.size(); i++) {
-				if (allCells.get(i).isAlive()) // verify the cell is living before updating it (dead cells don't talk)
-					allCells.get(i).update();
+				if (allCells.get(i).isAlive()) {// verify the cell is living before updating it
+					Cell newCell = allCells.get(i).update();
+					if (newCell != null)
+						newCells.add(allCells.get(i).update()); // add any offspring the updated cells report to the
+																// newCells list
+				}
+				if (allCells.size() < 10) { // && rng.nextInt(100) < 1) {// 5% chance to spawn new foods per each
+											// existing cell each tick
+					Cell newCell = new Agar(this, rng.nextInt(PETRI_DISH_SIZE - 29) + 15,
+							rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3);
+					allCells.add(newCell);
+					newCells.add(newCell);
+				}
 			}
 
 			// hard delay between simulation ticks (TODO configurable)
+			// TODO thread synchronization should be done here to avoid the graphics thread falling behind (better this thread lags than the other)
 			try {
 				Thread.sleep(16);
 			} catch (InterruptedException e) {
@@ -132,8 +145,7 @@ public class PetriDish implements Runnable {
 	 * petri dish (those within a certain range of them) Said objects must be within
 	 * the max distance, alive, and not the querying cell itself
 	 * 
-	 * @param x           the x coordinate of the querying cell
-	 * @param y           the y coordinate of the querying cell
+	 * @param me the querying cell
 	 * @param maxDistance the distance the cell can see or eat from (contextually)
 	 * @return a list of cells in the range
 	 */

@@ -1,9 +1,24 @@
 import java.util.ArrayList;
-
 import javafx.scene.paint.Color;
 
+/**
+ * @author Andrey Vorontsov
+ * 
+ * TODO
+ *
+ */
 public class Herbivore extends Cell {
 
+	/**
+	 * TODO
+	 * 
+	 * @param petri
+	 * @param x
+	 * @param y
+	 * @param xVelocity
+	 * @param yVelocity
+	 * @param size
+	 */
 	public Herbivore(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
 		super(petri, x, y, xVelocity, yVelocity, size);
 		health = 100;
@@ -13,8 +28,14 @@ public class Herbivore extends Cell {
 		species = "Herbivore";
 	}
 
+	/**
+	 * TODO
+	 * 
+	 * @see Cell#move()
+	 */
 	@Override
 	void move() {
+		// this behavior is temporary and should be replaced TODO
 		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, 300);
 		ArrayList<Cell> targets = new ArrayList<Cell>();
 
@@ -40,17 +61,21 @@ public class Herbivore extends Cell {
 			if (targetY < y)
 				yVelocity -= 0.75;
 
+		} else {
+			xVelocity += rng.nextDouble();
+			yVelocity += rng.nextDouble();
 		}
 		energy--;
 	}
 
 	/**
-	 * Herbivores get energy from killing other cells.
+	 * Herbivores get energy from harvesting plant growth or agar.
 	 * 
 	 * @see Cell#eat()
 	 */
 	@Override
 	void eat() {
+		// TODO unfinished, review behavior
 		ArrayList<Cell> eatableCells = petri.getCellsInRange(this, size);
 		for (Cell c : eatableCells) {
 			if (c.getSpecies().equals("Agar")) {

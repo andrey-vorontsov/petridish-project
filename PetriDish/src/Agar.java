@@ -1,9 +1,15 @@
 import javafx.scene.paint.Color;
 
+/**
+ * @author Andrey Vorontsov
+ * 
+ * TODO
+ *
+ */
 public class Agar extends Cell {
 
 	/**
-	 * In addition to normally initializing, agar always spawns with 25 energy
+	 * Agar is intended as a simple food unit worth 25 energy.
 	 * 
 	 * @see Cell#Cell(double, double, double, double, int)
 	 */

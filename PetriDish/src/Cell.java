@@ -1,6 +1,6 @@
 import java.util.Random;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
 
 /**
  * Represents a single-celled organism inhabiting the petri dish environment.
@@ -15,7 +15,7 @@ public abstract class Cell {
 	// utility
 	protected Random rng = new Random();
 	protected PetriDish petri; // need a reference to the petri dish the cell lives in
-	private static int nextCellID = 1;
+	private static int nextCellID = 1; // each cell is assigned a unique ID
 	public final int cellID;
 
 	// physical information
@@ -26,7 +26,8 @@ public abstract class Cell {
 
 	// information related to the cell's status independent of its genetics
 	// for all cells
-	private boolean isAlive = true;
+	private boolean isAlive;
+	protected int age;
 	// varies based on cell type
 	protected int health;
 	protected int energy;
@@ -39,12 +40,15 @@ public abstract class Cell {
 	protected String species;
 
 	/**
-	 * Constructor for basic physical properties
+	 * Constructor for basic physical properties. Cells are also assigned a unique
+	 * ID, are alive by default, and start at an age of 0.
 	 * 
+	 * @param petri     the petri dish the cell will inhabit
 	 * @param x         the x location to put the cell at
 	 * @param y         the y location to put the cell at
 	 * @param xVelocity the initial x velocity of the cell
 	 * @param yVelocity the initial y velocity of the cell
+	 * @param size      the initial size of the cell
 	 */
 	public Cell(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
 		this.petri = petri;
@@ -54,22 +58,31 @@ public abstract class Cell {
 		this.yVelocity = yVelocity;
 		this.size = size;
 
+		isAlive = true;
+		age = 0;
+
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
 	}
 
 	/**
 	 * Core method, representing the basic actions the cell can take each tick of
-	 * the simulation
+	 * the simulation.
+	 * 
+	 * @return an offspring produced by this cell during this update, unless one was
+	 *         not produced, in which returns null
 	 */
-	public void update() {
-		// TODO
+	public Cell update() {
+		age++; // TODO cell should not be allowed to do certain actions before a certain age to
+				// avoid certain problems
+		// TODO reproduction, etc.
 		move(); // the cell has a chance to affect its own movement
 		eat(); // the cell has a chance to consume cells it is touching
 		updatePhysics(); // the cell moves according to physics
-		if (energy <= 0) {
+		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
+		return null; // TODO for reproduction
 	}
 
 	/**
@@ -84,6 +97,9 @@ public abstract class Cell {
 
 	/**
 	 * Cells die when they are killed.
+	 * 
+	 * @param reason the String reason for the death. Examples of reasons include
+	 *               "starvation" and "eaten".
 	 */
 	public void kill(String reason) {
 		if (isAlive = false) {
@@ -100,7 +116,7 @@ public abstract class Cell {
 			System.out.println(this + " was eaten.");
 			break;
 		default:
-			System.out.println(this + "died.");
+			System.out.println(this + "died for the reason: " + reason);
 			break;
 		}
 
@@ -187,6 +203,13 @@ public abstract class Cell {
 	}
 
 	/**
+	 * @return the age
+	 */
+	public int getAge() {
+		return age;
+	}
+
+	/**
 	 * @return the species
 	 */
 	public String getSpecies() {
@@ -207,6 +230,7 @@ public abstract class Cell {
 	 * "Herbivore #5"
 	 * 
 	 * @see java.lang.Object#toString()
+	 * @return the String form of this cell
 	 */
 	@Override
 	public String toString() {

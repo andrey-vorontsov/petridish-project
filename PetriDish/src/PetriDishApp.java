@@ -18,6 +18,7 @@ import javafx.stage.WindowEvent;
 public class PetriDishApp extends Application {
 
 	public static final int PETRI_DISH_SIZE = 750; // the petri dish is a square of this dimension
+	// TODO config file source
 
 	private Group guiRoot; // the root node of the GUI window scene graph
 	private Group petriRoot; // the root node of the simulation window scene graph
@@ -40,6 +41,7 @@ public class PetriDishApp extends Application {
 	 * thread running the petri dish in the background)
 	 * 
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
+	 * @param appWindow supplied by JavaFX
 	 */
 	@Override
 	public void start(Stage appWindow) throws Exception {
