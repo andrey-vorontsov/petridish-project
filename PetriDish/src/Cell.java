@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
@@ -78,11 +79,14 @@ public abstract class Cell {
 		// TODO reproduction, etc.
 		move(); // the cell has a chance to affect its own movement
 		eat(); // the cell has a chance to consume cells it is touching
+		grow(); // the cell has a chance to grow itself
+		Cell newCell = reproduce(); // the cell has a chance to spawn offspring
 		updatePhysics(); // the cell moves according to physics
+		squish(); // TODO possibly temporary method to stop cells from overlapping others of the same species
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
-		return null; // TODO for reproduction
+		return newCell; // TODO for reproduction
 	}
 
 	/**
@@ -91,9 +95,19 @@ public abstract class Cell {
 	abstract void move();
 
 	/**
-	 * The cell may consume certain other cells.
+	 * The cell may consume certain other cells, or gain energy by other means.
 	 */
 	abstract void eat();
+	
+	/**
+	 * The cell may expend energy to increase its size.
+	 */
+	abstract void grow();
+	
+	/**
+	 * The cell may expend energy to spawn an offspring.
+	 */
+	abstract Cell reproduce();
 
 	/**
 	 * Cells die when they are killed.
@@ -110,10 +124,10 @@ public abstract class Cell {
 
 		switch (reason) {
 		case "starvation":
-			System.out.println(this + " starved.");
+			System.out.println(this + " starved at age " + age + ".");
 			break;
 		case "eaten":
-			System.out.println(this + " was eaten.");
+			System.out.println(this + " was eaten at age " + age + ".");
 			break;
 		default:
 			System.out.println(this + "died for the reason: " + reason);
@@ -150,6 +164,25 @@ public abstract class Cell {
 		} else if (y > PetriDishApp.PETRI_DISH_SIZE - 15) {
 			yVelocity = -1;
 			y = PetriDishApp.PETRI_DISH_SIZE - 15;
+		}
+	}
+	
+	/**
+	 * Cells should avoid overlapping cells of the same species.
+	 */
+	private void squish() {
+		ArrayList<Cell> touchedCells = petri.getCellsInRange(this, size);
+		for (Cell c : touchedCells) {
+			if (c.getSpecies().equals(species)) {
+				if (c.getX() > x)
+					xVelocity -= 0.5;
+				if (c.getX() < x)
+					xVelocity += 0.5;
+				if (c.getY() > y)
+					yVelocity -= 0.5;
+				if (c.getY() < y)
+					yVelocity += 0.5;
+			}
 		}
 	}
 

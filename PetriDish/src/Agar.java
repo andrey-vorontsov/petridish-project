@@ -26,7 +26,7 @@ public class Agar extends Cell {
 	 * @see Cell#move()
 	 */
 	@Override
-	void move() {
+	public void move() {
 		// agar doesn't move
 	}
 
@@ -36,8 +36,26 @@ public class Agar extends Cell {
 	 * @see Cell#eat()
 	 */
 	@Override
-	void eat() {
+	public void eat() {
 		// agar can't eat anything else
+	}
+
+	/* (non-Javadoc)
+	 * @see Cell#grow()
+	 */
+	@Override
+	public void grow() {
+		// agar can't grow
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see Cell#reproduce()
+	 */
+	@Override
+	public Cell reproduce() {
+		// agar doesn't reproduce
+		return null;
 	}
 
 }
