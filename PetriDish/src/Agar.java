@@ -1,7 +1,8 @@
 import javafx.scene.paint.Color;
 
 /**
- * Not really a creature, just a little pellet of food. No behaviors, exist to feed herbivores. 
+ * Not really a creature, just a little pellet of food. No behaviors, exist to
+ * feed herbivores.
  * 
  * @author Andrey Vorontsov
  */
@@ -40,16 +41,20 @@ public class Agar extends Cell {
 		// agar can't eat anything else
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see Cell#grow()
 	 */
 	@Override
 	public void grow() {
 		// agar can't grow
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see Cell#reproduce()
 	 */
 	@Override

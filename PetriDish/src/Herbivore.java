@@ -55,16 +55,34 @@ public class Herbivore extends Cell {
 		// update the targeting vector based on gathered information
 		if (target != null) { // if a prey target was found, go there
 			targetingVector = getVectorToTarget(target);
-		} else if (targetingVector == null || targetingVector.magnitude < 3) { // if no prey target exists, throw out a random vector; if we're approaching the end of the previous random search vector, throw out a new one 
+			
+		}else if (targetingVector == null || targetingVector.getMagnitude() < 2) { // if no prey target exists and we don't already have a random vector, throw out a random vector; if we're approaching the end of the previous random search vector, throw out a new one 
 			targetingVector = new CellMovementVector((rng.nextDouble() - 0.5)*40, (rng.nextDouble() - 0.5)*40);
-			System.out.println(this + " can't see any food!"); // TODO debug event
+			System.out.println(this + " chose a new random vector " + targetingVector); // TODO debug event
+			
+		} else if (x + targetingVector.getXComponent() < 0) {
+			targetingVector.setXComponent(targetingVector.getXComponent() + 3); // steer away from the edge
+			System.out.println(this + " is moving away from the left edge with vector " + targetingVector); // TODO debug event
+			
+		} else if (x + targetingVector.getXComponent() > petri.PETRI_DISH_SIZE) {
+			targetingVector.setXComponent(targetingVector.getXComponent() - 3);
+			System.out.println(this + " is moving away from the right edge with vector " + targetingVector); // TODO debug event
+			
+		} else if (y + targetingVector.getYComponent() < 0) {
+			targetingVector.setYComponent(targetingVector.getYComponent() + 3);
+			System.out.println(this + " is moving away from the top edge with vector " + targetingVector); // TODO debug event
+			
+		} else if (y + targetingVector.getYComponent() > petri.PETRI_DISH_SIZE) {
+			targetingVector.setYComponent(targetingVector.getYComponent() - 3);
+			System.out.println(this + " is moving away from the bottom edge with vector " + targetingVector); // TODO debug event
+			
 		} else { // a bit of random variation for the random search behavior; while moving to a random search vector, vary it a little bit
-			targetingVector = new CellMovementVector(targetingVector.getxComponent() + rng.nextDouble() - 0.5, targetingVector.getyComponent() + rng.nextDouble() - 0.5);
+			targetingVector = new CellMovementVector(targetingVector.getXComponent() + rng.nextDouble() - 0.5, targetingVector.getYComponent() + rng.nextDouble() - 0.5);
 		}
 		
 		// standard code block which should be present in any implementation of move(); follow the vector
-		xVelocity += targetingVector.getUnitVector().getxComponent();
-		yVelocity += targetingVector.getUnitVector().getyComponent();
+		xVelocity += targetingVector.getUnitVector().getXComponent();
+		yVelocity += targetingVector.getUnitVector().getYComponent();
 		
 		// movement costs energy
 		energy--;

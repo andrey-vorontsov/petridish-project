@@ -7,7 +7,9 @@ import javafx.scene.paint.Color;
  * Represents a single-celled organism inhabiting the petri dish environment.
  * Capable of moving, eating, reproducing, and dying. Additionally, holds
  * information associated with the cell's appearance and various stats. This
- * class is used as a data structure by the petri dish simulation thread, as well as holding many helper methods to support implementations of cell behavior by children of this class.
+ * class is used as a data structure by the petri dish simulation thread, as
+ * well as holding many helper methods to support implementations of cell
+ * behavior by children of this class.
  * 
  * @author Andrey Vorontsov
  */
@@ -18,7 +20,9 @@ public abstract class Cell {
 	protected PetriDish petri; // need a reference to the petri dish the cell lives in
 	private static int nextCellID = 1; // each cell is assigned a unique ID
 	public final int cellID;
-	protected boolean SUPPRESS_EVENT_PRINTING = false; // children of this class may choose to set this to true to prevent status messages from that species from printing to console
+	protected boolean SUPPRESS_EVENT_PRINTING = false; // children of this class may choose to set this to true to
+														// prevent status messages from that species from printing to
+														// console
 
 	// physical information
 	protected double x;
@@ -36,7 +40,7 @@ public abstract class Cell {
 	protected int size;
 	// for cell behaviors
 	protected CellMovementVector targetingVector;
-	
+
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
@@ -85,22 +89,25 @@ public abstract class Cell {
 		Cell newCell = reproduce(); // the cell has a chance to spawn offspring
 		updatePhysics(); // the cell moves according to physics
 		squish(); // stop cells from overlapping others of the same species
-		
-		// TODO a quick and dirty way to hopefully make newborn cells bounce further from their parents
+
+		// TODO a quick and dirty way to hopefully make newborn cells bounce further
+		// from their parents
 		if (age < 3) {
 			squish();
 			squish();
 		}
-		
+
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
-		
+
 		return newCell;
 	}
 
 	/**
-	 * The cell may expend energy to accelerate itself. This should be done with a module that generates a CellMovementVector, then a module that adjusts velocity and applies energy cost accordingly.
+	 * The cell may expend energy to accelerate itself. This should be done with a
+	 * module that generates a CellMovementVector, then a module that adjusts
+	 * velocity and applies energy cost accordingly.
 	 */
 	abstract void move();
 
@@ -108,12 +115,12 @@ public abstract class Cell {
 	 * The cell may consume certain other cells, or gain energy by other means.
 	 */
 	abstract void eat();
-	
+
 	/**
 	 * The cell may expend energy to increase its size.
 	 */
 	abstract void grow(); // TODO consider growth as volume rather than radius
-	
+
 	/**
 	 * The cell may expend energy to spawn an offspring.
 	 * 
@@ -128,9 +135,9 @@ public abstract class Cell {
 	 *               "starvation" and "eaten".
 	 */
 	public void kill(String reason) {
-		
+
 		isAlive = false;
-		
+
 		if (!SUPPRESS_EVENT_PRINTING) {
 			switch (reason) {
 			case "starvation":
@@ -177,12 +184,13 @@ public abstract class Cell {
 			y = PetriDishApp.PETRI_DISH_SIZE - 15;
 		}
 	}
-	
+
 	/**
 	 * Cells should avoid overlapping cells of the same species.
 	 */
 	private void squish() {
-		// TODO temporary implementation; overlapping cells get a small pushback velocity
+		// TODO temporary implementation; overlapping cells get a small pushback
+		// velocity
 		ArrayList<Cell> touchedCells = petri.getCellsInRange(this, size);
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
@@ -197,12 +205,14 @@ public abstract class Cell {
 			}
 		}
 	}
-	
+
 	/**
-	 * Helper method for the cell to refresh its targeting vector to another, possibly moving, cell
+	 * Helper method for the cell to refresh its targeting vector to another,
+	 * possibly moving, cell
 	 * 
 	 * @param c the cell to target
-	 * @return a vector representing the movement vector from this cell to the target
+	 * @return a vector representing the movement vector from this cell to the
+	 *         target
 	 */
 	public CellMovementVector getVectorToTarget(Cell c) {
 		return new CellMovementVector(c.getX() - x, c.getY() - y);

@@ -17,7 +17,8 @@ import javafx.event.EventHandler;
  */
 public class PetriDishApp extends Application {
 
-	public static final int PETRI_DISH_SIZE = 750; // the petri dish is a square of this dimension
+	public static final int PETRI_DISH_SIZE = 750; // the petri dish is a square of this dimension TODO this value is
+													// referenced inconsistently throughout the program
 
 	private Group guiRoot; // the root node of the GUI window scene graph
 	private Group petriRoot; // the root node of the simulation window scene graph

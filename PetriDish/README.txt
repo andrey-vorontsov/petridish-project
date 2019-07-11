@@ -29,14 +29,14 @@ Cells in general can now remember their selected targets and move towards them i
 Herbivores specifically now select a random location out of their vision range as a target if stranded far from any food.
 Some code cleanup.
 
+Version 0.0.4.2
+After an insight, rewrote the graphics update code once again, with performance likely comparable to the original.
+Iterated on the herbivore movement code again.
+Herbivores now steer away from the edge rather than getting stuck on it.
 
-ROADMAP (At Version 0.0.4.1)
-
-Features for 0.0.5
-	Rewrite graphics code, again, considering the new insight
+ROADMAP (At Version 0.0.4.2)
 
 Features for 0.1.0
-	Cells travel on straight lines to their targets
 	Predators hunt herbivores and eat agars
 	Herbivores search for plants, agars - grazing behavior and evading predators behavior
 	Plants grow with time and send out seeds nearby
