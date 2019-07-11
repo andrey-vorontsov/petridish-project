@@ -34,12 +34,31 @@ After an insight, rewrote the graphics update code once again, with performance 
 Iterated on the herbivore movement code again.
 Herbivores now steer away from the edge rather than getting stuck on it.
 
-ROADMAP (At Version 0.0.4.2)
+Version 0.0.4.3
+Rewrote the herbivore edge evasion code and tweaked the overall cell targeting code.
+
+ROADMAP (At Version 0.0.4.3)
+
+Features for 0.0.5
+	Predators hunt herbivores and eat agars
+	Herbivore evading predators behavior
+	At least one 0.1.0 feature
+
+Features for 0.0.6
+	Herbivore plant grazing behavior
+	Plants grow with time and send out seeds nearby
+	At least one 0.1.0 feature
 
 Features for 0.1.0
-	Predators hunt herbivores and eat agars
-	Herbivores search for plants, agars - grazing behavior and evading predators behavior
-	Plants grow with time and send out seeds nearby
+	Better squishing
+	Better size; based on area, not radius
+	Better vision range formula
+	Basic GUI
+		Simulation speed control
+			Slider to control speed
+			Pause/unpause button
+	Simple animations for plants
+	Reasonably interesting initial spawning setup
 	
 Features for 1.0.0
 	GUI
@@ -50,8 +69,7 @@ Features for 1.0.0
 			Can kill a cell
 		Simulation speed control
 			Robust frame rate tracking
-			Slider to control speed
-			Pause/unpause button with full interaction while paused
+			Pause/unpause button has full interaction while paused
 		Saving to file
 			Settings/config file
 			Simulation state save file

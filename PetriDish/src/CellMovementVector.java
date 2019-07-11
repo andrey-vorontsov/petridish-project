@@ -68,7 +68,6 @@ public class CellMovementVector {
 		return magnitude;
 	}
 
-	
 	/**
 	 * @param magnitude the magnitude to set
 	 */

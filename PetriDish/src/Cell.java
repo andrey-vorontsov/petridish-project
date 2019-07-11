@@ -39,6 +39,8 @@ public abstract class Cell {
 	protected int energy;
 	protected int size;
 	// for cell behaviors
+	protected double targetX;
+	protected double targetY;
 	protected CellMovementVector targetingVector;
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
@@ -68,6 +70,7 @@ public abstract class Cell {
 
 		isAlive = true;
 		age = 0;
+		targetingVector = new CellMovementVector(0, 0);
 
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
@@ -81,25 +84,23 @@ public abstract class Cell {
 	 *         not produced, in which case return null
 	 */
 	public Cell update() {
-		age++; // TODO cell should not be allowed to do certain actions before a certain age to
-				// avoid certain problems
+		age++;
+
 		move(); // the cell has a chance to affect its own movement
 		eat(); // the cell has a chance to consume cells it is touching
-		grow(); // the cell has a chance to grow itself
-		Cell newCell = reproduce(); // the cell has a chance to spawn offspring
-		updatePhysics(); // the cell moves according to physics
-		squish(); // stop cells from overlapping others of the same species
 
-		// TODO a quick and dirty way to hopefully make newborn cells bounce further
-		// from their parents
-		if (age < 3) {
-			squish();
-			squish();
+		Cell newCell = null;
+		if (age > 3) { // cells have a cooldown of three ticks before being able to grow or reproduce
+			grow(); // the cell has a chance to grow itself
+			newCell = reproduce(); // the cell has a chance to spawn offspring
 		}
 
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
+
+		updatePhysics(); // the cell moves according to physics
+		squish(); // stop cells from overlapping others of the same species
 
 		return newCell;
 	}
@@ -208,14 +209,15 @@ public abstract class Cell {
 
 	/**
 	 * Helper method for the cell to refresh its targeting vector to another,
-	 * possibly moving, cell
+	 * possibly moving, point
 	 * 
-	 * @param c the cell to target
+	 * @param targetX
+	 * @param targetY
 	 * @return a vector representing the movement vector from this cell to the
 	 *         target
 	 */
-	public CellMovementVector getVectorToTarget(Cell c) {
-		return new CellMovementVector(c.getX() - x, c.getY() - y);
+	public CellMovementVector getVectorToTarget(double targetX, double targetY) {
+		return new CellMovementVector(targetX - x, targetY - y);
 	}
 
 	/**

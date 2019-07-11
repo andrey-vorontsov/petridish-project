@@ -51,10 +51,11 @@ public class PetriDish implements Runnable {
 		allCells = new ArrayList<Cell>();
 
 		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 15; i++) { // a herd of herbivores, in the upper left
-			allCells.add(new Herbivore(this, 100 + rng.nextInt(100) - 50, 100 + rng.nextInt(100) - 50, 0, 0, 5));
+		for (int i = 0; i < 1; i++) { // a herd of herbivores, in the center
+			allCells.add(new Herbivore(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
+					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 20; i++) { // a small pile of food, in the center
+		for (int i = 0; i < 25; i++) { // a small pile of food, in the center
 			allCells.add(new Agar(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
@@ -93,13 +94,17 @@ public class PetriDish implements Runnable {
 																	// allNodes.size() - allCells.size()
 						}
 					}
+
+					// System.out.println("NEW FRAME!");
 				}
 
 			}); // this request is sent to the graphics thread and runs in parallel to this
 				// thread; thus, the graphics thread draws the previous tick while the
-				// simulation prepares the next tick. TODO if the simulation is running faster
-				// than the graphics can keep up, the simulation should wait until the graphics
-				// thread is ready again
+				// simulation prepares the next tick.
+
+			// the simulation is running a lot faster than the graphics thread (which is
+			// full of heavy JavaFX bloat); need to make a solution to avoid letting the
+			// update thread get ahead of the graphics thread
 
 			// run the simulation by asking all the living cells to take their turns
 			for (int i = 0; i < allCells.size(); i++) {
@@ -114,7 +119,7 @@ public class PetriDish implements Runnable {
 					allCells.remove(i);
 					i--; // decrement i to avoid skipping over a cell
 				}
-				if (allCells.size() < 60) { // deploy food TODO for debug purposes
+				if (allCells.size() < 10) { // deploy food TODO for debug purposes
 					allCells.add(new Agar(this, rng.nextInt(PETRI_DISH_SIZE - 29) + 15,
 							rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3));
 				}
@@ -126,6 +131,8 @@ public class PetriDish implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
+			// System.out.println("NEW UPDATE!");
 
 		} while (!done);
 	}
