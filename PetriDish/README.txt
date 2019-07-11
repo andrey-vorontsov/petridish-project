@@ -37,28 +37,43 @@ Herbivores now steer away from the edge rather than getting stuck on it.
 Version 0.0.4.3
 Rewrote the herbivore edge evasion code and tweaked the overall cell targeting code.
 
-ROADMAP (At Version 0.0.4.3)
+Version 0.0.4.4
+Renamed Herbivores to Grazers.
+Added Predators with some basic behavior.
+Predators can eat Grazers and agars but don't have specialized hunting behavior.
+Predators have customized movement speed, growth and reproduction stats.
+Rewrote the squishing behavior, such that cells of the same variety cannot overlap.
+Known issue: Cells get stuck against each other trying to eat the same target.
+
+ROADMAP (At Version 0.0.4.4)
 
 Features for 0.0.5
-	Predators hunt herbivores and eat agars
 	Herbivore evading predators behavior
+	
+Features for 0.06
+	Herbivore plant grazing behavior (use indestructible plants for now)
+	Smarter evasion/hunting prioritization method for future customization
 	At least one 0.1.0 feature
-
-Features for 0.0.6
-	Herbivore plant grazing behavior
+	
+Features for 0.0.7
+	Predator hunting behavior
 	Plants grow with time and send out seeds nearby
 	At least one 0.1.0 feature
 
 Features for 0.1.0
-	Better squishing
+	Fix known issues: Cells stuck against each other trying to each the same target. Graphics thread not synchronized with simulation thread (I suspect this is another cause for the graphics thread to start throwing exceptions)
 	Better size; based on area, not radius
-	Better vision range formula
+	Better vision range formula based on size
+	Slower movement based on size
 	Basic GUI
+		Prerequisites
+			Proper thread synchronization
 		Simulation speed control
 			Slider to control speed
 			Pause/unpause button
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
+	Reasonably balanced stats for the demo creatures
 	
 Features for 1.0.0
 	GUI

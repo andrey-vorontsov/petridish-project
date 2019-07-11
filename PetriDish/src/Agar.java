@@ -2,7 +2,7 @@ import javafx.scene.paint.Color;
 
 /**
  * Not really a creature, just a little pellet of food. No behaviors, exist to
- * feed herbivores.
+ * feed other cells.
  * 
  * @author Andrey Vorontsov
  */

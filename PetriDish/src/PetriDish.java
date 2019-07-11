@@ -51,11 +51,15 @@ public class PetriDish implements Runnable {
 		allCells = new ArrayList<Cell>();
 
 		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 1; i++) { // a herd of herbivores, in the center
-			allCells.add(new Herbivore(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
+		for (int i = 0; i < 4; i++) { // a herd of herbivores, to the left
+			allCells.add(new Grazer(this, PETRI_DISH_SIZE / 4 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 25; i++) { // a small pile of food, in the center
+		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
+			allCells.add(new Predator(this, PETRI_DISH_SIZE * 3 / 4 + rng.nextInt(100) - 50,
+					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 6));
+		}
+		for (int i = 0; i < 30; i++) { // a small pile of food, in the center
 			allCells.add(new Agar(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
@@ -119,7 +123,7 @@ public class PetriDish implements Runnable {
 					allCells.remove(i);
 					i--; // decrement i to avoid skipping over a cell
 				}
-				if (allCells.size() < 10) { // deploy food TODO for debug purposes
+				if (allCells.size() < 100) { // deploy food TODO for debug purposes
 					allCells.add(new Agar(this, rng.nextInt(PETRI_DISH_SIZE - 29) + 15,
 							rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3));
 				}
@@ -127,7 +131,7 @@ public class PetriDish implements Runnable {
 
 			// hard delay between simulation ticks (TODO configurable)
 			try {
-				Thread.sleep(16);
+				Thread.sleep(35);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -157,6 +161,30 @@ public class PetriDish implements Runnable {
 			}
 		}
 		return visibleCells;
+	}
+
+	/**
+	 * A similar method to getCellsInRange(); however, this method takes into
+	 * account the radii of both the querying cell and the other cells to judge
+	 * whether the two cells are touching - that is, if there is any overlap at all
+	 * between their circles - as opposed to getCellsInRange() which looks at
+	 * distance between their centerpoints (without considering their sizes)
+	 * 
+	 * @param me the querying cell
+	 * @return a list of cells touching this cell
+	 */
+	public ArrayList<Cell> getTouchingCells(Cell me) {
+		ArrayList<Cell> touchedCells = new ArrayList<Cell>();
+		for (int i = 0; i < allCells.size(); i++) {
+			Cell curr = allCells.get(i);
+			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < me.getSize() + curr.getSize()
+					&& curr.isAlive() && !curr.equals(me)) { // a cell is in my range iff it is closer than the sum of
+																// our radii, it is alive,
+																// and it is not myself
+				touchedCells.add(curr);
+			}
+		}
+		return touchedCells;
 	}
 
 	/**

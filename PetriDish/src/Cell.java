@@ -113,7 +113,7 @@ public abstract class Cell {
 	abstract void move();
 
 	/**
-	 * The cell may consume certain other cells, or gain energy by other means.
+	 * The cell may consume certain other cells, or gain energy by other means. The general rule for eating cells is that the target cell's centerpoint must fall within this cell's circle
 	 */
 	abstract void eat();
 
@@ -187,22 +187,19 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Cells should avoid overlapping cells of the same species.
+	 * Cells should avoid overlapping cells of the same species. This is accomplished by pushing other cells out of the way.
 	 */
 	private void squish() {
-		// TODO temporary implementation; overlapping cells get a small pushback
-		// velocity
-		ArrayList<Cell> touchedCells = petri.getCellsInRange(this, size);
+		ArrayList<Cell> touchedCells = petri.getTouchingCells(this);
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
-				if (c.getX() > x)
-					xVelocity -= 0.5;
-				if (c.getX() < x)
-					xVelocity += 0.5;
-				if (c.getY() > y)
-					yVelocity -= 0.5;
-				if (c.getY() < y)
-					yVelocity += 0.5;
+				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
+				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
+				double pushMagnitude = c.getSize() + size;
+				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude, pushUnit.getYComponent() * pushMagnitude);
+				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
+				c.setX(x + push.getXComponent() + 0.01);
+				c.setY(y + push.getYComponent() + 0.01);
 			}
 		}
 	}
@@ -232,6 +229,20 @@ public abstract class Cell {
 	 */
 	public double getY() {
 		return y;
+	}
+	
+	/**
+	 * Set the x position
+	 */
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	/**
+	 * Set the y position
+	 */
+	public void setY(double y) {
+		this.y = y;
 	}
 
 	/**

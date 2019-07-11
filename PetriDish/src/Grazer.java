@@ -3,41 +3,41 @@ import javafx.scene.paint.Color;
 
 /**
  * A simple creature, made for testing out various functions such as cell
- * eating, reproduction, growth and movement. Herbivores search for plants and
+ * eating, reproduction, growth and movement. Grazers search for plants and
  * agars, exhibiting a grazing behavior as well as a predator evasion behavior
  * Currently unfinished.
  * 
  * @author Andrey Vorontsov
  */
-public class Herbivore extends Cell {
+public class Grazer extends Cell {
 
 	/**
-	 * Create a herbivore. Herbivores start out with 75 energy (almost enough to
+	 * Create a Grazer. Grazers start out with 75 energy (almost enough to
 	 * start growing right away), and they are green.
 	 * 
 	 * @see Cell#Cell(double, double, double, double, int)
 	 */
-	public Herbivore(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
+	public Grazer(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
 		this(petri, x, y, xVelocity, yVelocity, size, 75);
 	}
 
 	/**
-	 * Create a herbivore with a specified amount of starting energy (used for
-	 * reproducing herbivores).
+	 * Create a Grazer with a specified amount of starting energy (used for
+	 * reproducing).
 	 * 
 	 * @see Cell#Cell(double, double, double, double, int)
 	 */
-	public Herbivore(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+	public Grazer(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
 		super(petri, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
 		color = Color.LAWNGREEN;
-		friction = 0.8;
-		species = "Herbivore";
+		friction = 0.85;
+		species = "Grazer";
 	}
 
 	/**
-	 * Herbivore movement aims to eventually emulate food searching, grazing, and
+	 * Grazer movement aims to eventually emulate food searching, grazing, and
 	 * predator evasion behaviors.
 	 * 
 	 * @see Cell#move()
@@ -46,7 +46,7 @@ public class Herbivore extends Cell {
 	public void move() {
 
 		// gather information about any visible cells
-		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, size * 15); // TODO vision range configuration
+		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, 50 + size * 6); // TODO vision range configuration
 
 		// choose a prey target, if one is available
 		Cell target = null;
@@ -89,15 +89,16 @@ public class Herbivore extends Cell {
 		xVelocity += targetingVector.getUnitVector().getXComponent();
 		yVelocity += targetingVector.getUnitVector().getYComponent();
 
-		// movement costs energy
-		energy--;
+		// movement costs energy every certain number of steps
+		if (age % 4 == 0)
+			energy--;
 
-		System.out.println("Current movement target: (" + targetX + ", " + targetY + ")");
-		System.out.println("Current movement vector: " + targetingVector);
+		// System.out.println("Current movement target: (" + targetX + ", " + targetY + ")");
+		// System.out.println("Current movement vector: " + targetingVector);
 	}
 
 	/**
-	 * Herbivores get energy from harvesting plant growth or agar.
+	 * Grazers get energy from harvesting plant growth or agar.
 	 * 
 	 * @see Cell#eat()
 	 */
@@ -116,37 +117,37 @@ public class Herbivore extends Cell {
 	}
 
 	/**
-	 * Herbivores grow when well-fed and shrink when starving.
+	 * Grazers grow when well-fed and shrink when starving.
 	 * 
 	 * @see Cell#grow()
 	 */
 	@Override
 	public void grow() {
-		if (energy > 90 && size < 10) { // right now: herbivore spends 5 energy to grow one size
+		if (energy > 75 && size < 8) { // right now: herbivore spends 10 energy to grow one size
 			size++;
-			energy -= 15;
+			energy -= 8;
 			System.out.println(this + " grew one size."); // TODO debug print
 		} else if (energy < 25 && size > 5) {
 			size--;
-			energy += 10;
+			energy += 7;
 			System.out.println(this + " is starving!"); // TODO debug print
 		}
 	}
 
 	/**
-	 * Herbivores reproduce after reaching their maximum size and a threshold
+	 * Grazers reproduce after reaching their maximum size and a threshold
 	 * energy.
 	 * 
 	 * @see Cell#reproduce()
 	 */
 	@Override
 	public Cell reproduce() {
-		Herbivore child = null;
-		if (energy > 250 && size >= 12) { // right now: herbivore spends 20 energy to split in half and spawn an
+		Grazer child = null;
+		if (energy > 100 && size >= 8) { // right now: herbivore spends 20 energy to split in half and spawn an
 											// offspring, they also split their energy evenly
 			size = size / 2;
 			energy = (energy - 20) / 2;
-			child = new Herbivore(petri, x, y, 0, 0, size, energy);
+			child = new Grazer(petri, x, y, 0, 0, size, energy);
 			System.out.println(this + " spawned " + child + "."); // TODO debug print
 		}
 		return child;
