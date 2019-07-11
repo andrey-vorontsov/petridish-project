@@ -34,6 +34,8 @@ public class Grazer extends Cell {
 		color = Color.LAWNGREEN;
 		friction = 0.85;
 		species = "Grazer";
+		
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
@@ -110,7 +112,8 @@ public class Grazer extends Cell {
 			if (c.getSpecies().equals("Agar")) { // for now, any agars contacted will be eaten
 				energy += c.getEnergy();
 				c.kill("eaten");
-				System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy."); // TODO debug
+				if (!SUPPRESS_EVENT_PRINTING)
+					System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy."); // TODO debug
 																											// event
 			}
 		}
@@ -126,11 +129,13 @@ public class Grazer extends Cell {
 		if (energy > 75 && size < 8) { // right now: herbivore spends 10 energy to grow one size
 			size++;
 			energy -= 8;
-			System.out.println(this + " grew one size."); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " grew one size.");
 		} else if (energy < 25 && size > 5) {
 			size--;
 			energy += 7;
-			System.out.println(this + " is starving!"); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " is starving!");
 		}
 	}
 
@@ -148,7 +153,8 @@ public class Grazer extends Cell {
 			size = size / 2;
 			energy = (energy - 20) / 2;
 			child = new Grazer(petri, x, y, 0, 0, size, energy);
-			System.out.println(this + " spawned " + child + "."); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " spawned " + child + ".");
 		}
 		return child;
 	}

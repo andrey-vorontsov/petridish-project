@@ -3,6 +3,7 @@ import javafx.scene.paint.Color;
 
 /**
  * A creature with similar traits to the Grazer, except that in addition to eating agars it preys on small Grazers.
+ * As of version 0.0.5 their life cycle is reliant on agars, because newborns are too small to hunt. But because the Grazers are better at getting agars than them, they tend to die. So Grazers win. Funny stuff.
  * 
  * @author Andrey Vorontsov
  */
@@ -29,6 +30,8 @@ public class Predator extends Cell {
 		color = Color.HOTPINK;
 		friction = 0.8;
 		species = "Predator";
+		
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
@@ -106,8 +109,8 @@ public class Predator extends Cell {
 			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 < size)) {
 				energy += c.getEnergy();
 				c.kill("eaten");
-				System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy."); // TODO debug
-																											// event
+				if (!SUPPRESS_EVENT_PRINTING)
+					System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy.");
 			}
 		}
 	}
@@ -122,11 +125,13 @@ public class Predator extends Cell {
 		if (energy > 90 && size < 10) { // preds spend 10 to grow one size, similar to grazers
 			size++;
 			energy -= 8;
-			System.out.println(this + " grew one size."); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " grew one size.");
 		} else if (energy < 20 && size > 5) {
 			size--;
 			energy += 7;
-			System.out.println(this + " is starving!"); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " is starving!");
 		}
 	}
 
@@ -143,7 +148,8 @@ public class Predator extends Cell {
 			size = size / 2;
 			energy = (energy - 20) / 2;
 			child = new Predator(petri, x, y, 0, 0, size, energy);
-			System.out.println(this + " spawned " + child + "."); // TODO debug print
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " spawned " + child + ".");
 		}
 		return child;
 	}

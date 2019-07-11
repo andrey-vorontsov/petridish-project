@@ -16,11 +16,15 @@ import java.util.ArrayList;
 public class PetriDish implements Runnable {
 
 	public final int PETRI_DISH_SIZE = 750; // currently copied from PetriDishApp (temp)
-
+	public final int SIMULATION_TICK_DELAY_MS = 15; // TODO source from config. this is the minimum time between update ticks of the simulation (may be exceeded if processing takes longer) 
+	// note to self. 15 ms (or perhaps 13 or 14) is the minimum tick delay to avoid inconsistent tick rate at least on my machine
+	// note to self. as cell number increases, simulation complexity increases as a factorial (I think - because each cell checks each other cell multiple times per tick) - but graphics complexity (I assume) is linear - so the simulation stops getting ahead and starts being the slow one
+	
 	private boolean done; // true only when the simulation thread must be stopped
 	private PetriDishApp app; // refers to the application thread - aka the GUI thread, needed to send
 								// graphics updates to it
-
+	private boolean waitingForGraphics; // set to true when the simulation thread asks for a frame to be drawn; once the graphics frame is done, set to false
+	
 	private Random rng; // used for random behavior of the overall simulation
 
 	private ArrayList<Cell> allCells; // contains all the single-celled organisms inhabiting the petri dish
@@ -68,6 +72,7 @@ public class PetriDish implements Runnable {
 		do {
 
 			// ask to draw the next tick of the simulation on the graphics thread
+			waitingForGraphics = true; // true while the graphics are being updated
 			Platform.runLater(new Runnable() {
 
 				@Override
@@ -98,17 +103,13 @@ public class PetriDish implements Runnable {
 																	// allNodes.size() - allCells.size()
 						}
 					}
-
-					// System.out.println("NEW FRAME!");
+					
+					waitingForGraphics = false; // graphics update is complete, simulation thread is free to continue
 				}
 
 			}); // this request is sent to the graphics thread and runs in parallel to this
 				// thread; thus, the graphics thread draws the previous tick while the
 				// simulation prepares the next tick.
-
-			// the simulation is running a lot faster than the graphics thread (which is
-			// full of heavy JavaFX bloat); need to make a solution to avoid letting the
-			// update thread get ahead of the graphics thread
 
 			// run the simulation by asking all the living cells to take their turns
 			for (int i = 0; i < allCells.size(); i++) {
@@ -123,20 +124,36 @@ public class PetriDish implements Runnable {
 					allCells.remove(i);
 					i--; // decrement i to avoid skipping over a cell
 				}
-				if (allCells.size() < 100) { // deploy food TODO for debug purposes
+				while (allCells.size() < 10000) { // deploy food TODO for debug purposes
 					allCells.add(new Agar(this, rng.nextInt(PETRI_DISH_SIZE - 29) + 15,
 							rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3));
 				}
 			}
+						
+			// the simulation is running a lot faster than the graphics thread (which is
+			// full of heavy JavaFX bloat); so it will finish working before waitingForGraphics becomes false again
 
-			// hard delay between simulation ticks (TODO configurable)
-			try {
-				Thread.sleep(35);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			// wait for the graphics thread to catch up
+			int delayMillis = SIMULATION_TICK_DELAY_MS; //start counting delayed time
+				while (waitingForGraphics) {
+					try {
+						Thread.sleep(1);
+						delayMillis--;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 			}
-
-			// System.out.println("NEW UPDATE!");
+			
+			if (delayMillis>=0) {
+				// if there is still time left over to delay, wait that long, otherwise we've lost time waiting for this frame
+				try {
+					Thread.sleep(delayMillis);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("WARNING: Simulation thread was idle for: " + (0 - delayMillis) + " ms.");
+			}
 
 		} while (!done);
 	}

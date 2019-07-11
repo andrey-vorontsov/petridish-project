@@ -45,29 +45,31 @@ Predators have customized movement speed, growth and reproduction stats.
 Rewrote the squishing behavior, such that cells of the same variety cannot overlap.
 Known issue: Cells get stuck against each other trying to eat the same target.
 
-ROADMAP (At Version 0.0.4.4)
+Version 0.0.5
+Introduced a proper thread synchronization system.
+This laid the groundwork for frame rate tracking, simulation speed and pause controls.
+Bug fix: The graphics thread failing to draw every update tick at high tick rates.
+Known issue: Sometimes, very rarely, the graphics thread still has indexing exceptions. Cause unknown.
 
-Features for 0.0.5
-	Herbivore evading predators behavior
-	
+ROADMAP (Current: 0.0.5)
+
 Features for 0.06
 	Herbivore plant grazing behavior (use indestructible plants for now)
-	Smarter evasion/hunting prioritization method for future customization
+	Smarter evasion/hunting prioritization framework
 	At least one 0.1.0 feature
 	
 Features for 0.0.7
 	Predator hunting behavior
+	Herbivore evading predators behavior
 	Plants grow with time and send out seeds nearby
 	At least one 0.1.0 feature
 
 Features for 0.1.0
-	Fix known issues: Cells stuck against each other trying to each the same target. Graphics thread not synchronized with simulation thread (I suspect this is another cause for the graphics thread to start throwing exceptions)
+	Fix known issues: Cells stuck against each other trying to each the same target.
 	Better size; based on area, not radius
 	Better vision range formula based on size
 	Slower movement based on size
 	Basic GUI
-		Prerequisites
-			Proper thread synchronization
 		Simulation speed control
 			Slider to control speed
 			Pause/unpause button
