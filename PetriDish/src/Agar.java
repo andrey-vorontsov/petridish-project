@@ -1,15 +1,14 @@
 import javafx.scene.paint.Color;
 
 /**
- * @author Andrey Vorontsov
+ * Not really a creature, just a little pellet of food. No behaviors, exist to feed herbivores. 
  * 
- * TODO
- *
+ * @author Andrey Vorontsov
  */
 public class Agar extends Cell {
 
 	/**
-	 * Agar is intended as a simple food unit worth 25 energy.
+	 * Agar is intended as a simple food unit worth 25 energy. They are yellow.
 	 * 
 	 * @see Cell#Cell(double, double, double, double, int)
 	 */
@@ -18,6 +17,7 @@ public class Agar extends Cell {
 		energy = 25;
 		color = Color.YELLOW;
 		species = "Agar";
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/*

@@ -23,4 +23,51 @@ For demonstration purposes Herbivore cells now have a better food finding behavi
 Reorganized and partially rewrote graphics code; result is slower but more robust.
 Bug fix: Indexing errors from new cells, this time for real.
 
+Version 0.0.4.1
+Herbivore movement code has gone through an iteration.
+Cells in general can now remember their selected targets and move towards them in a straight line.
+Herbivores specifically now select a random location out of their vision range as a target if stranded far from any food.
+Some code cleanup.
 
+
+ROADMAP (At Version 0.0.4.1)
+
+Features for 0.0.5
+	Rewrite graphics code, again, considering the new insight
+
+Features for 0.1.0
+	Cells travel on straight lines to their targets
+	Predators hunt herbivores and eat agars
+	Herbivores search for plants, agars - grazing behavior and evading predators behavior
+	Plants grow with time and send out seeds nearby
+	
+Features for 1.0.0
+	GUI
+		Mouse interaction with petri dish
+			Can create cells of any variety
+			Can select a cell and see its stats
+			Can drag a cell to a new location in the dish
+			Can kill a cell
+		Simulation speed control
+			Robust frame rate tracking
+			Slider to control speed
+			Pause/unpause button with full interaction while paused
+		Saving to file
+			Settings/config file
+			Simulation state save file
+			Loading from files
+		Other controls
+			Light intensity - plant growth rate
+			Various cell stats TBD
+			Mutation rate/genetics control
+			TBD
+	Genetic heredity
+		Basics
+			Data structure
+			Color/superficial features
+			Behaviors
+		Mutation
+			TBD
+		Evolution
+			Cells develop behaviors dynamically (powergoal)
+			Cells speciate (powergoal)

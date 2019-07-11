@@ -2,41 +2,27 @@ import java.util.ArrayList;
 import javafx.scene.paint.Color;
 
 /**
- * @author Andrey Vorontsov
+ * A simple creature, made for testing out various functions such as cell eating, reproduction, growth and movement.
+ * Herbivores search for plants and agars, exhibiting a grazing behavior as well as a predator evasion behavior
+ * Currently unfinished.
  * 
- * TODO
- *
+ * @author Andrey Vorontsov
  */
 public class Herbivore extends Cell {
 
 	/**
-	 * TODO
+	 * Create a herbivore. Herbivores start out with 75 energy (almost enough to start growing right away), and they are green.
 	 * 
-	 * @param petri
-	 * @param x
-	 * @param y
-	 * @param xVelocity
-	 * @param yVelocity
-	 * @param size
+	 * @see Cell#Cell(double, double, double, double, int)
 	 */
 	public Herbivore(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
-		super(petri, x, y, xVelocity, yVelocity, size);
-		health = 100;
-		energy = 75;
-		color = Color.LAWNGREEN;
-		friction = 0.8;
-		species = "Herbivore";
+		this(petri, x, y, xVelocity, yVelocity, size, 75);
 	}
 	
 	/**
-	 * TODO
+	 * Create a herbivore with a specified amount of starting energy (used for reproducing herbivores).
 	 * 
-	 * @param petri
-	 * @param x
-	 * @param y
-	 * @param xVelocity
-	 * @param yVelocity
-	 * @param size
+	 * @see Cell#Cell(double, double, double, double, int)
 	 */
 	public Herbivore(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
 		super(petri, x, y, xVelocity, yVelocity, size);
@@ -48,35 +34,39 @@ public class Herbivore extends Cell {
 	}
 
 	/**
-	 * TODO
+	 * Herbivore movement aims to eventually emulate food searching, grazing, and predator evasion behaviors.
 	 * 
 	 * @see Cell#move()
 	 */
 	@Override
 	public void move() {
-		// this behavior is temporary and should be replaced TODO
-		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, size*30);
+		
+		// gather information about any visible cells
+		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, size*15); // TODO vision range configuration
+		
+		// choose a prey target, if one is available
 		Cell target = null;
-		for (Cell c : visibleCells) {
+		for (Cell c : visibleCells) { // for now, the closest agar is chosen
 			if (c.getSpecies().equals("Agar") && (target == null || PetriDish.distanceBetween(target.getX(), target.getY(), x, y) > PetriDish.distanceBetween(c.getX(),c.getY(), x, y))) {
 				target = c;
 			}
 		}
 		
-		if (target != null) {
-			
-			if (target.getX() > x)
-				xVelocity += 0.75;
-			if (target.getX() < x)
-				xVelocity -= 0.75;
-			if (target.getY() > y)
-				yVelocity += 0.75;
-			if (target.getY() < y)
-				yVelocity -= 0.75;
-		} else {
-			xVelocity += rng.nextDouble()-0.5;
-			yVelocity += rng.nextDouble()-0.5;
+		// update the targeting vector based on gathered information
+		if (target != null) { // if a prey target was found, go there
+			targetingVector = getVectorToTarget(target);
+		} else if (targetingVector == null || targetingVector.magnitude < 3) { // if no prey target exists, throw out a random vector; if we're approaching the end of the previous random search vector, throw out a new one 
+			targetingVector = new CellMovementVector((rng.nextDouble() - 0.5)*40, (rng.nextDouble() - 0.5)*40);
+			System.out.println(this + " can't see any food!"); // TODO debug event
+		} else { // a bit of random variation for the random search behavior; while moving to a random search vector, vary it a little bit
+			targetingVector = new CellMovementVector(targetingVector.getxComponent() + rng.nextDouble() - 0.5, targetingVector.getyComponent() + rng.nextDouble() - 0.5);
 		}
+		
+		// standard code block which should be present in any implementation of move(); follow the vector
+		xVelocity += targetingVector.getUnitVector().getxComponent();
+		yVelocity += targetingVector.getUnitVector().getyComponent();
+		
+		// movement costs energy
 		energy--;
 	}
 
@@ -87,18 +77,20 @@ public class Herbivore extends Cell {
 	 */
 	@Override
 	public void eat() {
-		// TODO unfinished, review behavior
+		// gather info about any cells we are in contact with
 		ArrayList<Cell> eatableCells = petri.getCellsInRange(this, size);
 		for (Cell c : eatableCells) {
-			if (c.getSpecies().equals("Agar")) {
+			if (c.getSpecies().equals("Agar")) { // for now, any agars contacted will be eaten
 				energy += c.getEnergy();
 				c.kill("eaten");
-				System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy.");
+				System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy."); // TODO debug event
 			}
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Herbivores grow when well-fed and shrink when starving.
+	 * 
 	 * @see Cell#grow()
 	 */
 	@Override
@@ -114,7 +106,9 @@ public class Herbivore extends Cell {
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Herbivores reproduce after reaching their maximum size and a threshold energy.
+	 * 
 	 * @see Cell#reproduce()
 	 */
 	@Override

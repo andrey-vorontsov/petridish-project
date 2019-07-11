@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
  * Represents a single-celled organism inhabiting the petri dish environment.
  * Capable of moving, eating, reproducing, and dying. Additionally, holds
  * information associated with the cell's appearance and various stats. This
- * class is used as a data structure by the petri dish simulation thread.
+ * class is used as a data structure by the petri dish simulation thread, as well as holding many helper methods to support implementations of cell behavior by children of this class.
  * 
  * @author Andrey Vorontsov
  */
@@ -18,6 +18,7 @@ public abstract class Cell {
 	protected PetriDish petri; // need a reference to the petri dish the cell lives in
 	private static int nextCellID = 1; // each cell is assigned a unique ID
 	public final int cellID;
+	protected boolean SUPPRESS_EVENT_PRINTING = false; // children of this class may choose to set this to true to prevent status messages from that species from printing to console
 
 	// physical information
 	protected double x;
@@ -33,8 +34,10 @@ public abstract class Cell {
 	protected int health;
 	protected int energy;
 	protected int size;
-
-	// TODO eventually this information will be held in the genome
+	// for cell behaviors
+	protected CellMovementVector targetingVector;
+	
+	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
 								// friction)
@@ -71,26 +74,33 @@ public abstract class Cell {
 	 * the simulation.
 	 * 
 	 * @return an offspring produced by this cell during this update, unless one was
-	 *         not produced, in which returns null
+	 *         not produced, in which case return null
 	 */
 	public Cell update() {
 		age++; // TODO cell should not be allowed to do certain actions before a certain age to
 				// avoid certain problems
-		// TODO reproduction, etc.
 		move(); // the cell has a chance to affect its own movement
 		eat(); // the cell has a chance to consume cells it is touching
 		grow(); // the cell has a chance to grow itself
 		Cell newCell = reproduce(); // the cell has a chance to spawn offspring
 		updatePhysics(); // the cell moves according to physics
-		squish(); // TODO possibly temporary method to stop cells from overlapping others of the same species
+		squish(); // stop cells from overlapping others of the same species
+		
+		// TODO a quick and dirty way to hopefully make newborn cells bounce further from their parents
+		if (age < 3) {
+			squish();
+			squish();
+		}
+		
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
-		return newCell; // TODO for reproduction
+		
+		return newCell;
 	}
 
 	/**
-	 * The cell may expend energy to accelerate itself.
+	 * The cell may expend energy to accelerate itself. This should be done with a module that generates a CellMovementVector, then a module that adjusts velocity and applies energy cost accordingly.
 	 */
 	abstract void move();
 
@@ -102,10 +112,12 @@ public abstract class Cell {
 	/**
 	 * The cell may expend energy to increase its size.
 	 */
-	abstract void grow();
+	abstract void grow(); // TODO consider growth as volume rather than radius
 	
 	/**
 	 * The cell may expend energy to spawn an offspring.
+	 * 
+	 * @return an offspring, if one is produced; otherwise return null
 	 */
 	abstract Cell reproduce();
 
@@ -116,22 +128,21 @@ public abstract class Cell {
 	 *               "starvation" and "eaten".
 	 */
 	public void kill(String reason) {
-		if (isAlive = false) {
-			System.out.println("WARNING: " + this + " has died multiple times.");
-		}
-
+		
 		isAlive = false;
-
-		switch (reason) {
-		case "starvation":
-			System.out.println(this + " starved at age " + age + ".");
-			break;
-		case "eaten":
-			System.out.println(this + " was eaten at age " + age + ".");
-			break;
-		default:
-			System.out.println(this + "died for the reason: " + reason);
-			break;
+		
+		if (!SUPPRESS_EVENT_PRINTING) {
+			switch (reason) {
+			case "starvation":
+				System.out.println(this + " starved at age " + age + ".");
+				break;
+			case "eaten":
+				System.out.println(this + " was eaten at age " + age + ".");
+				break;
+			default:
+				System.out.println(this + "died for the reason: " + reason);
+				break;
+			}
 		}
 
 	}
@@ -171,6 +182,7 @@ public abstract class Cell {
 	 * Cells should avoid overlapping cells of the same species.
 	 */
 	private void squish() {
+		// TODO temporary implementation; overlapping cells get a small pushback velocity
 		ArrayList<Cell> touchedCells = petri.getCellsInRange(this, size);
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
@@ -184,6 +196,16 @@ public abstract class Cell {
 					yVelocity += 0.5;
 			}
 		}
+	}
+	
+	/**
+	 * Helper method for the cell to refresh its targeting vector to another, possibly moving, cell
+	 * 
+	 * @param c the cell to target
+	 * @return a vector representing the movement vector from this cell to the target
+	 */
+	public CellMovementVector getVectorToTarget(Cell c) {
+		return new CellMovementVector(c.getX() - x, c.getY() - y);
 	}
 
 	/**
@@ -247,6 +269,13 @@ public abstract class Cell {
 	 */
 	public String getSpecies() {
 		return species;
+	}
+
+	/**
+	 * @return the Cell's targetingVector
+	 */
+	public CellMovementVector getTargetingVector() {
+		return targetingVector;
 	}
 
 	/**

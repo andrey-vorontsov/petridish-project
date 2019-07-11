@@ -1,24 +1,23 @@
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.event.EventHandler;
 
 /**
+ * The App class launches the application, starts associated threads and opens
+ * windows. It also contains all user input handling code that is run on the
+ * JavaFX thread.
+ * 
  * @author Andrey Vorontsov
- *
- *         The App class launches the application, starts associated threads and
- *         opens windows. It also contains all user input handling code that is
- *         run on the JavaFX thread.
  */
 public class PetriDishApp extends Application {
 
 	public static final int PETRI_DISH_SIZE = 750; // the petri dish is a square of this dimension
-	// TODO config file source
 
 	private Group guiRoot; // the root node of the GUI window scene graph
 	private Group petriRoot; // the root node of the simulation window scene graph
@@ -42,6 +41,8 @@ public class PetriDishApp extends Application {
 	 * 
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
 	 * @param appWindow supplied by JavaFX
+	 * @throws Exception by the default JavaFX method - it seems JavaFX is able to
+	 *                   handle certain exceptions and keep breathing
 	 */
 	@Override
 	public void start(Stage appWindow) throws Exception {
@@ -52,7 +53,7 @@ public class PetriDishApp extends Application {
 		guiRoot = new Group();
 		ObservableList<Node> allGuiNodes = guiRoot.getChildren();
 
-		// scene graph contains only a text message for now TODO
+		// scene graph contains only a text message for now
 		Text currMsg = new Text("Initializing Petri Dish.");
 		currMsg.setX(30);
 		currMsg.setY(30);

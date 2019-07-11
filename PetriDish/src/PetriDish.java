@@ -5,14 +5,13 @@ import java.util.Random;
 import java.util.ArrayList;
 
 /**
+ * This class is instantiated by PetriDishApp and immediately starts its own thread in parallel to the JavaFX GUI thread. On this thread, the petri dish simulation is run and graphics information from the simulation is sent to the GUI thread via Platform.runLater(). In addition, this class includes a handful of helper methods used internally by the simulation.
+ * 
  * @author Andrey Vorontsov
- * 
- *         TODO
- * 
  */
 public class PetriDish implements Runnable {
 
-	public static final int PETRI_DISH_SIZE = 750; // TODO retrieve this stuff from a config file
+	public static final int PETRI_DISH_SIZE = 750; // currently copied from PetriDishApp (temp)
 
 	private boolean done; // true only when the simulation thread must be stopped
 	private PetriDishApp app; // refers to the application thread - aka the GUI thread, needed to send
@@ -56,7 +55,7 @@ public class PetriDish implements Runnable {
 		for (int i = 0; i < 15; i++) { // totally random in the upper left hand corner right now
 			createCell(new Herbivore(this, 100 + rng.nextInt(100) - 50, 100 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 25; i++) { // totally random in the middle area right now
+		for (int i = 0; i < 20; i++) { // totally random in the middle area right now
 			createCell(new Agar(this, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
@@ -142,7 +141,7 @@ public class PetriDish implements Runnable {
 						createCell(newCell); // service any requests to produce offspring
 					}
 				}
-				if (allCells.size() < 100) { // deploy food
+				if (allCells.size() < 60) { // deploy food
 					createCell(new Agar(this, rng.nextInt(PETRI_DISH_SIZE - 29) + 15, rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3));
 				}
 			}
