@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.shape.Circle;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 /**
@@ -90,17 +91,17 @@ public abstract class Cell {
 		eat(); // the cell has a chance to consume cells it is touching
 
 		Cell newCell = null;
-		if (age > 3) { // cells have a cooldown of three ticks before being able to grow or reproduce
+		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
 			grow(); // the cell has a chance to grow itself
 			newCell = reproduce(); // the cell has a chance to spawn offspring
-		}
-
-		if (energy <= 0) { // the cell checks itself for death by starvation
-			kill("starvation");
+			squish(); // stop cells from overlapping others of the same species
 		}
 
 		updatePhysics(); // the cell moves according to physics
-		squish(); // stop cells from overlapping others of the same species
+		
+		if (energy <= 0) { // the cell checks itself for death by starvation
+			kill("starvation");
+		}
 
 		return newCell;
 	}
@@ -159,7 +160,7 @@ public abstract class Cell {
 	 * Adjusts the cell's physical location based on its velocity and the friction
 	 * factor it experiences
 	 */
-	private void updatePhysics() {
+	public void updatePhysics() {
 
 		// update velocity due to friction
 		xVelocity = xVelocity * friction;
@@ -189,7 +190,7 @@ public abstract class Cell {
 	/**
 	 * Cells should avoid overlapping cells of the same species. This is accomplished by pushing other cells out of the way.
 	 */
-	private void squish() {
+	public void squish() {
 		ArrayList<Cell> touchedCells = petri.getTouchingCells(this);
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
@@ -302,9 +303,9 @@ public abstract class Cell {
 	}
 
 	/**
-	 * @return a Circle object that represents this cell
+	 * @return any kind of Graphics object that can represent the cell (typically a JavaFX Circle or Square)
 	 */
-	public Circle getGraphic() {
+	public Node getGraphic() {
 		Circle graphic = new Circle(x, y, size);
 		graphic.setFill(color);
 		return graphic;

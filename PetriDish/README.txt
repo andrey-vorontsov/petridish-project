@@ -51,24 +51,44 @@ This laid the groundwork for frame rate tracking, simulation speed and pause con
 Bug fix: The graphics thread failing to draw every update tick at high tick rates.
 Known issue: Sometimes, very rarely, the graphics thread still has indexing exceptions. Cause unknown.
 
-ROADMAP (Current: 0.0.5)
+Version 0.0.5.1
+Improved robustness of graphics handling system to enable Rectangular Plant graphic.
+Plants introduced.
+Plants slowly grow with time without needing to eat.
+Plants are modified to squish all other cells away, not just other Plants.
+They reproduce similarly to other cells, and their squishing pushes their offspring extra far away to make space.
 
-Features for 0.06
-	Herbivore plant grazing behavior (use indestructible plants for now)
-	Smarter evasion/hunting prioritization framework
+
+ROADMAP (Current: 0.0.5.1)
+
+Features for 0.0.5.2
+	
+	Rewrite petri dish dimension limitations
+	
+Features for 0.0.5.3
+	Herbivore plant grazing behavior
+	
+Features for 0.0.5.4
+	Smart vision/movement prioritization framework
+	
+Features for 0.0.5.5
+	Evaluate and start moving configurable variables out
 	At least one 0.1.0 feature
 	
+Launch 0.0.6
+	
 Features for 0.0.7
-	Predator hunting behavior
-	Herbivore evading predators behavior
-	Plants grow with time and send out seeds nearby
+	Incorporate movement prioritization framework
+		Predator hunting behavior
+		Herbivore evading predators behavior
+		Plant maximum density
 	At least one 0.1.0 feature
 
 Features for 0.1.0
-	Fix known issues: Cells stuck against each other trying to each the same target.
+	Fix known issues: Cells stuck against each other trying to each the same target. Graphics indexing crash.
 	Better size; based on area, not radius
-	Better vision range formula based on size
-	Slower movement based on size
+		Better vision range formula based on size
+		Slower movement based on size
 	Basic GUI
 		Simulation speed control
 			Slider to control speed
@@ -76,6 +96,7 @@ Features for 0.1.0
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures
+		Cells die from age and drop agars
 	
 Features for 1.0.0
 	GUI
