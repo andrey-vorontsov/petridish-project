@@ -64,30 +64,20 @@ Improved robustness of cell vision and hit detection code, facilitating future c
 Version 0.0.5.3
 Started work on the cell movement framework, laying the keystones of the design.
 
+Version 0.0.5.4 INDEV
+Completed the cell movement framework.
+However, still need to fill in code to allow cells to
+1. choose between the new abstract behaviors (largely complete but needs generalization)
+2. execute those behaviors (the code for target pursuit and random wandering is largely complete)
 
-ROADMAP (Current: 0.0.5.2)
+ROADMAP (Current: 0.0.5.4)
 
-Cell Movement Framework concept.
-Every cell should have a CellMovementController applied.
-Whenever the cell is updated, it calls move(), which in turn apply()s the CellMovementController.
-The Controller contains a list of MovementBehaviors, sorted by priority.
-Behaviors are completely abstract and simply contain the information - how a given species should be treated.
-The Controller apply() encapsulates the logic of what behavior to take this update().
-For instance, a Grazer might prioritize the behavior "evade", "Predator" over "graze", "Plant".
-Specific criteria the Controller might consider includes distance, relative speed and size, maybe even health and color.
-The Controller and its Behaviors provide a high-level API for elucidating the behavior of any implementation of Cell.
-Finally, the Controller apply() returns a MovementOrder, which contains the specific information of what action to take on this tick.
-For instance, a Grazer might have a MovementOrder along the lines of "evade", "Predator #123" for this tick.
-The MovementOrder encapsulates the logic of enforcing this behavior.
-As a baseline, it should be able to produce a CellMovementVector from the directive given by the Controller.
-Eventually, some of this functionality can be expanded.
-		
-Features for 0.0.5.4
-	Cell movement framework completion as described above.
-		
 Features for 0.0.5.5
 	Incorporate framework back into existing behaviors
 		Pursuit of target (grazers, predators --> agars, agars and grazers)
+		Wandering (grazers, predators --> null)
+		
+Features for 0.0.5.6
 	Incorporate framework into new behaviors
 		Evasion of target (grazers --> predators)
 		Hunting of target (predators --> grazers)

@@ -45,7 +45,6 @@ public abstract class Cell {
 	protected CellMovementVector targetingVector;
 	private CellMovementController behaviors; // defines the set of movement behaviors this cell has
 	protected String currBehavior;
-	protected Cell currTarget;
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
@@ -121,7 +120,10 @@ public abstract class Cell {
 	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
 	public void move(ArrayList<Cell> visibleCells) {
-		currTarget = behaviors.apply(this, visibleCells);
+		MovementOrder moveOrder = behaviors.getNextMovementOrder(this, visibleCells);
+		// TODO use moveOrder to calculate a vector
+		// TODO throw an exception if behaviors is null or moveOrder is null
+		// TODO build a module to adjust velocity and energy costs
 		// TODO currently this is fine being overriden by child classes as needed
 		// in future updates the CellMovementController functionality should largely replace that
 		// to preserve reverse compatibility overriding move() methods will need to call super.move() as well
@@ -360,20 +362,6 @@ public abstract class Cell {
 	 */
 	public void setCurrBehavior(String currBehavior) {
 		this.currBehavior = currBehavior;
-	}
-
-	/**
-	 * @return the current target of this Cell (whether the cell is pursuing, evading, etc. said target)
-	 */
-	public Cell getCurrTarget() {
-		return currTarget;
-	}
-
-	/**
-	 * @param currTarget the new target for this cell (should only be done by move())
-	 */
-	public void setCurrTarget(Cell currTarget) {
-		this.currTarget = currTarget;
 	}
 
 	/**
