@@ -119,7 +119,7 @@ public class PetriDish implements Runnable {
 				if (allCells.get(i).isAlive()) { // verify the cell is living before updating it
 					Cell newCell = allCells.get(i).update(getCellsInRange(allCells.get(i), allCells.get(i).getVisionRange()),
 							getTouchingCells(allCells.get(i)),
-							getEdibleCells(allCells.get(i))); // give the cell a list of visible cells to reference, as well as lists of cells it is touching and is in range to eat
+							getEatableCells(allCells.get(i))); // give the cell a list of visible cells to reference, as well as lists of cells it is touching and is in range to eat
 					if (newCell != null) {
 						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
 												// that newborn cells are updated on the same cycle they are born (cell
@@ -195,7 +195,7 @@ public class PetriDish implements Runnable {
 	 * @param me          the querying cell
 	 * @return a list of edible cells
 	 */
-	public ArrayList<Cell> getEdibleCells(Cell me) {
+	public ArrayList<Cell> getEatableCells(Cell me) {
 		return getCellsInRange(me, me.getSize());
 	}
 

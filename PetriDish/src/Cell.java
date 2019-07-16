@@ -43,7 +43,9 @@ public abstract class Cell {
 	protected double targetX;
 	protected double targetY;
 	protected CellMovementVector targetingVector;
-	private CellMovementBehavior behaviors; // defines the set of movement behaviors this cell has
+	private CellMovementController behaviors; // defines the set of movement behaviors this cell has
+	protected String currBehavior;
+	protected Cell currTarget;
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
@@ -114,11 +116,16 @@ public abstract class Cell {
 	/**
 	 * The cell may expend energy to accelerate itself. This should be done with a
 	 * module that generates a CellMovementVector, then a module that adjusts
-	 * velocity and applies energy cost accordingly.
+	 * velocity and applies energy cost accordingly. TODO
 	 * 
 	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
-	abstract void move(ArrayList<Cell> visibleCells);
+	public void move(ArrayList<Cell> visibleCells) {
+		currTarget = behaviors.apply(this, visibleCells);
+		// TODO currently this is fine being overriden by child classes as needed
+		// in future updates the CellMovementController functionality should largely replace that
+		// to preserve reverse compatibility overriding move() methods will need to call super.move() as well
+	}
 
 	/**
 	 * The cell may consume certain other cells, or gain energy by other means. The general rule for eating cells is that the target cell's centerpoint must fall within this cell's circle
@@ -335,10 +342,38 @@ public abstract class Cell {
 	}
 
 	/**
-	 * @param behaviors a CellMovementBehavior object encapsulating the movement behaviors (evasion, pursuit, hunting, etc.) that a cell can take with respect to types of targets, and their priority levels
+	 * @param behaviors a CellMovementController object encapsulating the movement behaviors (evasion, pursuit, hunting, etc.) that a cell can take with respect to types of targets, and their priority levels
 	 */
-	public void setBehaviors(CellMovementBehavior behaviors) {
+	public void setBehaviors(CellMovementController behaviors) {
 		this.behaviors = behaviors;
+	}
+
+	/**
+	 * @return the current behavior of this cell
+	 */
+	public String getCurrBehavior() {
+		return currBehavior;
+	}
+
+	/**
+	 * @param currBehavior the behavior for the cell to use from now until updated again
+	 */
+	public void setCurrBehavior(String currBehavior) {
+		this.currBehavior = currBehavior;
+	}
+
+	/**
+	 * @return the current target of this Cell (whether the cell is pursuing, evading, etc. said target)
+	 */
+	public Cell getCurrTarget() {
+		return currTarget;
+	}
+
+	/**
+	 * @param currTarget the new target for this cell (should only be done by move())
+	 */
+	public void setCurrTarget(Cell currTarget) {
+		this.currTarget = currTarget;
 	}
 
 	/**

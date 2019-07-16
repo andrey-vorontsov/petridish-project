@@ -61,29 +61,43 @@ They reproduce similarly to other cells, and their squishing pushes their offspr
 Version 0.0.5.2
 Improved robustness of cell vision and hit detection code, facilitating future changes.
 
+Version 0.0.5.3
+Started work on the cell movement framework, laying the keystones of the design.
+
 
 ROADMAP (Current: 0.0.5.2)
+
+Cell Movement Framework concept.
+Every cell should have a CellMovementController applied.
+Whenever the cell is updated, it calls move(), which in turn apply()s the CellMovementController.
+The Controller contains a list of MovementBehaviors, sorted by priority.
+Behaviors are completely abstract and simply contain the information - how a given species should be treated.
+The Controller apply() encapsulates the logic of what behavior to take this update().
+For instance, a Grazer might prioritize the behavior "evade", "Predator" over "graze", "Plant".
+Specific criteria the Controller might consider includes distance, relative speed and size, maybe even health and color.
+The Controller and its Behaviors provide a high-level API for elucidating the behavior of any implementation of Cell.
+Finally, the Controller apply() returns a MovementOrder, which contains the specific information of what action to take on this tick.
+For instance, a Grazer might have a MovementOrder along the lines of "evade", "Predator #123" for this tick.
+The MovementOrder encapsulates the logic of enforcing this behavior.
+As a baseline, it should be able to produce a CellMovementVector from the directive given by the Controller.
+Eventually, some of this functionality can be expanded.
 		
-Features for 0.0.5.2
-	Smart vision/movement prioritization framework
-		Based on criteria
-			Distance
-			
-		Pursuit of target (agars, grazers)
-		Evasion of target (predators)
+Features for 0.0.5.4
+	Cell movement framework completion as described above.
 		
+Features for 0.0.5.5
+	Incorporate framework back into existing behaviors
+		Pursuit of target (grazers, predators --> agars, agars and grazers)
+	Incorporate framework into new behaviors
+		Evasion of target (grazers --> predators)
+		Hunting of target (predators --> grazers)
+		Grazing of target (grazers --> plants)
 	
-Features for 0.0.5.3
-	Herbivore plant grazing behavior
-	Refine thread sync system - time simulation thread as well
-	
-Features for 0.0.5.4 - 6
+Features for 0.0.6
 	Evaluate and start moving configurable variables out
 		Rewrite petri dish dimension limitations
 	At least one 0.1.0 feature
-	Incorporate movement prioritization framework
-		Predator hunting behavior
-		Herbivore evading predators behavior
+	Consider reproduction behavior framework
 		Plant maximum density
 	
 Launch 0.0.6
@@ -99,6 +113,7 @@ Features for 0.1.0
 		Simulation speed control
 			Slider to control speed
 			Pause/unpause button
+	Refine thread sync system - time simulation thread as well
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures
