@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import javafx.scene.paint.Color;
 
 /**
@@ -18,26 +20,27 @@ public class Agar extends Cell {
 		energy = 25;
 		color = Color.YELLOW;
 		species = "Agar";
+		visionRange = 0;
 		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see Cell#move()
+	 * @see Cell#move(java.util.ArrayList)
 	 */
 	@Override
-	public void move() {
+	public void move(ArrayList<Cell> visibleCells) {
 		// agar doesn't move
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see Cell#eat()
+	 * @see Cell#eat(java.util.ArrayList)
 	 */
 	@Override
-	public void eat() {
+	public void eat(ArrayList<Cell> eatableCells) {
 		// agar can't eat anything else
 	}
 
@@ -55,10 +58,10 @@ public class Agar extends Cell {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see Cell#reproduce()
+	 * @see Cell#reproduce(java.util.ArrayList)
 	 */
 	@Override
-	public Cell reproduce() {
+	public Cell reproduce(ArrayList<Cell> visibleCells) {
 		// agar doesn't reproduce
 		return null;
 	}

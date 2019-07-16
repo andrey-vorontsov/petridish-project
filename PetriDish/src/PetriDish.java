@@ -117,7 +117,9 @@ public class PetriDish implements Runnable {
 			// run the simulation by asking all the living cells to take their turns
 			for (int i = 0; i < allCells.size(); i++) {
 				if (allCells.get(i).isAlive()) { // verify the cell is living before updating it
-					Cell newCell = allCells.get(i).update();
+					Cell newCell = allCells.get(i).update(getCellsInRange(allCells.get(i), allCells.get(i).getVisionRange()),
+							getTouchingCells(allCells.get(i)),
+							getEdibleCells(allCells.get(i))); // give the cell a list of visible cells to reference, as well as lists of cells it is touching and is in range to eat
 					if (newCell != null) {
 						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
 												// that newborn cells are updated on the same cycle they are born (cell
@@ -165,12 +167,16 @@ public class PetriDish implements Runnable {
 	 * Helper method for cells that want to know what objects they can see in the
 	 * petri dish (those within a certain range of them) Said objects must be within
 	 * the max distance, alive, and not the querying cell itself
+	 * If the maxDistance is exactly zero, return null.
 	 * 
 	 * @param me          the querying cell
 	 * @param maxDistance the distance to search within
 	 * @return a list of cells in the range
 	 */
 	public ArrayList<Cell> getCellsInRange(Cell me, double maxDistance) {
+		if (maxDistance == 0) {
+			return null;
+		}
 		ArrayList<Cell> visibleCells = new ArrayList<Cell>();
 		for (int i = 0; i < allCells.size(); i++) {
 			Cell curr = allCells.get(i);
@@ -181,6 +187,16 @@ public class PetriDish implements Runnable {
 			}
 		}
 		return visibleCells;
+	}
+	
+	/**
+	 * Helper method returning a list of cells that are in range to eat
+	 * 
+	 * @param me          the querying cell
+	 * @return a list of edible cells
+	 */
+	public ArrayList<Cell> getEdibleCells(Cell me) {
+		return getCellsInRange(me, me.getSize());
 	}
 
 	/**

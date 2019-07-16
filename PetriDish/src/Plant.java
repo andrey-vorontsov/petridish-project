@@ -35,6 +35,7 @@ public class Plant extends Cell {
 		this.energy = energy;
 		color = Color.FORESTGREEN;
 		species = "Plant";
+		visionRange = 0;
 		
 		updateGraphicSideLength();
 		
@@ -45,18 +46,17 @@ public class Plant extends Cell {
 	 * Helper method to update the Plant's graphic appearance in response to size changes
 	 */
 	private void updateGraphicSideLength() {
-		// (size/.75)*2 yields the full diagonal of the square
-		// this squared yields the square of the hypotenuse
-		// divide that by two and take the sqrt for side length
-		// TODO verify
+		// (size/.75)*2 yields the full diagonal of the square (equivalent to 8/3 the size)
+		// this squared yields the square of the hypotenuse of the right triangle
+		// divide that by two and take the sqrt by pythagorean theorem to get side length of the square
 		side = Math.sqrt(Math.pow(((double)size/.75)*2,2)/2);
 	}
 
 	/* (non-Javadoc)
-	 * @see Cell#move()
+	 * @see Cell#move(java.util.ArrayList)
 	 */
 	@Override
-	public void move() {
+	public void move(ArrayList<Cell> visibleCells) {
 		// Plants don't move
 	}
 
@@ -65,8 +65,12 @@ public class Plant extends Cell {
 	 * 
 	 * @see Cell#eat()
 	 */
+	/**
+	 * 
+	 * @see Cell#eat(java.util.ArrayList)
+	 */
 	@Override
-	public void eat() {
+	public void eat(ArrayList<Cell> eatableCells) {
 		if (age % 2 == 0)
 			energy++;
 	}
@@ -89,10 +93,10 @@ public class Plant extends Cell {
 	/**
 	 * Plants reproduce by 'spores'. Their children get squish()ed away from them. TODO Plants should have a density cap
 	 * 
-	 * @see Cell#reproduce()
+	 * @see Cell#reproduce(java.util.ArrayList)
 	 */
 	@Override
-	public Cell reproduce() {
+	public Cell reproduce(ArrayList<Cell> visibleCells) {
 		Plant child = null;
 		if (energy > 100 && size >= 14 && age % 3 == 0 && rng.nextInt(100) < 1) { 
 			size -= 3;
@@ -114,8 +118,7 @@ public class Plant extends Cell {
 	 * @see Cell#squish()
 	 */
 	@Override
-	public void squish() {
-		ArrayList<Cell> touchedCells = petri.getTouchingCells(this);
+	public void squish(ArrayList<Cell> touchedCells) {
 		for (Cell c : touchedCells) {
 			if (true) { // all species get squished out of the way by plants
 				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells

@@ -34,6 +34,7 @@ public class Grazer extends Cell {
 		color = Color.LAWNGREEN;
 		friction = 0.85;
 		species = "Grazer";
+		visionRange = 50;
 		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
@@ -42,14 +43,11 @@ public class Grazer extends Cell {
 	 * Grazer movement aims to eventually emulate food searching, grazing, and
 	 * predator evasion behaviors.
 	 * 
-	 * @see Cell#move()
+	 * @see Cell#move(java.util.ArrayList)
 	 */
 	@Override
-	public void move() {
-
-		// gather information about any visible cells
-		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, 50 + size * 6); // TODO vision range configuration
-
+	public void move(ArrayList<Cell> visibleCells) {
+		
 		// choose a prey target, if one is available
 		Cell target = null;
 		for (Cell c : visibleCells) { // for now, the closest agar is chosen
@@ -102,12 +100,10 @@ public class Grazer extends Cell {
 	/**
 	 * Grazers get energy from harvesting plant growth or agar.
 	 * 
-	 * @see Cell#eat()
+	 * @see Cell#eat(java.util.ArrayList)
 	 */
 	@Override
-	public void eat() {
-		// gather info about any cells we are in contact with
-		ArrayList<Cell> eatableCells = petri.getCellsInRange(this, size);
+	public void eat(ArrayList<Cell> eatableCells) {
 		for (Cell c : eatableCells) {
 			if (c.getSpecies().equals("Agar")) { // for now, any agars contacted will be eaten
 				energy += c.getEnergy();
@@ -143,10 +139,10 @@ public class Grazer extends Cell {
 	 * Grazers reproduce after reaching their maximum size and a threshold
 	 * energy.
 	 * 
-	 * @see Cell#reproduce()
+	 * @see Cell#reproduce(java.util.ArrayList)
 	 */
 	@Override
-	public Cell reproduce() {
+	public Cell reproduce(ArrayList<Cell> visibleCells) {
 		Grazer child = null;
 		if (energy > 100 && size >= 8) { // right now: herbivore spends 20 energy to split in half and spawn an
 											// offspring, they also split their energy evenly

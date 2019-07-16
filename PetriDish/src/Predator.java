@@ -30,6 +30,7 @@ public class Predator extends Cell {
 		color = Color.HOTPINK;
 		friction = 0.8;
 		species = "Predator";
+		visionRange = 70;
 		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
@@ -37,14 +38,11 @@ public class Predator extends Cell {
 	/**
 	 * Predator movement should include hunting and feeding behaviors. When hunting moving prey, the Predator will expend a burst of energy to lunge after it and secure the kill.
 	 * 
-	 * @see Cell#move()
+	 * @see Cell#move(java.util.ArrayList)
 	 */
 	@Override
-	public void move() {
-
-		// gather information about any visible cells
-		ArrayList<Cell> visibleCells = petri.getCellsInRange(this, 70 + size * 6); // TODO vision range configuration
-
+	public void move(ArrayList<Cell> visibleCells) {
+		
 		// choose a prey target, if one is available
 		Cell target = null;
 		for (Cell c : visibleCells) { // prey selection logic - if any eatable grazer is seen, hunt it
@@ -98,12 +96,10 @@ public class Predator extends Cell {
 	/**
 	 * Predators get their energy from consuming Grazers or agars.
 	 * 
-	 * @see Cell#eat()
+	 * @see Cell#eat(java.util.ArrayList)
 	 */
 	@Override
-	public void eat() {
-		// gather info about any cells we are in contact with
-		ArrayList<Cell> eatableCells = petri.getCellsInRange(this, size);
+	public void eat(ArrayList<Cell> eatableCells) {
 		for (Cell c : eatableCells) {
 			// for now, Predators can eat agars and any grazers that are at least 3 smaller
 			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 < size)) {
@@ -139,10 +135,10 @@ public class Predator extends Cell {
 	 * Herbivores reproduce after reaching their maximum size and a threshold
 	 * energy.
 	 * 
-	 * @see Cell#reproduce()
+	 * @see Cell#reproduce(java.util.ArrayList)
 	 */
 	@Override
-	public Cell reproduce() {
+	public Cell reproduce(ArrayList<Cell> visibleCells) {
 		Predator child = null;
 		if (energy > 150 && size >= 10) { // predator reproduction is more expensive
 			size = size / 2;

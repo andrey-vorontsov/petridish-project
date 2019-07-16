@@ -43,11 +43,13 @@ public abstract class Cell {
 	protected double targetX;
 	protected double targetY;
 	protected CellMovementVector targetingVector;
+	private CellMovementBehavior behaviors; // defines the set of movement behaviors this cell has
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
 								// friction)
+	protected double visionRange; // distance the cell can see (radius of a circle around its center) (warning; does not directly match the output of getVisionRange())
 	protected String species;
 
 	/**
@@ -81,20 +83,23 @@ public abstract class Cell {
 	 * Core method, representing the basic actions the cell can take each tick of
 	 * the simulation.
 	 * 
+	 * @param visibleCells a list of cells visible to this cell, based on the cell's vision range
+	 * @param touchedCells a list of cells contacting this cell (the distance between them is less than the sum of their radii)
+	 * @param eatableCells a list of cells that this cell could eat (the centerpoints of which are within the radius of this cell)
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
-	public Cell update() {
+	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells, ArrayList<Cell> eatableCells) {
 		age++;
 
-		move(); // the cell has a chance to affect its own movement
-		eat(); // the cell has a chance to consume cells it is touching
+		move(visibleCells); // the cell has a chance to affect its own movement
+		eat(eatableCells); // the cell has a chance to consume cells it is touching
 
 		Cell newCell = null;
 		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
 			grow(); // the cell has a chance to grow itself
-			newCell = reproduce(); // the cell has a chance to spawn offspring
-			squish(); // stop cells from overlapping others of the same species
+			newCell = reproduce(visibleCells); // the cell has a chance to spawn offspring (visibleCells argument included to possibly support future sexual reproduction)
+			squish(touchedCells); // stop cells from overlapping others of the same species
 		}
 
 		updatePhysics(); // the cell moves according to physics
@@ -110,13 +115,17 @@ public abstract class Cell {
 	 * The cell may expend energy to accelerate itself. This should be done with a
 	 * module that generates a CellMovementVector, then a module that adjusts
 	 * velocity and applies energy cost accordingly.
+	 * 
+	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
-	abstract void move();
+	abstract void move(ArrayList<Cell> visibleCells);
 
 	/**
 	 * The cell may consume certain other cells, or gain energy by other means. The general rule for eating cells is that the target cell's centerpoint must fall within this cell's circle
+	 * 
+	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
-	abstract void eat();
+	abstract void eat(ArrayList<Cell> visibleCells);
 
 	/**
 	 * The cell may expend energy to increase its size.
@@ -125,10 +134,11 @@ public abstract class Cell {
 
 	/**
 	 * The cell may expend energy to spawn an offspring.
-	 * 
+	 *
+	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 * @return an offspring, if one is produced; otherwise return null
 	 */
-	abstract Cell reproduce();
+	abstract Cell reproduce(ArrayList<Cell> visibleCells);
 
 	/**
 	 * Cells die when they are killed.
@@ -189,9 +199,10 @@ public abstract class Cell {
 
 	/**
 	 * Cells should avoid overlapping cells of the same species. This is accomplished by pushing other cells out of the way.
+	 * 
+	 * @param touchedCells the list of cells to squish away
 	 */
-	public void squish() {
-		ArrayList<Cell> touchedCells = petri.getTouchingCells(this);
+	public void squish(ArrayList<Cell> touchedCells) {
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
 				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
@@ -294,12 +305,40 @@ public abstract class Cell {
 	public String getSpecies() {
 		return species;
 	}
+	
+	/**
+	 * Vision range is calculated by the base value + size * 6 by default 
+	 * If the cell cannot see, returns 0.
+	 * TODO review this
+	 * 
+	 * @return the Cell's vision range
+	 */
+	public double getVisionRange() {
+		if (!canSee())
+			return 0;
+		return visionRange + size*6;
+	}
+
+	/**
+	 * 
+	 * @return true only if the cell can see
+	 */
+	public boolean canSee() {
+		return !(visionRange == 0);
+	}
 
 	/**
 	 * @return the Cell's targetingVector
 	 */
 	public CellMovementVector getTargetingVector() {
 		return targetingVector;
+	}
+
+	/**
+	 * @param behaviors a CellMovementBehavior object encapsulating the movement behaviors (evasion, pursuit, hunting, etc.) that a cell can take with respect to types of targets, and their priority levels
+	 */
+	public void setBehaviors(CellMovementBehavior behaviors) {
+		this.behaviors = behaviors;
 	}
 
 	/**
@@ -336,4 +375,5 @@ public abstract class Cell {
 
 		return otherCell.cellID == cellID;
 	}
+
 }

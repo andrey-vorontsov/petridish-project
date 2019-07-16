@@ -58,36 +58,42 @@ Plants slowly grow with time without needing to eat.
 Plants are modified to squish all other cells away, not just other Plants.
 They reproduce similarly to other cells, and their squishing pushes their offspring extra far away to make space.
 
+Version 0.0.5.2
+Improved robustness of cell vision and hit detection code, facilitating future changes.
 
-ROADMAP (Current: 0.0.5.1)
 
+ROADMAP (Current: 0.0.5.2)
+		
 Features for 0.0.5.2
-	
-	Rewrite petri dish dimension limitations
+	Smart vision/movement prioritization framework
+		Based on criteria
+			Distance
+			
+		Pursuit of target (agars, grazers)
+		Evasion of target (predators)
+		
 	
 Features for 0.0.5.3
 	Herbivore plant grazing behavior
+	Refine thread sync system - time simulation thread as well
 	
-Features for 0.0.5.4
-	Smart vision/movement prioritization framework
-	
-Features for 0.0.5.5
+Features for 0.0.5.4 - 6
 	Evaluate and start moving configurable variables out
+		Rewrite petri dish dimension limitations
 	At least one 0.1.0 feature
-	
-Launch 0.0.6
-	
-Features for 0.0.7
 	Incorporate movement prioritization framework
 		Predator hunting behavior
 		Herbivore evading predators behavior
 		Plant maximum density
-	At least one 0.1.0 feature
+	
+Launch 0.0.6
+	
+Features for 0.0.7
 
 Features for 0.1.0
-	Fix known issues: Cells stuck against each other trying to each the same target. Graphics indexing crash.
+	Fix known issues: Cells stuck against each other trying to reach the same target. Graphics indexing crash.
 	Better size; based on area, not radius
-		Better vision range formula based on size
+		Adjust vision range formula based on size
 		Slower movement based on size
 	Basic GUI
 		Simulation speed control
@@ -117,6 +123,9 @@ Features for 1.0.0
 			Various cell stats TBD
 			Mutation rate/genetics control
 			TBD
+	Cell behaviors
+		Cells remember locations of recently seen objects
+		Cells remember 'what they were doing'
 	Genetic heredity
 		Basics
 			Data structure
