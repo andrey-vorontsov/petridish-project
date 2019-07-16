@@ -1,3 +1,6 @@
+package avorontsov.petridish;
+import avorontsov.cells.*;
+
 import java.util.ArrayList;
 
 /**
@@ -67,6 +70,19 @@ public class CellMovementController {
 	public MovementOrder getNextMovementOrder(Cell me, ArrayList<Cell> visibleCells) {
 		// TODO this logic may be revised as needed (and may also have to eventually be
 		// abstract and extended)
-		return new MovementOrder(me, "behavior", visibleCells.get(0));
+		// TODO ultimately this logic should allow for equal priorities
+		// choose a prey target, if one is available
+		
+		// TODO this chunk is copy-pasted from the original implementation
+		Cell target = null;
+		for (Cell c : visibleCells) { // for now, the closest agar is chosen
+			if (c.getSpecies().equals("Agar") && (target == null || PetriDish.distanceBetween(target.getX(),
+					target.getY(), me.getX(), me.getY()) > PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY()))) {
+				target = c;
+			}
+		}
+		if (target != null)
+			return new MovementOrder(me, "pursue", target);
+		return new MovementOrder(me, "wander", null);
 	}
 }

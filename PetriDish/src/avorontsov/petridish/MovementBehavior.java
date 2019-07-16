@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+package avorontsov.petridish;
 
 /**
  * A high-level representation of a particular behavior a given cell may have.
@@ -12,7 +12,10 @@ public class MovementBehavior {
 	private static final String[] VALID_BEHAVIORS = {"evade", "pursue", "hunt", "graze", "wander"};
 
 	private String behaviorType; // valid strings listed in VALID_BEHAVIORS
-	private String targetCellSpecies; // valid string TODO include "Predator" "Grazer" "Agar" "Plant"
+	private String targetCellSpecies; // valid string include "Predator" "Grazer" "Agar" "Plant" // TODO review and update handlers
+	private int targetCellMinSize; // TODO use for predation pursuit
+	private double targetCellMaxDistance; // TODO use for predation hunting
+	// private int targetCellMaxRelativeVelocity; // TODO implement here and in Controller for multiple possibilities
 	int priority; // used by CellMovementController to discriminate between higher and lower level
 					// importance behaviors (ideally scale from 1 to 10, 1 highest)
 

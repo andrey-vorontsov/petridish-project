@@ -1,4 +1,8 @@
+package avorontsov.cells;
+import avorontsov.petridish.*;
+
 import java.util.ArrayList;
+import java.util.Random;
 import javafx.scene.paint.Color;
 
 /**
@@ -15,20 +19,20 @@ public class Grazer extends Cell {
 	 * Create a Grazer. Grazers start out with 75 energy (almost enough to
 	 * start growing right away), and they are green.
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Grazer(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
-		this(petri, x, y, xVelocity, yVelocity, size, 75);
+	public Grazer(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
+		this(petri, rng, x, y, xVelocity, yVelocity, size, 75);
 	}
 
 	/**
 	 * Create a Grazer with a specified amount of starting energy (used for
 	 * reproducing).
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Grazer(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
-		super(petri, x, y, xVelocity, yVelocity, size);
+	public Grazer(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
 		color = Color.LAWNGREEN;
@@ -62,7 +66,7 @@ public class Grazer extends Cell {
 		if (target != null) { // if a prey target was found, go there
 			targetX = target.getX();
 			targetY = target.getY();
-		} else if (targetingVector.magnitude < 5) { // no prey target found, set a random vector instead (but only if
+		} else if (targetingVector.getMagnitude() < 5) { // no prey target found, set a random vector instead (but only if
 													// we've almost finished following the previous vector)
 			targetX = x + (rng.nextDouble() - 0.5) * 100;
 			targetY = y + (rng.nextDouble() - 0.5) * 100;
@@ -92,9 +96,7 @@ public class Grazer extends Cell {
 		// movement costs energy every certain number of steps
 		if (age % 4 == 0)
 			energy--;
-
-		// System.out.println("Current movement target: (" + targetX + ", " + targetY + ")");
-		// System.out.println("Current movement vector: " + targetingVector);
+		
 	}
 
 	/**
@@ -148,7 +150,7 @@ public class Grazer extends Cell {
 											// offspring, they also split their energy evenly
 			size = size / 2;
 			energy = (energy - 20) / 2;
-			child = new Grazer(petri, x, y, 0, 0, size, energy);
+			child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " spawned " + child + ".");
 		}

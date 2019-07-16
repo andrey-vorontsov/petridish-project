@@ -1,4 +1,8 @@
+package avorontsov.cells;
+import avorontsov.petridish.*;
+
 import java.util.ArrayList;
+import java.util.Random;
 import javafx.scene.paint.Color;
 
 /**
@@ -12,10 +16,10 @@ public class Agar extends Cell {
 	/**
 	 * Agar is intended as a simple food unit worth 25 energy. They are yellow.
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Agar(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
-		super(petri, x, y, xVelocity, yVelocity, size);
+	public Agar(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
+		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		energy = 25;
 		color = Color.YELLOW;
 		species = "Agar";

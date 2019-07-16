@@ -1,5 +1,8 @@
-import java.util.ArrayList;
+package avorontsov.cells;
+import avorontsov.petridish.*;
 
+import java.util.ArrayList;
+import java.util.Random;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -17,20 +20,20 @@ public class Plant extends Cell {
 	/**
 	 * Create a Plant. Plants are deep green and square. Their size, as opposed to being the radius, is equal to .75 times half of the diagonal of the square. The x,y is still the center of the graphic.
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Plant(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
-		this(petri, x, y, xVelocity, yVelocity, size, 100);
+	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
+		this(petri, rng, x, y, xVelocity, yVelocity, size, 100);
 	}
 
 	/**
 	 * Create a Grazer with a specified amount of starting energy (used for
 	 * reproducing).
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Plant(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
-		super(petri, x, y, xVelocity, yVelocity, size);
+	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
 		color = Color.FORESTGREEN;
@@ -101,7 +104,7 @@ public class Plant extends Cell {
 		if (energy > 100 && size >= 14 && age % 3 == 0 && rng.nextInt(100) < 1) { 
 			size -= 3;
 			energy -= 50;
-			child = new Plant(petri, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, 0, 0, 2, energy);
+			child = new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, 0, 0, 2, energy);
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " spawned " + child + ".");
 		}

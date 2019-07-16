@@ -1,4 +1,8 @@
+package avorontsov.cells;
+import avorontsov.petridish.*;
+
 import java.util.ArrayList;
+import java.util.Random;
 import javafx.scene.paint.Color;
 
 /**
@@ -12,19 +16,19 @@ public class Predator extends Cell {
 	/**
 	 * Create a predator. Predators start out with 100 energy and are hot pink.
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Predator(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
-		this(petri, x, y, xVelocity, yVelocity, size, 100);
+	public Predator(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
+		this(petri, rng, x, y, xVelocity, yVelocity, size, 100);
 	}
 
 	/**
 	 * Create a predator with a specific amount of starting energy, for reproduction.
 	 * 
-	 * @see Cell#Cell(double, double, double, double, int)
+	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Predator(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
-		super(petri, x, y, xVelocity, yVelocity, size);
+	public Predator(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
 		color = Color.HOTPINK;
@@ -58,7 +62,7 @@ public class Predator extends Cell {
 		if (target != null) { // if a prey target was found, go there
 			targetX = target.getX();
 			targetY = target.getY();
-		} else if (targetingVector.magnitude < 5) { // no prey target found, set a random vector instead (but only if
+		} else if (targetingVector.getMagnitude() < 5) { // no prey target found, set a random vector instead (but only if
 													// we've almost finished following the previous vector)
 			targetX = x + (rng.nextDouble() - 0.5) * 100;
 			targetY = y + (rng.nextDouble() - 0.5) * 100;
@@ -143,7 +147,7 @@ public class Predator extends Cell {
 		if (energy > 150 && size >= 10) { // predator reproduction is more expensive
 			size = size / 2;
 			energy = (energy - 20) / 2;
-			child = new Predator(petri, x, y, 0, 0, size, energy);
+			child = new Predator(petri, rng, x, y, 0, 0, size, energy);
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " spawned " + child + ".");
 		}

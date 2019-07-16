@@ -1,3 +1,4 @@
+package avorontsov.petridish;
 
 /**
  * @author Andrey Vorontsov

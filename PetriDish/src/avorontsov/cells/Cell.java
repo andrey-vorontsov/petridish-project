@@ -1,3 +1,6 @@
+package avorontsov.cells;
+import avorontsov.petridish.*;
+
 import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.shape.Circle;
@@ -17,7 +20,7 @@ import javafx.scene.paint.Color;
 public abstract class Cell {
 
 	// utility
-	protected Random rng = new Random();
+	protected Random rng; // use the same Random object as the petri dish (allows reproduction of a simulation using a seed)
 	protected PetriDish petri; // need a reference to the petri dish the cell lives in
 	private static int nextCellID = 1; // each cell is assigned a unique ID
 	public final int cellID;
@@ -64,8 +67,9 @@ public abstract class Cell {
 	 * @param yVelocity the initial y velocity of the cell
 	 * @param size      the initial size of the cell
 	 */
-	public Cell(PetriDish petri, double x, double y, double xVelocity, double yVelocity, int size) {
+	public Cell(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
 		this.petri = petri;
+		this.rng = rng;
 		this.x = x;
 		this.y = y;
 		this.xVelocity = xVelocity;
@@ -337,6 +341,34 @@ public abstract class Cell {
 	}
 
 	/**
+	 * @return the targetX
+	 */
+	public double getTargetX() {
+		return targetX;
+	}
+
+	/**
+	 * @param targetX the targetX to set
+	 */
+	public void setTargetX(double targetX) {
+		this.targetX = targetX;
+	}
+
+	/**
+	 * @return the targetY
+	 */
+	public double getTargetY() {
+		return targetY;
+	}
+
+	/**
+	 * @param targetY the targetY to set
+	 */
+	public void setTargetY(double targetY) {
+		this.targetY = targetY;
+	}
+
+	/**
 	 * @return the Cell's targetingVector
 	 */
 	public CellMovementVector getTargetingVector() {
@@ -371,6 +403,15 @@ public abstract class Cell {
 		Circle graphic = new Circle(x, y, size);
 		graphic.setFill(color);
 		return graphic;
+	}
+	
+	/**
+	 * A single Random object is instantiated by the petri dish simulation and all random numbers are drawn from it. Given no changes to the code, a particular seed should always produce the same simulation outcome
+	 * 
+	 * @return the Random object to use
+	 */
+	public Random getRNG() {
+		return rng;
 	}
 
 	/**

@@ -3,6 +3,7 @@ Started working on the project.
 First functional version.
 Underlying application structure, graphics flow, data structures, and simulation flow.
 Cells created, can move, eat each other, and die with basic behavior.
+EDIT: Versions 0.0.1 through 0.0.4 followed each other in relatively quick succession with baseline elements and early bugs being handled.
 
 Version 0.0.2
 Bug fix: Cells dying multiple times, two cells simultaneously eating each other, related issues.
@@ -64,28 +65,53 @@ Improved robustness of cell vision and hit detection code, facilitating future c
 Version 0.0.5.3
 Started work on the cell movement framework, laying the keystones of the design.
 
-Version 0.0.5.4 INDEV
+Version 0.0.5.4
 Completed the cell movement framework.
 However, still need to fill in code to allow cells to
 1. choose between the new abstract behaviors (largely complete but needs generalization)
 2. execute those behaviors (the code for target pursuit and random wandering is largely complete)
 
-ROADMAP (Current: 0.0.5.4)
+Version 0.0.5.5
+The rare crash from Version 0.0.5 has not reoccured under any conditions; the issue is considered to be resolved.
+As an aside, centralized all random number draws to a single Random java object, theoretically allowing a given simulation to be recreated from a seed.
+As another aside, repackaged and organized the entire project code, for proper encapsulation.
+Much of the coding to incorporate the framework is complete;
+Grazers are ready to use their old target pursuit and wandering code, organized under the new system - but I haven't pulled the trigger yet.
+Predators are still fully on the old system but should be trivial to copy-paste over.
 
-Features for 0.0.5.5
-	Incorporate framework back into existing behaviors
-		Pursuit of target (grazers, predators --> agars, agars and grazers)
-		Wandering (grazers, predators --> null)
-		
+ROADMAP (Current: 0.0.5.5)
+
 Features for 0.0.5.6
+	(Remaining features todo)
+	Incorporate framework back into existing behaviors
+		Pursuit of target (predators --> agars and grazers)
+		Wandering (predators --> null)
+		The CellMovementController representation will look something like:
+			For Predators
+				(1) pursue Grazer
+				(2) pursue Agar
+				(3) wander
+		
+Features for 0.0.5.7
 	Incorporate framework into new behaviors
 		Evasion of target (grazers --> predators)
 		Hunting of target (predators --> grazers)
 		Grazing of target (grazers --> plants)
+		The CellMovementController representation will look something like:
+			For Grazers
+				(1) evade Predator
+				(2) pursue Agar
+				(3) graze Plant
+				(4) wander
+			For Predators
+				(1) hunt Grazer
+				(2) pursue Grazer
+				(3) pursue Agar
+				(4) wander
 	
 Features for 0.0.6
-	Evaluate and start moving configurable variables out
-		Rewrite petri dish dimension limitations
+	Cells no longer require targetX and targetY fields - but might be reintroduced with 'cell memory' update
+	Rewrite petri dish dimension limitations
 	At least one 0.1.0 feature
 	Consider reproduction behavior framework
 		Plant maximum density
@@ -95,7 +121,7 @@ Launch 0.0.6
 Features for 0.0.7
 
 Features for 0.1.0
-	Fix known issues: Cells stuck against each other trying to reach the same target. Graphics indexing crash.
+	Fix known issues: Cells stuck against each other trying to reach the same target.
 	Better size; based on area, not radius
 		Adjust vision range formula based on size
 		Slower movement based on size
@@ -120,6 +146,7 @@ Features for 1.0.0
 			Robust frame rate tracking
 			Pause/unpause button has full interaction while paused
 		Saving to file
+			Configurable variables must be evaluated and moved out
 			Settings/config file
 			Simulation state save file
 			Loading from files
