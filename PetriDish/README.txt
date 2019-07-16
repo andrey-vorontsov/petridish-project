@@ -83,18 +83,13 @@ Version 0.0.5.5a
 Pulled the trigger on moving the Grazers over to the new system.
 Not without some bugginess, but the mechanism of actually setting the behavior set of a cell is now four lines in the constructor!
 
+Version 0.0.5.6
+Finished working on the cell movement framework's behavior selection code.
+Pulled the trigger on Predators.
+Now both Grazers and Predators have highly abstract internal representations of their movement behavior.
+The visible consequences are that Predators now brazenly target Grazers that are too big for them to eat.
 
-ROADMAP (Current: 0.0.5.5a)
-
-Features for 0.0.5.6
-	Incorporate framework back into existing behaviors
-		Pursuit of target (predators --> agars and grazers)
-		Wandering (predators --> null)
-		The CellMovementController representation will look something like:
-			For Predators
-				(1) pursue Grazer
-				(2) pursue Agar
-				(3) wander
+ROADMAP (Current: 0.0.5.6)
 		
 Features for 0.0.5.7
 	Incorporate framework into new behaviors
@@ -118,6 +113,7 @@ Features for 0.0.6
 	At least one 0.1.0 feature
 	Consider reproduction behavior framework
 		Plant maximum density
+	For future versions: evaluate exactly what kind of controls we will need for the cell movement framework
 	
 Launch 0.0.6
 	

@@ -37,6 +37,7 @@ public class MovementBehavior {
 		}
 		this.behaviorType = behaviorType;
 		this.targetCellSpecies = targetCellSpecies;
+		this.priority = priority;
 	}
 	
 	/**
@@ -50,6 +51,7 @@ public class MovementBehavior {
 		for (int i=0; i<VALID_BEHAVIORS.length; i++) {
 			if (testBehavior.equals(VALID_BEHAVIORS[i])) { // found a matching behavior
 				acceptable = true;
+				break;
 			}
 		}
 		return acceptable;
@@ -76,4 +78,14 @@ public class MovementBehavior {
 		return priority;
 	}
 
+	/**
+	 * Generates a brief text description of this behavior.
+	 * 
+	 * @see java.lang.Object#toString()
+	 * @return the String form of this Behavior
+	 */
+	@Override
+	public String toString() {
+		return "Behavior: " + behaviorType + " all " + targetCellSpecies;
+	}
 }

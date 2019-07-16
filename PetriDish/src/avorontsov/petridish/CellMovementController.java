@@ -68,20 +68,38 @@ public class CellMovementController {
 	 * @return the MovementOrder for the cell to follow in its move()
 	 */
 	public MovementOrder getNextMovementOrder(Cell me, ArrayList<Cell> visibleCells) {
-		// TODO this logic may be revised as needed (and may also have to eventually be
-		// abstract and extended)
-		// TODO ultimately this logic should allow for equal priorities
-		
-		// TODO this chunk is copy-pasted from the original implementation
+		// TODO this logic may also have to eventually be abstract and extended
+		// ; ultimately this logic should allow for equal priorities
+		// TODO this is fairly suboptimal. a good implementation would search for everything at the same time and then act on the highest priority one only (O(n)) while this is O(n^2)
 		Cell target = null;
-		for (Cell c : visibleCells) { // for now, the closest agar is chosen
-			if (c.getSpecies().equals("Agar") && (target == null || PetriDish.distanceBetween(target.getX(),
-					target.getY(), me.getX(), me.getY()) > PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY()))) {
-				target = c;
+		for (int i=0; i<allBehaviors.size(); i++) {
+			switch (allBehaviors.get(i).getBehaviorType()) {
+			case "pursue":
+				for (Cell c : visibleCells) { // for now, the closest of correct species is chosen
+					if (c.getSpecies().equals(allBehaviors.get(i).getTargetCellSpecies()) && (target == null || PetriDish.distanceBetween(target.getX(),
+							target.getY(), me.getX(), me.getY()) > PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY()))) {
+						target = c;
+					}
+				}
+				if (target != null) {// a target was found, catch it
+					return new MovementOrder(me, "pursue", target);
+				}
+				break;
+			case "evade": // unimplemented
+				break;
+			case "hunt": // unimplemented
+				break;
+			case "graze": // unimplemented
+				break;
+			case "wander": // for now, if wander is above any other behavior, it will always overpower it (TODO: maybe a default behavior?)
+				return new MovementOrder(me, "wander", null);
+			default:
+				System.out.println("WARNING: " + me + "'s behavior controller failed to produce a movement order.");
+				return new MovementOrder(me, "wander", null);
 			}
 		}
-		if (target != null)
-			return new MovementOrder(me, "pursue", target);
+		
+		System.out.println("WARNING: " + me + "'s behavior controller failed to produce a movement order.");
 		return new MovementOrder(me, "wander", null);
 	}
 }

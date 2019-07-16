@@ -28,9 +28,8 @@ public class MovementOrder {
 		vector = enforceBehavior(behaviorType);
 	}
 
-	private CellMovementVector enforceBehavior(String behaviorType) throws IllegalArgumentException {
+	private CellMovementVector enforceBehavior(String behaviorType) {
 		CellMovementVector oldTargetingVector = me.getTargetingVector(); // for clarity
-		CellMovementVector newTargetingVector = oldTargetingVector;
 		
 		if (behaviorType.equals("pursue")) { // pursuit: move along a straight line to the target cell. target must not be null
 			me.setTargetX(target.getX());
@@ -38,8 +37,8 @@ public class MovementOrder {
 		
 		} else if (behaviorType.equals("wander")) { // wander: generate a random vector using the current position. target may be null.
 			if (oldTargetingVector.getMagnitude() < 3) { // get a new random movement vector as we approach our last target
-				me.setTargetX(me.getX() + (me.getRNG().nextDouble() - 0.5) * 100);
-				me.setTargetY(me.getY() + (me.getRNG().nextDouble() - 0.5) * 100);
+				me.setTargetX(me.getX() + (me.getRNG().nextDouble() - 0.5) * 200);
+				me.setTargetY(me.getY() + (me.getRNG().nextDouble() - 0.5) * 200);
 			}
 			
 		} else {

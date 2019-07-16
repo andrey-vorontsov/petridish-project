@@ -42,8 +42,8 @@ public class Grazer extends Cell {
 		
 		// create the set of behaviors used by this cell
 		CellMovementController behaviorSet = new CellMovementController();
-		behaviorSet.addBehavior("pursue", "Agar", 1);
 		behaviorSet.addBehavior("wander", null, 2);
+		behaviorSet.addBehavior("pursue", "Agar", 1); // higher priority
 		setBehaviors(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = false;
@@ -58,49 +58,7 @@ public class Grazer extends Cell {
 	@Override
 	public void move(ArrayList<Cell> visibleCells) {
 		super.move(visibleCells);
-//		
-//		// choose a prey target, if one is available
-//		Cell target = null;
-//		for (Cell c : visibleCells) { // for now, the closest agar is chosen
-//			if (c.getSpecies().equals("Agar") && (target == null || PetriDish.distanceBetween(target.getX(),
-//					target.getY(), x, y) > PetriDish.distanceBetween(c.getX(), c.getY(), x, y))) {
-//				target = c;
-//			}
-//		}
-//
-//		// update the targeting vector based on gathered information
-//
-//		if (target != null) { // if a prey target was found, go there
-//			targetX = target.getX();
-//			targetY = target.getY();
-//		} else if (targetingVector.getMagnitude() < 5) { // no prey target found, set a random vector instead (but only if
-//													// we've almost finished following the previous vector)
-//			targetX = x + (rng.nextDouble() - 0.5) * 100;
-//			targetY = y + (rng.nextDouble() - 0.5) * 100;
-//		}
-//
-//		// adjust the targeting vector to steer away from the edge if near
-//
-//		if (targetX < 15) {
-//			targetX = 15;
-//		} else if (targetX > petri.PETRI_DISH_SIZE - 15) {
-//			targetX = petri.PETRI_DISH_SIZE - 15;
-//		}
-//		if (targetY < 15) {
-//			targetY = 15;
-//		} else if (targetY > petri.PETRI_DISH_SIZE - 15) {
-//			targetY = petri.PETRI_DISH_SIZE - 15;
-//		}
-//
-//		// set the vector to point to the newly selected target
-//		targetingVector = getVectorToTarget(targetX, targetY);
-//
-//		// standard code block which should be present in any implementation of move();
-//		// follow the vector
-//		xVelocity += targetingVector.getUnitVector().getXComponent();
-//		yVelocity += targetingVector.getUnitVector().getYComponent();
-
-		// movement costs energy every certain number of steps
+		
 		if (age % 4 == 0)
 			energy--;
 		

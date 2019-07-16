@@ -177,7 +177,7 @@ public abstract class Cell {
 				System.out.println(this + " was eaten at age " + age + ".");
 				break;
 			default:
-				System.out.println(this + "died for the reason: " + reason);
+				System.out.println(this + " died for the reason: " + reason);
 				break;
 			}
 		}
