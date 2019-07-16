@@ -79,10 +79,14 @@ Much of the coding to incorporate the framework is complete;
 Grazers are ready to use their old target pursuit and wandering code, organized under the new system - but I haven't pulled the trigger yet.
 Predators are still fully on the old system but should be trivial to copy-paste over.
 
-ROADMAP (Current: 0.0.5.5)
+Version 0.0.5.5a
+Pulled the trigger on moving the Grazers over to the new system.
+Not without some bugginess, but the mechanism of actually setting the behavior set of a cell is now four lines in the constructor!
+
+
+ROADMAP (Current: 0.0.5.5a)
 
 Features for 0.0.5.6
-	(Remaining features todo)
 	Incorporate framework back into existing behaviors
 		Pursuit of target (predators --> agars and grazers)
 		Wandering (predators --> null)
@@ -110,7 +114,6 @@ Features for 0.0.5.7
 				(4) wander
 	
 Features for 0.0.6
-	Cells no longer require targetX and targetY fields - but might be reintroduced with 'cell memory' update
 	Rewrite petri dish dimension limitations
 	At least one 0.1.0 feature
 	Consider reproduction behavior framework

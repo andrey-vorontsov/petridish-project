@@ -124,13 +124,18 @@ public abstract class Cell {
 	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
 	public void move(ArrayList<Cell> visibleCells) {
+		if (behaviors == null) {
+			throw new NullPointerException("Cell " + this + " does not have a movement controller!");
+		}
+		// calculate the next move order (this process also updates targetX and targetY)
 		MovementOrder moveOrder = behaviors.getNextMovementOrder(this, visibleCells);
-		// TODO use moveOrder to calculate a vector
-		// TODO throw an exception if behaviors is null or moveOrder is null
-		// TODO build a module to adjust velocity and energy costs
-		// TODO currently this is fine being overriden by child classes as needed
-		// in future updates the CellMovementController functionality should largely replace that
-		// to preserve reverse compatibility overriding move() methods will need to call super.move() as well
+		// get and apply the corresponding vector
+		targetingVector = moveOrder.getVector();
+		xVelocity += targetingVector.getUnitVector().getXComponent();
+		yVelocity += targetingVector.getUnitVector().getYComponent();
+		
+		// TODO currently, energy costs are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
+		// TODO goal is that this method will no longer need to be overriden (instead cells will apply controllers to themselves)
 	}
 
 	/**

@@ -71,7 +71,6 @@ public class CellMovementController {
 		// TODO this logic may be revised as needed (and may also have to eventually be
 		// abstract and extended)
 		// TODO ultimately this logic should allow for equal priorities
-		// choose a prey target, if one is available
 		
 		// TODO this chunk is copy-pasted from the original implementation
 		Cell target = null;

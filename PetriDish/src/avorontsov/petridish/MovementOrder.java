@@ -30,36 +30,35 @@ public class MovementOrder {
 
 	private CellMovementVector enforceBehavior(String behaviorType) throws IllegalArgumentException {
 		CellMovementVector oldTargetingVector = me.getTargetingVector(); // for clarity
+		CellMovementVector newTargetingVector = oldTargetingVector;
 		
-		switch (behaviorType) {
-		case "pursue": // pursuit: move along a straight line to the target cell. target must not be null
-			return me.getVectorToTarget(target.getX(), target.getY());
-			
-		case "wander": // wander: generate a random vector using the current position. target may be null.
-			double tempTargetX;
-			double tempTargetY;
+		if (behaviorType.equals("pursue")) { // pursuit: move along a straight line to the target cell. target must not be null
+			me.setTargetX(target.getX());
+			me.setTargetY(target.getY());
+		
+		} else if (behaviorType.equals("wander")) { // wander: generate a random vector using the current position. target may be null.
 			if (oldTargetingVector.getMagnitude() < 3) { // get a new random movement vector as we approach our last target
-				tempTargetX = me.getX() + (me.getRNG().nextDouble() - 0.5) * 100;
-				tempTargetY = me.getY() + (me.getRNG().nextDouble() - 0.5) * 100;
-				// correct the vector to avoid pointing out of the petri dish (leads to cell stuck on wall)
-				if (tempTargetX < 15) {
-					tempTargetX = 15;
-				} else if (tempTargetX > PetriDishApp.PETRI_DISH_SIZE - 15) {
-					tempTargetX = PetriDishApp.PETRI_DISH_SIZE - 15;
-				}
-				if (tempTargetY < 15) {
-					tempTargetY = 15;
-				} else if (tempTargetY > PetriDishApp.PETRI_DISH_SIZE - 15) {
-					tempTargetY = PetriDishApp.PETRI_DISH_SIZE - 15;
-				}
-				return me.getVectorToTarget(tempTargetX, tempTargetY);
+				me.setTargetX(me.getX() + (me.getRNG().nextDouble() - 0.5) * 100);
+				me.setTargetY(me.getY() + (me.getRNG().nextDouble() - 0.5) * 100);
 			}
-			return oldTargetingVector; // if not yet close to approaching old destination, just keep going
 			
-		default:
-			throw new IllegalArgumentException("The cell behavior " + behaviorType + " could not be applied.");
+		} else {
+			throw new IllegalArgumentException("Could not enforce the behavior: " + behaviorType + ".");
 		}
 		
+		// correct the vector to avoid pointing out of the petri dish (leads to cell stuck on wall)
+		if (me.getTargetX() < 15) {
+			me.setTargetX(15);
+		} else if (me.getTargetX() > PetriDishApp.PETRI_DISH_SIZE - 15) {
+			me.setTargetX(PetriDishApp.PETRI_DISH_SIZE - 15);
+		}
+		if (me.getTargetY() < 15) {
+			me.setTargetY(15);
+		} else if (me.getTargetY() > PetriDishApp.PETRI_DISH_SIZE - 15) {
+			me.setTargetY(PetriDishApp.PETRI_DISH_SIZE - 15);
+		}
+		
+		return me.getVectorToTarget(me.getTargetX(), me.getTargetY()); // as a matter of fact the cell itself could do this. but this structure increases compartmentalization
 	}
 
 	/**

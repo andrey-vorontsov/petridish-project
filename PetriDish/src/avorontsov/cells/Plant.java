@@ -42,7 +42,7 @@ public class Plant extends Cell {
 		
 		updateGraphicSideLength();
 		
-		SUPPRESS_EVENT_PRINTING = false;
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 	
 	/**
