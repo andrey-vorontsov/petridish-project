@@ -21,6 +21,7 @@ public class Behavior {
 	private int targetCellMaxSize = Integer.MAX_VALUE;
 	private double targetCellMinDistance = 0;
 	private double targetCellMaxDistance = Double.MAX_VALUE;
+	private int thisCellMinEnergy = 0; // the minimum energy for this cell to attempt this behavior
 	// these properties are calculated relative to the cell itself
 	private int targetCellMinRelVelocity = 0;
 	private int targetCellMaxRelVelocity = Integer.MAX_VALUE;
@@ -198,6 +199,20 @@ public class Behavior {
 	 */
 	public double getTargetCellMaxDistance() {
 		return targetCellMaxDistance;
+	}
+
+	/**
+	 * @return the thisCellMinEnergy
+	 */
+	public int getThisCellMinEnergy() {
+		return thisCellMinEnergy;
+	}
+
+	/**
+	 * @param thisCellMinEnergy the thisCellMinEnergy to set
+	 */
+	public void setThisCellMinEnergy(int thisCellMinEnergy) {
+		this.thisCellMinEnergy = thisCellMinEnergy;
 	}
 
 	/**

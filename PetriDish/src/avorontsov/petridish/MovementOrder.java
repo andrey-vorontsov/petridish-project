@@ -31,25 +31,30 @@ public class MovementOrder {
 
 	private CellMovementVector enforceBehavior(String behaviorType) {
 		CellMovementVector oldTargetingVector = me.getTargetingVector(); // for clarity
+		String oldBehaviorType = me.getCurrBehavior(); // the behavior the cell had on the previous update
 		
-		// determine vector direction		
+		// determine vector direction and generate the scalar
 		if (behaviorType.equals("pursue")) { // pursuit: move along a straight line to the target cell. target must not be null
 			me.setTargetX(target.getX());
 			me.setTargetY(target.getY());
 			
 		} else if (behaviorType.equals("wander")) { // wander: generate a random vector using the current position. target may be null.
-			if (oldTargetingVector.getMagnitude() < 3) { // get a new random movement vector as we approach our last target
-				me.setTargetX(me.getX() + (me.getRNG().nextDouble() - 0.5) * 200);
-				me.setTargetY(me.getY() + (me.getRNG().nextDouble() - 0.5) * 200);
+			if (!oldBehaviorType.equals("wander") || oldTargetingVector.getMagnitude() < 5) { // get a new random movement vector if we just started wandering or as we approach our last target
+				me.setTargetX(me.getX() + (me.getRNG().nextDouble() - 0.5) * 100);
+				me.setTargetY(me.getY() + (me.getRNG().nextDouble() - 0.5) * 100);
+			} else if (oldBehaviorType.equals("wander")) { // if we're already wandering, shuffle our destination slightly
+				me.setTargetX(me.getTargetX() + (me.getRNG().nextDouble() - 0.5) * 3);
+				me.setTargetY(me.getTargetY() + (me.getRNG().nextDouble() - 0.5) * 3);
 			}
 			
 		} else if (behaviorType.equals("evade")) { // evasion: like pursuit, but in the opposite direction (currently just a vector from the enemy to me)
-			me.setTargetX(PetriDishApp.PETRI_DISH_SIZE); // TODO apparently buggy
-			me.setTargetY(PetriDishApp.PETRI_DISH_SIZE);
+			me.setTargetX(2*me.getX() - target.getX()); // yields a point in the opposite direction of the target
+			me.setTargetY(2*me.getY() - target.getY());
 
 		} else if (behaviorType.equals("hunt")) { // hunt: like pursuit, but with an extra large vector
 			me.setTargetX(target.getX());
 			me.setTargetY(target.getY());
+			vectorScalar = 3;
 			
 		} else {
 			throw new IllegalArgumentException("Could not enforce the behavior: " + behaviorType + ".");
@@ -67,17 +72,12 @@ public class MovementOrder {
 			me.setTargetY(PetriDishApp.PETRI_DISH_SIZE - 15);
 		}
 		
-		// scale the direction vector and apply energy cost according to formula
-		
-		if (behaviorType.equals("hunt")) { // hunt causes a LUNGE forward
-			vectorScalar = 3;
-		}
-			
+		// apply energy cost according to formula
 		// TODO replace right away
 		if (me.getAge() % 4 == 0)
 			me.spendEnergy(1);
 		
-		return me.getVectorToTarget(me.getTargetX(), me.getTargetY()); // as a matter of fact the cell itself could do this. but this structure increases compartmentalization
+		return me.getVectorToTarget(me.getTargetX(), me.getTargetY()); // if no changes were made to the targetX and Y, the cell will continue moving along the old path
 	}
 
 	/**

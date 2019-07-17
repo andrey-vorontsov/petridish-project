@@ -65,8 +65,8 @@ public class CellMovementController {
 			Behavior currBehavior = allBehaviors.get(i);
 			String currBehaviorType = currBehavior.getBehaviorType();
 			
-			// ignore the behavior if it is not a movement category behavior
-			if (currBehavior.getBehaviorCategory().equals("MOVE")) {
+			// ignore the behavior if it is not a movement category behavior, or if I don't have the energy for it
+			if (currBehavior.getBehaviorCategory().equals("MOVE") && currBehavior.getThisCellMinEnergy() <= me.getEnergy()) {
 				
 				// first, if the behavior is to wander, then no target needs to be considered
 				if (currBehaviorType.equals("wander"))

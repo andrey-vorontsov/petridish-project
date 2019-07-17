@@ -42,6 +42,7 @@ public class Predator extends Cell {
 		huntingGrazers.setTargetCellMaxDistance(40);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
+		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
 		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 2);

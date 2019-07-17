@@ -42,7 +42,10 @@ public class Grazer extends Cell {
 		
 		// create the set of behaviors used by this cell
 		CellMovementController behaviorSet = new CellMovementController();
-		behaviorSet.addBehavior(new Behavior("evade", "Predator", 1)); // higher priority
+		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
+		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
+		behaviorSet.addBehavior(avoidPredators);
+		
 		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 2));
 		behaviorSet.addBehavior(new Behavior("graze", "Plant", 3));
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));

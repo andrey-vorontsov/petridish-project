@@ -79,6 +79,7 @@ public abstract class Cell {
 		isAlive = true;
 		age = 0;
 		targetingVector = new CellMovementVector(0, 0);
+		currBehavior = "sleep"; // TODO sleep behavior currently isn't used anywhere else, problematic
 
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
@@ -129,6 +130,9 @@ public abstract class Cell {
 		}
 		// calculate the next move order (this process also updates targetX and targetY)
 		MovementOrder moveOrder = behaviors.getNextMovementOrder(this, visibleCells);
+		// update the cell's current behavior
+		currBehavior = moveOrder.getBehaviorType();
+		
 		// get and apply the corresponding vector
 		targetingVector = moveOrder.getVector();
 		xVelocity += targetingVector.getUnitVector().getXComponent() * moveOrder.getVectorScalar();
@@ -400,13 +404,6 @@ public abstract class Cell {
 	 */
 	public String getCurrBehavior() {
 		return currBehavior;
-	}
-
-	/**
-	 * @param currBehavior the behavior for the cell to use from now until updated again
-	 */
-	public void setCurrBehavior(String currBehavior) {
-		this.currBehavior = currBehavior;
 	}
 
 	/**

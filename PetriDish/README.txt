@@ -97,32 +97,38 @@ Known issue: The rare crash has reoccured. A solution is identified.
 Known issue: Cells become invisible without a death message.
 
 Version 0.0.5.7a
-Bug fix: Invisible cells, the cause was a debug printing mistake.
-Bug fix: Hunting behavior
+Bug fix: Invisible cells, the cause was a debug printing oversight, not an underlying issue.
+Bug fix: Hunting behavior now works as intended, the cause was a commented line of code.
 
-ROADMAP (Current: 0.0.5.7a)
-		
-Features for 0.0.5.8
+Version 0.0.5.8
+Bug fix: Evasion behavior now works as intended
+Wandering code has been reinstated to a similar way to how it used to work.
+Cells now remember the behavior they had on the previous turn.
+Bug fix: Cells getting stuck against each other has been lessened but not resolved by the change to wandering code.
+Behaviors now allow a cell to verify that it has enough energy to try it.
+Predators now only lunge after prey if they have the energy.
+Grazers now try to stay out of lunging range, but will ignore predators that are too far to threaten them.
+Known issue: Sometime along the way we have caused cells to sometimes fail to prioritize the closest agar.
+
+ROADMAP (Current: 0.0.5.8)
+
+Features for 0.0.6
+	Fix cell misprioritizing their targets by proximity (multiple possible causes, evaluate)
 	Fix the indexing crash
 		Prerequisite: Refine thread sync system - time simulation thread
-	Replace placeholder evasion behavior
-	Cells remember the behavior they had on the previous turn (this affects wandering and will be useful later)
-	Incorporate framework into new behaviors
-		Ensure behavior definitions allow for checks against own energy (for hunting)
-		Grazing of target (grazers --> plants)
-			Prerequisite: Need eating behavior framework (grazing vs. consuming ranges)
-
-	
-Features for 0.0.6
 	Rewrite petri dish dimension limitations
-	At least one 0.1.0 feature
-	Consider reproduction behavior framework
-		Plant maximum density
-	For future versions: evaluate exactly what kind of controls we will need for the cell movement framework
 	
 Launch 0.0.6
 	
 Features for 0.0.7
+	Work eating, grazing, sleeping, and mating behaviors into the generalized behavior framework
+		New behaviors
+			Plant maximum density checks
+			Grazers grazing
+			Cells sleeping to save energy
+		Old behaviors (reimplement)
+			Eating
+			
 	Rework size calculation
 		Modify function of MovementOrder method
 			Calculate energy consumption based on size (later area) and vector magnitude
