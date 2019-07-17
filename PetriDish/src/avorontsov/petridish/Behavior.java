@@ -7,35 +7,64 @@ package avorontsov.petridish;
  * 
  * @author Andrey Vorontsov
  */
-public class MovementBehavior {
+public class Behavior {
 	
-	private static final String[] VALID_BEHAVIORS = {"evade", "pursue", "hunt", "graze", "wander"};
+	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "mate"};
+	// eat and graze are related to eat(). evade, pursue, hunt, wander are move() modes. mate is used by reproduce()
 
+	private String behaviorCategory; // automatically initalized to sort eat(), move(), reproduce() behaviors
 	private String behaviorType; // valid strings listed in VALID_BEHAVIORS
 	private String targetCellSpecies; // valid string include "Predator" "Grazer" "Agar" "Plant" // TODO review and update handlers
-	private int targetCellMinSize; // TODO use for predation pursuit
-	private double targetCellMaxDistance; // TODO use for predation hunting
-	// private int targetCellMaxRelativeVelocity; // TODO implement here and in Controller for multiple possibilities
+	
+	// target cell properties evaluated by the Controller
+	private int targetCellMinSize = 0;
+	private int targetCellMaxSize = Integer.MAX_VALUE;
+	private double targetCellMinDistance = 0;
+	private double targetCellMaxDistance = Double.MAX_VALUE;
+	// these properties are calculated relative to the cell itself
+	private int targetCellMinRelVelocity = 0;
+	private int targetCellMaxRelVelocity = Integer.MAX_VALUE;
+	private int targetCellMinRelSize = -Integer.MAX_VALUE;
+	private int targetCellMaxRelSize = Integer.MAX_VALUE;
+	
 	int priority; // used by CellMovementController to discriminate between higher and lower level
 					// importance behaviors (ideally scale from 1 to 10, 1 highest)
 
 	/**
-	 * Produces a MovementBehavior object representing a general instruction to
-	 * "behaviorType" all members of "targetCellSpecies" E.g. "evade" all
-	 * "Predators"
+	 * Produces a minimal Behavior object. Optional fields may be initialized as needed.
 	 * 
 	 * @param behaviorType      valid strings include "evade" "pursue" "hunt"
-	 *                          "graze"
-	 * @param targetCellSpecies valid string TODO include "Predator" "Grazer" "Agar"
-	 *                          "Plant"
+	 *                          "graze", etc.
 	 * @param priority          gives the importance of the behavior (ideally scale
 	 *                          from 1 to 10, 1 highest)
 	 */
-	public MovementBehavior(String behaviorType, String targetCellSpecies, int priority) {
+	public Behavior(String behaviorType, int priority) {
+		this(behaviorType, null, priority);
+	}
+
+	/**
+	 * Produces a simple Behavior object with a defined target species (all members of the species will be targeted). Other optional fields may be initialized as needed.
+	 * 
+	 * @param behaviorType      valid strings include "evade" "pursue" "hunt"
+	 *                          "graze", etc.
+	 *                          @param targetCellSpecies the species this behavior targets (e.g. "evade Predators")
+	 * @param priority          gives the importance of the behavior (ideally scale
+	 *                          from 1 to 10, 1 highest)
+	 */
+	public Behavior(String behaviorType, String targetCellSpecies, int priority) {
 		if (!checkValidBehavior(behaviorType)) {
 			throw new IllegalArgumentException("An invalid cell behavior string was detected.");
 		}
 		this.behaviorType = behaviorType;
+		
+		// assign behavior category. defaults to move
+		if (behaviorType.equals("eat") || behaviorType.equals("graze"))
+			behaviorCategory = "EAT";
+		else if (behaviorType.equals("mate"))
+			behaviorCategory = "REPRODUCE";
+		else
+			behaviorCategory = "MOVE";
+		
 		this.targetCellSpecies = targetCellSpecies;
 		this.priority = priority;
 	}
@@ -56,6 +85,78 @@ public class MovementBehavior {
 		}
 		return acceptable;
 	}
+	
+	// setters for optional fields
+
+	/**
+	 * @param targetCellSpecies the targetCellSpecies to set
+	 */
+	public void setTargetCellSpecies(String targetCellSpecies) {
+		this.targetCellSpecies = targetCellSpecies;
+	}
+
+	/**
+	 * @param targetCellMinSize the targetCellMinSize to set
+	 */
+	public void setTargetCellMinSize(int targetCellMinSize) {
+		this.targetCellMinSize = targetCellMinSize;
+	}
+
+	/**
+	 * @param targetCellMaxSize the targetCellMaxSize to set
+	 */
+	public void setTargetCellMaxSize(int targetCellMaxSize) {
+		this.targetCellMaxSize = targetCellMaxSize;
+	}
+
+	/**
+	 * @param targetCellMinDistance the targetCellMinDistance to set
+	 */
+	public void setTargetCellMinDistance(double targetCellMinDistance) {
+		this.targetCellMinDistance = targetCellMinDistance;
+	}
+
+	/**
+	 * @param targetCellMaxDistance the targetCellMaxDistance to set
+	 */
+	public void setTargetCellMaxDistance(double targetCellMaxDistance) {
+		this.targetCellMaxDistance = targetCellMaxDistance;
+	}
+
+	/**
+	 * @param targetCellMinRelVelocity the targetCellMinRelVelocity to set
+	 */
+	public void setTargetCellMinRelVelocity(int targetCellMinRelVelocity) {
+		this.targetCellMinRelVelocity = targetCellMinRelVelocity;
+	}
+
+	/**
+	 * @param targetCellMaxRelVelocity the targetCellMaxRelVelocity to set
+	 */
+	public void setTargetCellMaxRelVelocity(int targetCellMaxRelVelocity) {
+		this.targetCellMaxRelVelocity = targetCellMaxRelVelocity;
+	}
+
+	/**
+	 * @param targetCellMinRelSize the targetCellMinRelSize to set
+	 */
+	public void setTargetCellMinRelSize(int targetCellMinRelSize) {
+		this.targetCellMinRelSize = targetCellMinRelSize;
+	}
+
+	/**
+	 * @param targetCellMaxRelSize the targetCellMaxRelSize to set
+	 */
+	public void setTargetCellMaxRelSize(int targetCellMaxRelSize) {
+		this.targetCellMaxRelSize = targetCellMaxRelSize;
+	}
+
+	/**
+	 * @return the behaviorCategory
+	 */
+	public String getBehaviorCategory() {
+		return behaviorCategory;
+	}
 
 	/**
 	 * @return the behaviorType
@@ -72,6 +173,62 @@ public class MovementBehavior {
 	}
 
 	/**
+	 * @return the targetCellMinSize
+	 */
+	public int getTargetCellMinSize() {
+		return targetCellMinSize;
+	}
+
+	/**
+	 * @return the targetCellMaxSize
+	 */
+	public int getTargetCellMaxSize() {
+		return targetCellMaxSize;
+	}
+
+	/**
+	 * @return the targetCellMinDistance
+	 */
+	public double getTargetCellMinDistance() {
+		return targetCellMinDistance;
+	}
+
+	/**
+	 * @return the targetCellMaxDistance
+	 */
+	public double getTargetCellMaxDistance() {
+		return targetCellMaxDistance;
+	}
+
+	/**
+	 * @return the targetCellMinRelVelocity
+	 */
+	public int getTargetCellMinRelVelocity() {
+		return targetCellMinRelVelocity;
+	}
+
+	/**
+	 * @return the targetCellMaxRelVelocity
+	 */
+	public int getTargetCellMaxRelVelocity() {
+		return targetCellMaxRelVelocity;
+	}
+
+	/**
+	 * @return the targetCellMinRelSize
+	 */
+	public int getTargetCellMinRelSize() {
+		return targetCellMinRelSize;
+	}
+
+	/**
+	 * @return the targetCellMaxRelSize
+	 */
+	public int getTargetCellMaxRelSize() {
+		return targetCellMaxRelSize;
+	}
+
+	/**
 	 * @return the priority
 	 */
 	public int getPriority() {
@@ -79,13 +236,17 @@ public class MovementBehavior {
 	}
 
 	/**
-	 * Generates a brief text description of this behavior.
+	 * Generates a brief text description of this behavior, without information about the specific limits set.
 	 * 
 	 * @see java.lang.Object#toString()
 	 * @return the String form of this Behavior
 	 */
 	@Override
 	public String toString() {
-		return "Behavior: " + behaviorType + " all " + targetCellSpecies;
+		String returnString = "Behavior: " + behaviorType;
+		if (targetCellSpecies != null) {
+			returnString += " " + targetCellSpecies + "s";
+		}
+		return returnString;
 	}
 }

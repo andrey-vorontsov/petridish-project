@@ -20,27 +20,14 @@ import java.util.ArrayList;
  */
 public class CellMovementController {
 
-	ArrayList<MovementBehavior> allBehaviors; // a sorted list of all behaviors, by priority (highest to lowest, ties
+	ArrayList<Behavior> allBehaviors; // a sorted list of all behaviors, by priority (highest to lowest, ties
 												// broken by recency of addition - newer behaviors are higher)
 
 	/**
 	 * Instantiates a CellMovementController with no behaviors defined.
 	 */
 	public CellMovementController() {
-		allBehaviors = new ArrayList<MovementBehavior>();
-	}
-
-	/**
-	 * Adds a new behavior to this Controller with a given behaviorType,
-	 * targetCellSpecies, and priority.
-	 * 
-	 * @param behaviorType      the behavior type to initialize a Behavior with
-	 * @param targetCellSpecies the cell species to initialize a Behavior with
-	 * @param priority          the priority (ideally from 1 to 10, 1 highest
-	 *                          priority)
-	 */
-	public void addBehavior(String behaviorType, String targetCellSpecies, int priority) {
-		addBehavior(new MovementBehavior(behaviorType, targetCellSpecies, priority));
+		allBehaviors = new ArrayList<Behavior>();
 	}
 
 	/**
@@ -48,7 +35,7 @@ public class CellMovementController {
 	 * 
 	 * @param behavior the behavior to add
 	 */
-	public void addBehavior(MovementBehavior behavior) {
+	public void addBehavior(Behavior behavior) {
 		int i = 0;
 		while (i < allBehaviors.size() && behavior.getPriority() > allBehaviors.get(i).getPriority()) {
 			i++;
@@ -70,32 +57,52 @@ public class CellMovementController {
 	public MovementOrder getNextMovementOrder(Cell me, ArrayList<Cell> visibleCells) {
 		// TODO this logic may also have to eventually be abstract and extended
 		// ; ultimately this logic should allow for equal priorities
-		// TODO this is fairly suboptimal. a good implementation would search for everything at the same time and then act on the highest priority one only (O(n)) while this is O(n^2)
+		// TODO this is extremely suboptimal. a good implementation would search for everything at the same time and then act on the highest priority one only (O(n)) while this is O(n^2)
+		
 		Cell target = null;
 		for (int i=0; i<allBehaviors.size(); i++) {
-			switch (allBehaviors.get(i).getBehaviorType()) {
-			case "pursue":
-				for (Cell c : visibleCells) { // for now, the closest of correct species is chosen
-					if (c.getSpecies().equals(allBehaviors.get(i).getTargetCellSpecies()) && (target == null || PetriDish.distanceBetween(target.getX(),
-							target.getY(), me.getX(), me.getY()) > PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY()))) {
+			// load the next behavior to consider
+			Behavior currBehavior = allBehaviors.get(i);
+			String currBehaviorType = currBehavior.getBehaviorType();
+			
+			// ignore the behavior if it is not a movement category behavior
+			if (currBehavior.getBehaviorCategory().equals("MOVE")) {
+				
+				// first, if the behavior is to wander, then no target needs to be considered
+				if (currBehaviorType.equals("wander"))
+					return new MovementOrder(me, "wander", null);
+
+				// check all visible cells to find closest cell matching the behavior's targeting specifications
+				for (Cell c : visibleCells) {
+					
+					// load some useful values for the comparisons
+					double distanceToCell = PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY());
+					double distanceToTarget = Double.MAX_VALUE; // used for comparison to find closest matching target. safe as long as the petri dish is not insanely large (and other stuff will break before then)
+					int cellsRelSize = me.getSize() - c.getSize(); // positive when this cell is bigger
+					double cellsRelVel = 0; // TODO
+					
+					// the ultimate if statement. checks all the behavior's conditions
+					if (c.getSpecies().equals(currBehavior.getTargetCellSpecies()) // target matches species
+							&& c.getSize() >= currBehavior.getTargetCellMinSize() // target is within size constraints
+							&& c.getSize() <= currBehavior.getTargetCellMaxSize()
+							
+							&& distanceToCell > currBehavior.getTargetCellMinDistance() // target is within distance constraints
+							&& distanceToCell < currBehavior.getTargetCellMaxDistance()
+							
+							&& cellsRelSize >= currBehavior.getTargetCellMinRelSize() // target is within relative size constraints
+							&& cellsRelSize <= currBehavior.getTargetCellMaxRelSize()
+							
+							&& cellsRelVel >= currBehavior.getTargetCellMinRelVelocity() // target is within relative velocity constraints
+							&& cellsRelVel <= currBehavior.getTargetCellMaxRelVelocity()
+							
+							&& (target == null || distanceToTarget > distanceToCell)) { // finally, target is closer than any matching previous target
 						target = c;
+						distanceToTarget = PetriDish.distanceBetween(target.getX(), target.getY(), me.getX(), me.getY());
 					}
 				}
-				if (target != null) {// a target was found, catch it
-					return new MovementOrder(me, "pursue", target);
-				}
-				break;
-			case "evade": // unimplemented
-				break;
-			case "hunt": // unimplemented
-				break;
-			case "graze": // unimplemented
-				break;
-			case "wander": // for now, if wander is above any other behavior, it will always overpower it (TODO: maybe a default behavior?)
-				return new MovementOrder(me, "wander", null);
-			default:
-				System.out.println("WARNING: " + me + "'s behavior controller failed to produce a movement order.");
-				return new MovementOrder(me, "wander", null);
+				if (target != null) {// a target was found, generate the appropriate order
+					return new MovementOrder(me, currBehaviorType, target);
+				} // no target found, check the next behavior
 			}
 		}
 		

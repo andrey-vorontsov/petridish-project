@@ -42,26 +42,13 @@ public class Grazer extends Cell {
 		
 		// create the set of behaviors used by this cell
 		CellMovementController behaviorSet = new CellMovementController();
-		behaviorSet.addBehavior("wander", null, 2);
-		behaviorSet.addBehavior("pursue", "Agar", 1); // higher priority
+		behaviorSet.addBehavior(new Behavior("evade", "Predator", 1)); // higher priority
+		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 2));
+		behaviorSet.addBehavior(new Behavior("graze", "Plant", 3));
+		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = false;
-	}
-
-	/**
-	 * Grazer movement aims to eventually emulate food searching, grazing, and
-	 * predator evasion behaviors.
-	 * 
-	 * @see Cell#move(java.util.ArrayList)
-	 */
-	@Override
-	public void move(ArrayList<Cell> visibleCells) {
-		super.move(visibleCells);
-		
-		if (age % 4 == 0)
-			energy--;
-		
 	}
 
 	/**

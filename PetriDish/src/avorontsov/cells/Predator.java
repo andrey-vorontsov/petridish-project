@@ -38,25 +38,21 @@ public class Predator extends Cell {
 		
 		// create the set of behaviors used by this cell
 		CellMovementController behaviorSet = new CellMovementController();
-		behaviorSet.addBehavior("pursue", "Grazer", 1);
-		behaviorSet.addBehavior("pursue", "Agar", 2);
-		behaviorSet.addBehavior("wander", null, 3);
+		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 1);
+		huntingGrazers.setTargetCellMaxDistance(15);
+		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
+		huntingGrazers.setTargetCellMinDistance(3); // avoid overshooting/oversteering
+		//behaviorSet.addBehavior(huntingGrazers);
+		
+		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 2);
+		pursuitGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
+		behaviorSet.addBehavior(pursuitGrazers);
+		
+		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 3)); // agars pursued indiscrimnately
+		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = true;
-	}
-
-	/**
-	 * Predator movement should include hunting and feeding behaviors. When hunting moving prey, the Predator will expend a burst of energy to lunge after it and secure the kill.
-	 * 
-	 * @see Cell#move(java.util.ArrayList)
-	 */
-	@Override
-	public void move(ArrayList<Cell> visibleCells) {
-		super.move(visibleCells);
-		
-		if (age % 2 == 0)
-			energy--;
 	}
 
 	/**
@@ -68,7 +64,7 @@ public class Predator extends Cell {
 	public void eat(ArrayList<Cell> eatableCells) {
 		for (Cell c : eatableCells) {
 			// for now, Predators can eat agars and any grazers that are at least 3 smaller
-			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 < size)) {
+			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 <= size)) {
 				energy += c.getEnergy();
 				c.kill("eaten");
 				if (!SUPPRESS_EVENT_PRINTING)

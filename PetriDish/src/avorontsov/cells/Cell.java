@@ -131,8 +131,8 @@ public abstract class Cell {
 		MovementOrder moveOrder = behaviors.getNextMovementOrder(this, visibleCells);
 		// get and apply the corresponding vector
 		targetingVector = moveOrder.getVector();
-		xVelocity += targetingVector.getUnitVector().getXComponent();
-		yVelocity += targetingVector.getUnitVector().getYComponent();
+		xVelocity += targetingVector.getUnitVector().getXComponent() * moveOrder.getVectorScalar();
+		yVelocity += targetingVector.getUnitVector().getYComponent() * moveOrder.getVectorScalar();
 		
 		// TODO currently, energy costs are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
 		// TODO goal is that this method will no longer need to be overriden (instead cells will apply controllers to themselves)
@@ -301,6 +301,14 @@ public abstract class Cell {
 	 */
 	public int getEnergy() {
 		return energy;
+	}
+	
+	/**
+	 * The cell is debited energy for taking an action.
+	 * @param energySpent the energy the cell has expended
+	 */
+	public void spendEnergy(int energySpent) {
+		energy -= energySpent;
 	}
 
 	/**

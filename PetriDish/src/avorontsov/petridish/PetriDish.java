@@ -55,16 +55,16 @@ public class PetriDish implements Runnable {
 
 		// set up simulation
 		done = false;
-		rng = new Random(1L); // fixed seed for testing purposes TODO
+		rng = new Random(); // no fixed seed for testing purposes TODO configurable
 		allCells = new ArrayList<Cell>();
 
 		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 20; i++) { // a herd of herbivores, to the left
+		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PETRI_DISH_SIZE / 4 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
-			allCells.add(new Predator(this, rng, PETRI_DISH_SIZE * 3 / 4 + rng.nextInt(100) - 50,
+		for (int i = 0; i < 2; i++) { // a herd of predators, in their midst
+			allCells.add(new Predator(this, rng, PETRI_DISH_SIZE / 4 + rng.nextInt(100) - 50,
 					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 6));
 		}
 		for (int i = 0; i < 30; i++) { // a small pile of food, in the center

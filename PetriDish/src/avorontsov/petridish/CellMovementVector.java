@@ -33,6 +33,16 @@ public class CellMovementVector {
 	public CellMovementVector getUnitVector() {
 		return new CellMovementVector(xComponent / magnitude, yComponent / magnitude);
 	}
+	
+	/**
+	 * A call to this method with an argument of 1 is equivalent to a call to getUnitVector()
+	 * 
+	 * @param scalar the scalar by which to adjust this vector
+	 * @return a scaled vector from this vector
+	 */
+	public CellMovementVector getScaledVector(int scalar) {
+		return new CellMovementVector(getUnitVector().getXComponent()*scalar, getUnitVector().getYComponent()*scalar);
+	}
 
 	/**
 	 * @return the xComponent
