@@ -114,13 +114,12 @@ Version 0.0.6
 Rewrote the petri dish dimension limitations to allow rectangular dishes for debug purposes.
 Known issue: Strange jitteriness of cells - either a threading issue, a problem with squishing, or low frame rate.
 
-ROADMAP (Current: 0.0.6)
+Version 0.0.6.1
+Rewrote the thread synchronization system, with full infrastructure for future frame rate tracking, etc. now in place.
+Bug fix: The rare indexing crash should also now be fixed, through use of a buffer array (at a substantial performance cost).
 
-Features for 0.0.6.1
-	Fix known issues:
-		Strange jitteriness of cells - either a threading issue, a problem with squishing, or low frame rate
-		Rare indexing error crashes as a result of nondeterministic thread interactions
-			Prerequisite: Refine thread sync system - time simulation thread
+
+ROADMAP (Current: 0.0.6.1)
 	
 Features for 0.0.7
 	Work eating, grazing, sleeping, and mating behaviors into the generalized behavior framework
@@ -142,6 +141,7 @@ Features for 0.1.0
 	Fix known issues:
 		Cells stuck against each other trying to reach the same target
 		Cells misprioritizing their targets by proximity (multiple possible causes, evaluate)
+		Strange jitteriness of cells - must be a limitation of the graphics engine (no solution?)
 	Basic GUI
 		Simulation speed control
 			Slider to control speed

@@ -53,7 +53,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = false;
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
