@@ -206,16 +206,16 @@ public abstract class Cell {
 		if (x < 15) {
 			xVelocity = 1;
 			x = 15;
-		} else if (x > PetriDishApp.PETRI_DISH_SIZE - 15) {
+		} else if (x > PetriDishApp.PETRI_DISH_WIDTH - 15) {
 			xVelocity = -1;
-			x = PetriDishApp.PETRI_DISH_SIZE - 15;
+			x = PetriDishApp.PETRI_DISH_WIDTH - 15;
 		}
 		if (y < 15) {
 			yVelocity = 1;
 			y = 15;
-		} else if (y > PetriDishApp.PETRI_DISH_SIZE - 15) {
+		} else if (y > PetriDishApp.PETRI_DISH_HEIGHT - 15) {
 			yVelocity = -1;
-			y = PetriDishApp.PETRI_DISH_SIZE - 15;
+			y = PetriDishApp.PETRI_DISH_HEIGHT - 15;
 		}
 	}
 

@@ -19,8 +19,8 @@ import javafx.event.EventHandler;
  */
 public class PetriDishApp extends Application {
 
-	public static final int PETRI_DISH_SIZE = 750; // the petri dish is a square of this dimension TODO this value is
-													// referenced inconsistently throughout the program
+	public static final int PETRI_DISH_WIDTH = 1400; // TODO configurable
+	public static final int PETRI_DISH_HEIGHT = 800;
 
 	private Group guiRoot; // the root node of the GUI window scene graph
 	private Group petriRoot; // the root node of the simulation window scene graph
@@ -81,7 +81,7 @@ public class PetriDishApp extends Application {
 		// no nodes; initially simulation window is blank, so no need to modify
 		// petriRoot's children
 
-		Scene petriScene = new Scene(petriRoot, PETRI_DISH_SIZE, PETRI_DISH_SIZE);
+		Scene petriScene = new Scene(petriRoot, PETRI_DISH_WIDTH, PETRI_DISH_HEIGHT);
 
 		petriWindow.setTitle("Petri Dish");
 		petriWindow.setScene(petriScene);

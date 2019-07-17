@@ -110,15 +110,17 @@ Predators now only lunge after prey if they have the energy.
 Grazers now try to stay out of lunging range, but will ignore predators that are too far to threaten them.
 Known issue: Sometime along the way we have caused cells to sometimes fail to prioritize the closest agar.
 
-ROADMAP (Current: 0.0.5.8)
+Version 0.0.6
+Rewrote the petri dish dimension limitations to allow rectangular dishes for debug purposes.
+Known issue: Strange jitteriness of cells - either a threading issue, a problem with squishing, or low frame rate.
 
-Features for 0.0.6
-	Fix cell misprioritizing their targets by proximity (multiple possible causes, evaluate)
-	Fix the indexing crash
-		Prerequisite: Refine thread sync system - time simulation thread
-	Rewrite petri dish dimension limitations
-	
-Launch 0.0.6
+ROADMAP (Current: 0.0.6)
+
+Features for 0.0.6.1
+	Fix known issues:
+		Strange jitteriness of cells - either a threading issue, a problem with squishing, or low frame rate
+		Rare indexing error crashes as a result of nondeterministic thread interactions
+			Prerequisite: Refine thread sync system - time simulation thread
 	
 Features for 0.0.7
 	Work eating, grazing, sleeping, and mating behaviors into the generalized behavior framework
@@ -128,7 +130,6 @@ Features for 0.0.7
 			Cells sleeping to save energy
 		Old behaviors (reimplement)
 			Eating
-			
 	Rework size calculation
 		Modify function of MovementOrder method
 			Calculate energy consumption based on size (later area) and vector magnitude
@@ -138,7 +139,9 @@ Features for 0.0.7
 		Tweak vision range formula
 
 Features for 0.1.0
-	Fix known issues: Cells stuck against each other trying to reach the same target.
+	Fix known issues:
+		Cells stuck against each other trying to reach the same target
+		Cells misprioritizing their targets by proximity (multiple possible causes, evaluate)
 	Basic GUI
 		Simulation speed control
 			Slider to control speed

@@ -18,7 +18,6 @@ import java.util.ArrayList;
  */
 public class PetriDish implements Runnable {
 
-	public final int PETRI_DISH_SIZE = 750; // currently copied from PetriDishApp (temp)
 	public final int SIMULATION_TICK_DELAY_MS = 30; // TODO source from config. this is the minimum time between update ticks of the simulation (may be exceeded if processing takes longer) 
 	// note to self. 15 ms (or perhaps 13 or 14) is the minimum tick delay to avoid inconsistent tick rate at least on my machine
 	// note to self. as cell number increases, simulation complexity increases as a factorial (I think - because each cell checks each other cell multiple times per tick) - but graphics complexity (I assume) is linear - so the simulation stops getting ahead and starts being the slow one
@@ -59,20 +58,20 @@ public class PetriDish implements Runnable {
 		allCells = new ArrayList<Cell>();
 
 		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
-			allCells.add(new Grazer(this, rng, PETRI_DISH_SIZE / 4 + rng.nextInt(100) - 50,
-					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 5));
+		for (int i = 0; i < 20; i++) { // a herd of herbivores, to the left
+			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 2; i++) { // a herd of predators, in their midst
-			allCells.add(new Predator(this, rng, PETRI_DISH_SIZE / 4 + rng.nextInt(100) - 50,
-					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 6));
+		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
+			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 6));
 		}
-		for (int i = 0; i < 30; i++) { // a small pile of food, in the center
-			allCells.add(new Agar(this, rng, PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50,
-					PETRI_DISH_SIZE / 2 + rng.nextInt(100) - 50, 0, 0, 3));
+		for (int i = 0; i < 60; i++) { // a small pile of food, in the center
+			allCells.add(new Agar(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(100) - 50,
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
-		allCells.add(new Plant(this, rng, PETRI_DISH_SIZE / 2 + rng.nextInt(50) - 25,
-				PETRI_DISH_SIZE / 2 + rng.nextInt(50) - 25, 0, 0, 3));
+		//allCells.add(new Plant(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(50) - 25,
+		//		PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(50) - 25, 0, 0, 3));
 		
 		// main simulation loop
 		do {
@@ -132,9 +131,9 @@ public class PetriDish implements Runnable {
 					allCells.remove(i);
 					i--; // decrement i to avoid skipping over a cell
 				}
-				while (allCells.size() < 50) { // deploy food TODO for debug purposes
-					allCells.add(new Agar(this, rng, rng.nextInt(PETRI_DISH_SIZE - 29) + 15,
-							rng.nextInt(PETRI_DISH_SIZE - 29) + 15, 0, 0, 3));
+				while (allCells.size() < 200) { // deploy food at any random point TODO for debug purposes
+					allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+							rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
 				}
 			}
 						

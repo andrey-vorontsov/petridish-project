@@ -63,13 +63,13 @@ public class MovementOrder {
 		// correct the vector to avoid pointing out of the petri dish (leads to cell stuck on wall)
 		if (me.getTargetX() < 15) {
 			me.setTargetX(15);
-		} else if (me.getTargetX() > PetriDishApp.PETRI_DISH_SIZE - 15) {
-			me.setTargetX(PetriDishApp.PETRI_DISH_SIZE - 15);
+		} else if (me.getTargetX() > PetriDishApp.PETRI_DISH_WIDTH - 15) {
+			me.setTargetX(PetriDishApp.PETRI_DISH_WIDTH - 15);
 		}
 		if (me.getTargetY() < 15) {
 			me.setTargetY(15);
-		} else if (me.getTargetY() > PetriDishApp.PETRI_DISH_SIZE - 15) {
-			me.setTargetY(PetriDishApp.PETRI_DISH_SIZE - 15);
+		} else if (me.getTargetY() > PetriDishApp.PETRI_DISH_HEIGHT - 15) {
+			me.setTargetY(PetriDishApp.PETRI_DISH_HEIGHT - 15);
 		}
 		
 		// apply energy cost according to formula
