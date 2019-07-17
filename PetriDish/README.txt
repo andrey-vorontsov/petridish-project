@@ -91,15 +91,21 @@ Known issue: Predators now brazenly target Grazers that are too big for them to 
 
 Version 0.0.5.7
 Fully set up Grazers and Predators in the new framework.
-Evasion and hunting are implemented.
-Known issue: Neither evasion nor hunting behaviors work correctly.
+Evasion and hunting are implemented as placeholders
 Expanded functionality of the Behavior data type to allow relative controls (i.e. relative size of predator and prey cells)
 Known issue: The rare crash has reoccured. A solution is identified.
 Known issue: Cells become invisible without a death message.
 
-ROADMAP (Current: 0.0.5.7)
+Version 0.0.5.7a
+Bug fix: Invisible cells, the cause was a debug printing mistake.
+Bug fix: Hunting behavior
+
+ROADMAP (Current: 0.0.5.7a)
 		
 Features for 0.0.5.8
+	Fix the indexing crash
+		Prerequisite: Refine thread sync system - time simulation thread
+	Replace placeholder evasion behavior
 	Cells remember the behavior they had on the previous turn (this affects wandering and will be useful later)
 	Incorporate framework into new behaviors
 		Ensure behavior definitions allow for checks against own energy (for hunting)
@@ -131,7 +137,6 @@ Features for 0.1.0
 		Simulation speed control
 			Slider to control speed
 			Pause/unpause button
-	Refine thread sync system - time simulation thread as well
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures

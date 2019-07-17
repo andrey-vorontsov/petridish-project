@@ -39,10 +39,10 @@ public class Predator extends Cell {
 		// create the set of behaviors used by this cell
 		CellMovementController behaviorSet = new CellMovementController();
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 1);
-		huntingGrazers.setTargetCellMaxDistance(15);
+		huntingGrazers.setTargetCellMaxDistance(40);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
-		huntingGrazers.setTargetCellMinDistance(3); // avoid overshooting/oversteering
-		//behaviorSet.addBehavior(huntingGrazers);
+		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
+		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 2);
 		pursuitGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
@@ -52,7 +52,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = true;
+		SUPPRESS_EVENT_PRINTING = false;
 	}
 
 	/**
