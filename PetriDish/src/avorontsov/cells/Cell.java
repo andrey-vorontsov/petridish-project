@@ -9,24 +9,31 @@ import javafx.scene.paint.Color;
 
 /**
  * Represents a single-celled organism inhabiting the petri dish environment.
- * Capable of moving, eating, reproducing, and dying. Additionally, holds
+ * Capable of moving, eating, reproducing, etc. Additionally, holds
  * information associated with the cell's appearance and various stats. This
  * class is used as a data structure by the petri dish simulation thread, as
- * well as holding many helper methods to support implementations of cell
- * behavior by children of this class.
+ * well as holding many helper methods for cell behavior. Classes extending Cell
+ * can configure the basic functionality or override methods to achieve desired behavior.
+ * 
+ * In general, protected fields of this class should be set in the constructor of any extending class, with
+ * the following exceptions: x, y, xVelocity, yVelocity (exposed for ease of extending methods)
+ * So children should set:
+ * SUPPRESS_EVENT_PRINTING, health, energy, size, color, friction, visionRange, species
+ * Additionally, children should
+ * 1. Customize and add a CellBehaviorController
+ * 2. Override getGraphic()
  * 
  * @author Andrey Vorontsov
  */
 public abstract class Cell {
 
 	// utility
-	protected Random rng; // use the same Random object as the petri dish (allows reproduction of a simulation using a seed)
-	protected PetriDish petri; // need a reference to the petri dish the cell lives in
-	private static int nextCellID = 1; // each cell is assigned a unique ID
-	public final int cellID;
+	private Random rng; // use the same Random object as the rest of the simulation
+	private PetriDish petri; // a reference to the petri dish the cell lives in
+	private static long nextCellID = 1; // each cell is assigned a unique ID
+	public final long cellID;
 	protected boolean SUPPRESS_EVENT_PRINTING = false; // children of this class may choose to set this to true to
-														// prevent status messages from that species from printing to
-														// console
+														// prevent status messages from that species from printing
 
 	// physical information
 	protected double x;
@@ -37,23 +44,25 @@ public abstract class Cell {
 	// information related to the cell's status independent of its genetics
 	// for all cells
 	private boolean isAlive;
-	protected int age;
-	// varies based on cell type
+	private int age;
+	
+	// varies based on cell type, protected fields
 	protected int health;
 	protected int energy;
 	protected int size;
+	
 	// for cell behaviors
-	protected double targetX;
-	protected double targetY;
-	protected CellMovementVector targetingVector;
+	private double targetX;
+	private double targetY;
+	private CellMovementVector targetingVector;
 	private CellBehaviorController behaviors; // defines the set of movement behaviors this cell has
-	protected String currBehavior;
+	private String currBehavior;
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
 								// friction)
-	protected double visionRange; // distance the cell can see (radius of a circle around its center) (warning; does not directly match the output of getVisionRange())
+	protected double visionRange; // base distance the cell can see (radius of a circle around its center)
 	protected String species;
 
 	/**
@@ -76,10 +85,11 @@ public abstract class Cell {
 		this.yVelocity = yVelocity;
 		this.size = size;
 
+		// defaults
 		isAlive = true;
 		age = 0;
 		targetingVector = new CellMovementVector(0, 0);
-		currBehavior = "sleep"; // TODO sleep behavior currently isn't used anywhere else, problematic
+		currBehavior = "sleep";
 
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
@@ -89,15 +99,14 @@ public abstract class Cell {
 	 * Core method, representing the basic actions the cell can take each tick of
 	 * the simulation.
 	 * 
-	 * @param visibleCells a list of cells visible to this cell, based on the cell's vision range
-	 * @param eatableCells a list of cells that this cell could eat (the centerpoints of which are within the radius of this cell)
+	 * @param visibleCells a list of cells visible to this cell, based on the cell's vision range and size
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
 	public Cell update(ArrayList<Cell> visibleCells) {
 		age++;
 
-		Cell newCell = act(visibleCells); // the cell enacts its behavior list (combines the old move() + eat() + reproduce() methods)
+		Cell newCell = act(visibleCells); // the cell invokes its CellBehaviorController
 
 		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
 			grow(); // the cell has a chance to grow itself
@@ -377,7 +386,7 @@ public abstract class Cell {
 	public double getVisionRange() {
 		if (!canSee())
 			return 0;
-		return visionRange + size*6;
+		return visionRange + size*6; // TODO fix
 	}
 
 	/**

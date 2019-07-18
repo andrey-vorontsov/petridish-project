@@ -1,12 +1,11 @@
 package avorontsov.cells;
 import avorontsov.petridish.*;
 
-import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.paint.Color;
 
 /**
- * Not really a creature, just a little pellet of food. No behaviors, exist to
+ * Not really a creature, just a little pellet of food. No behaviors, exists to
  * feed other cells.
  * 
  * @author Andrey Vorontsov
@@ -26,7 +25,7 @@ public class Agar extends Cell {
 		visionRange = 0;
 		
 		CellBehaviorController behaviorSet = new CellBehaviorController();
-		behaviorSet.addBehavior(new Behavior("wander", null, 4));
+		behaviorSet.addBehavior(new Behavior("sleep", null, 1));
 		setBehaviors(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = true;

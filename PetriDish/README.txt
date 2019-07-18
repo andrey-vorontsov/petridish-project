@@ -136,13 +136,22 @@ Plants now do not reproduce into clusters of more than three.
 Code cleanup is underway; slightly optimized the core simulation code.
 Squishing temporarily disabled for testing purposes.
 
-ROADMAP (Current: 0.0.6.3)
+Version 0.0.6.3a
+This version is nonfunctional.
+Code cleanup is still underway with some slight optimizations and robustness improvements coming along.
+
+ROADMAP (Current: 0.0.6.3a)
+
+NOTES
+Record all locations needed for modification here and in Behavior.java
+ActionOrder.generateMovementVector() must be updated for new movement orders
+Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
+Any new properties need to be added as fields to Behavior together with getters and setters
+CellBehaviorController.getNextActionOrder() must be updated with any new property checks
+
 
 Features for 0.0.6.4
 	Code cleanup, optimization, and removal of old dead/redundant code after some major refactoring.
-		ActionOrder
-		Behavior
-		CellBehaviorController
 		Agar
 		Cell
 		Grazer
@@ -203,6 +212,8 @@ Features for 1.0.0
 	Cell behaviors
 		Cells remember locations of recently seen objects
 		Cells remember 'what they were doing'
+		Allow and optimize equal prioritization of behaviors
+			Esp. eating - should be on one pedestal
 	Genetic heredity
 		Basics
 			Data structure

@@ -2,46 +2,53 @@ package avorontsov.petridish;
 
 /**
  * A high-level representation of a particular behavior a given cell may have.
- * The encapsulated information informs the CellMovementController how a
- * particular species should be treated by this cell.
+ * The encapsulated information informs the CellBehaviorController what checks should be made before a given action is taken.
  * 
  * @author Andrey Vorontsov
  */
 public class Behavior {
 	
 	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone"};
-	// eat and graze are related to eat(). evade, pursue, hunt, wander are move() modes. mate is used by reproduce()
-
-	private String behaviorCategory; // automatically initalized to sort eat(), move(), reproduce() behaviors
-	private String behaviorType; // valid strings listed in VALID_BEHAVIORS
-	private String targetCellSpecies; // valid string include "Predator" "Grazer" "Agar" "Plant" // TODO review and update handlers
 	
-	// target cell properties evaluated by the Controller
+	// Notes on adding new behaviors or adjusting the implementation of old ones.
+	// Movement type behaviors are interpreted in ActionOrder.generateMovementVector()
+	// TODO complete this list
+	
+	private String behaviorCategory; // automatically initialized to categorize MOVE, EAT, REPRODUCE behaviors
+	private String behaviorType; // valid strings listed in VALID_BEHAVIORS
+	
+	// properties of the cells to be targeted, with default values
+	private String targetCellSpecies;
 	private int targetCellMinSize = 0;
 	private int targetCellMaxSize = Integer.MAX_VALUE;
 	private double targetCellMinDistance = 0;
 	private double targetCellMaxDistance = Double.MAX_VALUE;
-	private int thisCellMinEnergy = 0; // the minimum energy for this cell to attempt this behavior
-	// these properties are calculated relative to the cell itself
-	private int targetCellMinRelVelocity = 0;
-	private int targetCellMaxRelVelocity = Integer.MAX_VALUE;
-	private int targetCellMinRelSize = -Integer.MAX_VALUE;
+	
+	// relative properties, that is, comparisons between the target cell and this cell
+	private int targetCellMinRelSize = Integer.MIN_VALUE;
 	private int targetCellMaxRelSize = Integer.MAX_VALUE;
+	
 	// used for hit detection. touching is used for collision detection, engulfing is used for eatability detection
 	private boolean targetCellMustBeTouching = false;
 	private boolean targetCellMustBeEngulfed = false;
-	// used for reproduction.
-	private int maximumVisiblePopulation = Integer.MAX_VALUE; // the maximum number of other members of its species for it to attempt this behavior
-	// TODO valid eat and squish detection must use these
+	
+	// properties of this cell that must be satisfied for the behavior
+	private int thisCellMinSize = 0;
+	private int thisCellMaxSize = Integer.MAX_VALUE;
+	private int thisCellMinEnergy = 0;
+	private int thisCellMaxEnergy = Integer.MAX_VALUE;
+
+	// properties of the overall environment/misc
+	private int maximumVisiblePopulation = Integer.MAX_VALUE; // the maximum number of other members of its species in vision range
 	
 	int priority; // used by CellMovementController to discriminate between higher and lower level
-					// importance behaviors (ideally scale from 1 to 10, 1 highest)
+					// importance behaviors (scale from 1 to 10, 1 highest)
 
 	/**
-	 * Produces a minimal Behavior object. Optional fields may be initialized as needed.
+	 * Produces a basic Behavior object. Optional fields may be initialized as needed. For certain behaviors that do not require a target, this constructor may be sufficient.
 	 * 
 	 * @param behaviorType      valid strings include "evade" "pursue" "hunt"
-	 *                          "graze", etc.
+	 *                          "eat", etc.
 	 * @param priority          gives the importance of the behavior (ideally scale
 	 *                          from 1 to 10, 1 highest)
 	 */
@@ -53,32 +60,31 @@ public class Behavior {
 	 * Produces a simple Behavior object with a defined target species (all members of the species will be targeted). Other optional fields may be initialized as needed.
 	 * 
 	 * @param behaviorType      valid strings include "evade" "pursue" "hunt"
-	 *                          "graze", etc.
-	 *                          @param targetCellSpecies the species this behavior targets (e.g. "evade Predators")
+	 *                          "eat", etc.
+	 * @param targetCellSpecies the species this behavior targets (e.g. "Predator")
 	 * @param priority          gives the importance of the behavior (ideally scale
 	 *                          from 1 to 10, 1 highest)
 	 */
 	public Behavior(String behaviorType, String targetCellSpecies, int priority) {
 		if (!checkValidBehavior(behaviorType)) {
-			throw new IllegalArgumentException("An invalid cell behavior string was detected.");
+			throw new IllegalArgumentException("WARNING: Misconfigured or invalid cell behavior: " + behaviorType + ".");
 		}
 		this.behaviorType = behaviorType;
 		
-		// assign behavior category. defaults to move
+		// assign behavior category
 		if (behaviorType.equals("eat") || behaviorType.equals("graze"))
 			behaviorCategory = "EAT";
 		else if (behaviorType.equals("clone"))
 			behaviorCategory = "REPRODUCE";
-		else
-			behaviorCategory = "MOVE";
+		else // safe to use else because we validated the behaviorType
+			behaviorCategory = "MOVE"; 
 		
 		this.targetCellSpecies = targetCellSpecies;
 		this.priority = priority;
 	}
 	
 	/**
-	 * Used to validate that a behavior string is accepted as defined in the MovementBehavior class.
-	 * In reality, to be acceptable, a behavior string must also have a full implementation in the MovementOrder class that actually encapsulates the behavior code.
+	 * Used to validate that a behavior string is accepted as defined in the Behavior class.
 	 * 
 	 * @returns true only when the behavior string is acceptable.
 	 */
@@ -93,8 +99,6 @@ public class Behavior {
 		return acceptable;
 	}
 	
-	// setters for optional fields
-
 	/**
 	 * @param targetCellSpecies the targetCellSpecies to set
 	 */
@@ -131,20 +135,6 @@ public class Behavior {
 	}
 
 	/**
-	 * @param targetCellMinRelVelocity the targetCellMinRelVelocity to set
-	 */
-	public void setTargetCellMinRelVelocity(int targetCellMinRelVelocity) {
-		this.targetCellMinRelVelocity = targetCellMinRelVelocity;
-	}
-
-	/**
-	 * @param targetCellMaxRelVelocity the targetCellMaxRelVelocity to set
-	 */
-	public void setTargetCellMaxRelVelocity(int targetCellMaxRelVelocity) {
-		this.targetCellMaxRelVelocity = targetCellMaxRelVelocity;
-	}
-
-	/**
 	 * @param targetCellMinRelSize the targetCellMinRelSize to set
 	 */
 	public void setTargetCellMinRelSize(int targetCellMinRelSize) {
@@ -170,6 +160,41 @@ public class Behavior {
 	 */
 	public void setTargetCellMustBeEngulfed(boolean targetCellMustBeEngulfed) {
 		this.targetCellMustBeEngulfed = targetCellMustBeEngulfed;
+	}
+
+	/**
+	 * @param thisCellMinSize the thisCellMinSize to set
+	 */
+	public void setThisCellMinSize(int thisCellMinSize) {
+		this.thisCellMinSize = thisCellMinSize;
+	}
+
+	/**
+	 * @param thisCellMaxSize the thisCellMaxSize to set
+	 */
+	public void setThisCellMaxSize(int thisCellMaxSize) {
+		this.thisCellMaxSize = thisCellMaxSize;
+	}
+
+	/**
+	 * @param thisCellMinEnergy the thisCellMinEnergy to set
+	 */
+	public void setThisCellMinEnergy(int thisCellMinEnergy) {
+		this.thisCellMinEnergy = thisCellMinEnergy;
+	}
+
+	/**
+	 * @param thisCellMaxEnergy the thisCellMaxEnergy to set
+	 */
+	public void setThisCellMaxEnergy(int thisCellMaxEnergy) {
+		this.thisCellMaxEnergy = thisCellMaxEnergy;
+	}
+
+	/**
+	 * @param maximumVisiblePopulation the maximumVisiblePopulation to set
+	 */
+	public void setMaximumVisiblePopulation(int maximumVisiblePopulation) {
+		this.maximumVisiblePopulation = maximumVisiblePopulation;
 	}
 
 	/**
@@ -222,48 +247,6 @@ public class Behavior {
 	}
 
 	/**
-	 * @return the thisCellMinEnergy
-	 */
-	public int getThisCellMinEnergy() {
-		return thisCellMinEnergy;
-	}
-
-	/**
-	 * @param thisCellMinEnergy the thisCellMinEnergy to set
-	 */
-	public void setThisCellMinEnergy(int thisCellMinEnergy) {
-		this.thisCellMinEnergy = thisCellMinEnergy;
-	}
-
-	/**
-	 * @return the maximumVisiblePopulation
-	 */
-	public int getMaximumVisiblePopulation() {
-		return maximumVisiblePopulation;
-	}
-
-	/**
-	 * @param maximumVisiblePopulation the maximumVisiblePopulation to set
-	 */
-	public void setMaximumVisiblePopulation(int maximumVisiblePopulation) {
-		this.maximumVisiblePopulation = maximumVisiblePopulation;
-	}
-
-	/**
-	 * @return the targetCellMinRelVelocity
-	 */
-	public int getTargetCellMinRelVelocity() {
-		return targetCellMinRelVelocity;
-	}
-
-	/**
-	 * @return the targetCellMaxRelVelocity
-	 */
-	public int getTargetCellMaxRelVelocity() {
-		return targetCellMaxRelVelocity;
-	}
-
-	/**
 	 * @return the targetCellMinRelSize
 	 */
 	public int getTargetCellMinRelSize() {
@@ -292,12 +275,47 @@ public class Behavior {
 	}
 
 	/**
+	 * @return the thisCellMinSize
+	 */
+	public int getThisCellMinSize() {
+		return thisCellMinSize;
+	}
+
+	/**
+	 * @return the thisCellMaxSize
+	 */
+	public int getThisCellMaxSize() {
+		return thisCellMaxSize;
+	}
+
+	/**
+	 * @return the thisCellMinEnergy
+	 */
+	public int getThisCellMinEnergy() {
+		return thisCellMinEnergy;
+	}
+
+	/**
+	 * @return the thisCellMaxEnergy
+	 */
+	public int getThisCellMaxEnergy() {
+		return thisCellMaxEnergy;
+	}
+
+	/**
+	 * @return the maximumVisiblePopulation
+	 */
+	public int getMaximumVisiblePopulation() {
+		return maximumVisiblePopulation;
+	}
+
+	/**
 	 * @return the priority
 	 */
 	public int getPriority() {
 		return priority;
 	}
-	
+
 	/**
 	 * @return true only when this behavior requires a target cell to be meaningful
 	 */
