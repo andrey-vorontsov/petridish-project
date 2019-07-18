@@ -37,42 +37,48 @@ public class Predator extends Cell {
 		visionRange = 70;
 		
 		// create the set of behaviors used by this cell
-		CellMovementController behaviorSet = new CellMovementController();
-		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 1);
+		CellBehaviorController behaviorSet = new CellBehaviorController();
+		
+		Behavior eatAgars = new Behavior("eat", "Agar", 1);
+		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
+		behaviorSet.addBehavior(eatAgars);
+		
+		Behavior eatGrazers = new Behavior("eat", "Grazer", 1);
+		eatGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger to eat
+		eatGrazers.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
+		behaviorSet.addBehavior(eatGrazers);
+		
+		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
 		huntingGrazers.setTargetCellMaxDistance(40);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
 		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
 		behaviorSet.addBehavior(huntingGrazers);
 		
-		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 2);
+		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 4);
 		pursuitGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		behaviorSet.addBehavior(pursuitGrazers);
 		
-		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 3)); // agars pursued indiscrimnately
-		behaviorSet.addBehavior(new Behavior("wander", null, 4));
+		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 5)); // agars pursued indiscrimnately
+		behaviorSet.addBehavior(new Behavior("wander", null, 6));
 		setBehaviors(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
 
-	/**
-	 * Predators get their energy from consuming Grazers or agars.
-	 * 
-	 * @see Cell#eat(java.util.ArrayList)
-	 */
-	@Override
-	public void eat(ArrayList<Cell> eatableCells) {
-		for (Cell c : eatableCells) {
-			// for now, Predators can eat agars and any grazers that are at least 3 smaller
-			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 <= size)) {
-				energy += c.getEnergy();
-				c.kill("eaten");
-				if (!SUPPRESS_EVENT_PRINTING)
-					System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy.");
-			}
-		}
-	}
+//	/**
+//	 * Predators get their energy from consuming Grazers or agars.
+//	 * 
+//	 * @see Cell#eat(java.util.ArrayList)
+//	 */
+//	@Override
+//	public void eat(ArrayList<Cell> eatableCells) {
+//		for (Cell c : eatableCells) {
+//			// for now, Predators can eat agars and any grazers that are at least 3 smaller
+//			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 <= size)) {
+//				
+//		}
+//	}
 
 	/**
 	 * Predators grow when well-fed and shrink when starving.

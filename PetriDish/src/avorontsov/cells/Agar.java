@@ -24,27 +24,12 @@ public class Agar extends Cell {
 		color = Color.YELLOW;
 		species = "Agar";
 		visionRange = 0;
+		
+		CellBehaviorController behaviorSet = new CellBehaviorController();
+		behaviorSet.addBehavior(new Behavior("wander", null, 4));
+		setBehaviors(behaviorSet);
+		
 		SUPPRESS_EVENT_PRINTING = true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see Cell#move(java.util.ArrayList)
-	 */
-	@Override
-	public void move(ArrayList<Cell> visibleCells) {
-		// agar doesn't move
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see Cell#eat(java.util.ArrayList)
-	 */
-	@Override
-	public void eat(ArrayList<Cell> eatableCells) {
-		// agar can't eat anything else
 	}
 
 	/*

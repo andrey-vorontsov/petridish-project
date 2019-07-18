@@ -27,6 +27,10 @@ public class Behavior {
 	private int targetCellMaxRelVelocity = Integer.MAX_VALUE;
 	private int targetCellMinRelSize = -Integer.MAX_VALUE;
 	private int targetCellMaxRelSize = Integer.MAX_VALUE;
+	// used for hit detection. touching is used for collision detection, engulfing is used for eatability detection
+	private boolean targetCellMustBeTouching = false;
+	private boolean targetCellMustBeEngulfed = false;
+	// TODO valid eat and squish detection must use these
 	
 	int priority; // used by CellMovementController to discriminate between higher and lower level
 					// importance behaviors (ideally scale from 1 to 10, 1 highest)
@@ -153,6 +157,20 @@ public class Behavior {
 	}
 
 	/**
+	 * @param targetCellMustBeTouching the targetCellMustBeTouching to set
+	 */
+	public void setTargetCellMustBeTouching(boolean targetCellMustBeTouching) {
+		this.targetCellMustBeTouching = targetCellMustBeTouching;
+	}
+
+	/**
+	 * @param targetCellMustBeEngulfed the targetCellMustBeEngulfed to set
+	 */
+	public void setTargetCellMustBeEngulfed(boolean targetCellMustBeEngulfed) {
+		this.targetCellMustBeEngulfed = targetCellMustBeEngulfed;
+	}
+
+	/**
 	 * @return the behaviorCategory
 	 */
 	public String getBehaviorCategory() {
@@ -244,10 +262,31 @@ public class Behavior {
 	}
 
 	/**
+	 * @return the targetCellMustBeTouching
+	 */
+	public boolean doesTargetCellHaveToBeTouching() {
+		return targetCellMustBeTouching;
+	}
+
+	/**
+	 * @return the targetCellMustBeEngulfed
+	 */
+	public boolean doesTargetCellHaveToBeEngulfed() {
+		return targetCellMustBeEngulfed;
+	}
+
+	/**
 	 * @return the priority
 	 */
 	public int getPriority() {
 		return priority;
+	}
+	
+	/**
+	 * @return true only when this behavior requires a target cell to be meaningful
+	 */
+	public boolean requiresTarget() {
+		return !(targetCellSpecies == null);
 	}
 
 	/**

@@ -4,8 +4,7 @@ package avorontsov.petridish;
  * @author Andrey Vorontsov
  * 
  *         A convenience class to package movement data for a cell and
- *         facilitate calculations for moving towards a target. Methods for
- *         using this class are packaged into the Cell abstract class.
+ *         facilitate calculations for moving towards a target.
  */
 public class CellMovementVector {
 
@@ -33,15 +32,17 @@ public class CellMovementVector {
 	public CellMovementVector getUnitVector() {
 		return new CellMovementVector(xComponent / magnitude, yComponent / magnitude);
 	}
-	
+
 	/**
-	 * A call to this method with an argument of 1 is equivalent to a call to getUnitVector()
+	 * Scales the vector. A call to this method with an argument of 1 is equivalent
+	 * to a call to getUnitVector()
 	 * 
 	 * @param scalar the scalar by which to adjust this vector
 	 * @return a scaled vector from this vector
 	 */
 	public CellMovementVector getScaledVector(int scalar) {
-		return new CellMovementVector(getUnitVector().getXComponent()*scalar, getUnitVector().getYComponent()*scalar);
+		return new CellMovementVector(getUnitVector().getXComponent() * scalar,
+				getUnitVector().getYComponent() * scalar);
 	}
 
 	/**

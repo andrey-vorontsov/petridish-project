@@ -42,6 +42,10 @@ public class Plant extends Cell {
 		
 		updateGraphicSideLength();
 		
+		CellBehaviorController behaviorSet = new CellBehaviorController();
+		behaviorSet.addBehavior(new Behavior("wander", null, 4));
+		setBehaviors(behaviorSet);
+		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
 	
@@ -53,29 +57,6 @@ public class Plant extends Cell {
 		// this squared yields the square of the hypotenuse of the right triangle
 		// divide that by two and take the sqrt by pythagorean theorem to get side length of the square
 		side = Math.sqrt(Math.pow(((double)size/.75)*2,2)/2);
-	}
-
-	/* (non-Javadoc)
-	 * @see Cell#move(java.util.ArrayList)
-	 */
-	@Override
-	public void move(ArrayList<Cell> visibleCells) {
-		// Plants don't move
-	}
-
-	/**
-	 * Plants 'eat' by photosynthesis. In the future, the energy production rate of Plants will be configurable.
-	 * 
-	 * @see Cell#eat()
-	 */
-	/**
-	 * 
-	 * @see Cell#eat(java.util.ArrayList)
-	 */
-	@Override
-	public void eat(ArrayList<Cell> eatableCells) {
-		if (age % 2 == 0)
-			energy++;
 	}
 
 	/**

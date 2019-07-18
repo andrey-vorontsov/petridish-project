@@ -10,28 +10,28 @@ import avorontsov.cells.*;
  * @author Andrey Vorontsov
  *
  */
-public class MovementOrder {
+public class ActionOrder {
 
 	private Cell me;
-	private String behaviorType; // valid strings include "evade" "pursue" "hunt" "graze" "wander"
+	private Behavior sourceBehavior; // the behavior which generated this action order
 	private Cell target; // the specific cell object to target (may be null) (when the target is null, the MovementOrder relies on its behavior to judge an alternative
-	private CellMovementVector vector; // the calculated vector along which the cell must now move
+	private CellMovementVector vector; // the calculated vector along which the cell may need to move
 	private int vectorScalar = 1; // the int scalar to adjust the vector by. 1 by default (yields the unit vector) (initialized by constructor -> enforceBehavior())
 	
-	public MovementOrder(Cell me, String behaviorType, Cell target) {
-		if (!Behavior.checkValidBehavior(behaviorType)) {
-			throw new IllegalArgumentException("An invalid cell behavior string was detected.");
-		}
+	public ActionOrder(Cell me, Behavior sourceBehavior, Cell target) {
 		this.me = me;
-		this.behaviorType = behaviorType;
+		this.sourceBehavior = sourceBehavior;
 		this.target = target;
 		
-		vector = enforceBehavior(behaviorType);
+		// movement orders have an associated vector
+		if (sourceBehavior.getBehaviorCategory().equals("MOVE"))
+			vector = generateMovementVector();
 	}
 
-	private CellMovementVector enforceBehavior(String behaviorType) {
+	private CellMovementVector generateMovementVector() {
 		CellMovementVector oldTargetingVector = me.getTargetingVector(); // for clarity
 		String oldBehaviorType = me.getCurrBehavior(); // the behavior the cell had on the previous update
+		String behaviorType = sourceBehavior.getBehaviorType(); // the behavior which this order will tell the cell to apply
 		
 		// determine vector direction and generate the scalar
 		if (behaviorType.equals("pursue")) { // pursuit: move along a straight line to the target cell. target must not be null
@@ -72,19 +72,14 @@ public class MovementOrder {
 			me.setTargetY(PetriDishApp.PETRI_DISH_HEIGHT - 15);
 		}
 		
-		// apply energy cost according to formula
-		// TODO replace right away
-		if (me.getAge() % 4 == 0)
-			me.spendEnergy(1);
-		
 		return me.getVectorToTarget(me.getTargetX(), me.getTargetY()); // if no changes were made to the targetX and Y, the cell will continue moving along the old path
 	}
-
+	
 	/**
-	 * @return the behaviorType
+	 * @return the behavior which produced this action order
 	 */
-	public String getBehaviorType() {
-		return behaviorType;
+	public Behavior getSourceBehavior() {
+		return sourceBehavior;
 	}
 
 	/**
@@ -95,7 +90,7 @@ public class MovementOrder {
 	}
 	
 	/**
-	 * @return the final output vector
+	 * @return the final output vector (for movement orders only; null for non-movement orders)
 	 */
 	public CellMovementVector getVector() {
 		return vector;

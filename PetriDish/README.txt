@@ -119,15 +119,16 @@ Rewrote the thread synchronization system, with full infrastructure for future f
 Bug fix: The rare indexing crash should also now be fixed, through use of a buffer array (at a substantial performance cost).
 
 Version 0.0.6.1a
-Bug fix: Cells now prioritize targets by proximity again
+Bug fix: Cells now prioritize targets by proximity again.
 
+Version 0.0.6.2
+Working on code cleanup.
+Eating reimplemented; cells now eat INSTEAD of moving on a given tick, and can only eat a single target per turn.
+We paid a slight performance price for increased modularity, will make an effort to optimize the system.
+Known issue: Cells stop wandering when they have a Plant in sight. Very curious.
 
-ROADMAP (Current: 0.0.6.1a)
+ROADMAP (Current: 0.0.6.2)
 
-Features for 0.0.6.2
-	Build infrastructure (interfacing with old methods somehow) to start moving eating behavior into generalized behavior framework
-		Reimplement eating with new system
-	
 Features for 0.0.6.3
 	Build similar infrastructure for reproduction behaviors
 		Plant maximum density checking
@@ -152,7 +153,17 @@ Features for 0.0.6.6
 		Tweak vision range formula
 		
 Features for 0.0.7
-	At least one 0.1.0 task - simulation will be largely feature-complete for 0.1.0 by this version's release excluding bugs, setup ideas, and GUI/animation/visual stuff
+	Code cleanup, optimization, and removal of old dead/redundant code after some major refactoring. Remove from list when done.
+		ActionOrder
+		Behavior
+		CellBehaviorController
+		PetriDish
+		PetriDishApp
+		Agar
+		Cell
+		Grazer
+		Plant
+		Predator
 
 Features for 0.1.0
 	Fix known issues:

@@ -41,7 +41,12 @@ public class Grazer extends Cell {
 		visionRange = 50;
 		
 		// create the set of behaviors used by this cell
-		CellMovementController behaviorSet = new CellMovementController();
+		CellBehaviorController behaviorSet = new CellBehaviorController();
+		
+		Behavior eatAgars = new Behavior("eat", "Agar", 1);
+		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
+		behaviorSet.addBehavior(eatAgars);
+		
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
 		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
 		behaviorSet.addBehavior(avoidPredators);
@@ -51,25 +56,7 @@ public class Grazer extends Cell {
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = true;
-	}
-
-	/**
-	 * Grazers get energy from harvesting plant growth or agar.
-	 * 
-	 * @see Cell#eat(java.util.ArrayList)
-	 */
-	@Override
-	public void eat(ArrayList<Cell> eatableCells) {
-		for (Cell c : eatableCells) {
-			if (c.getSpecies().equals("Agar")) { // for now, any agars contacted will be eaten
-				energy += c.getEnergy();
-				c.kill("eaten");
-				if (!SUPPRESS_EVENT_PRINTING)
-					System.out.println(this + " consumed " + c + ", receiving " + c.getEnergy() + " energy."); // TODO debug
-																											// event
-			}
-		}
+		SUPPRESS_EVENT_PRINTING = false;
 	}
 
 	/**

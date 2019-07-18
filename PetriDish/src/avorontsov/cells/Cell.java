@@ -46,7 +46,7 @@ public abstract class Cell {
 	protected double targetX;
 	protected double targetY;
 	protected CellMovementVector targetingVector;
-	private CellMovementController behaviors; // defines the set of movement behaviors this cell has
+	private CellBehaviorController behaviors; // defines the set of movement behaviors this cell has
 	protected String currBehavior;
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
@@ -95,11 +95,10 @@ public abstract class Cell {
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
-	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells, ArrayList<Cell> eatableCells) {
+	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		age++;
 
-		move(visibleCells); // the cell has a chance to affect its own movement
-		eat(eatableCells); // the cell has a chance to consume cells it is touching
+		act(visibleCells); // the cell enacts its behavior list (combines the old move() + eat() methods)
 
 		Cell newCell = null;
 		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
@@ -124,30 +123,42 @@ public abstract class Cell {
 	 * 
 	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
-	public void move(ArrayList<Cell> visibleCells) {
+	public void act(ArrayList<Cell> visibleCells) {
 		if (behaviors == null) {
 			throw new NullPointerException("Cell " + this + " does not have a movement controller!");
 		}
 		// calculate the next move order (this process also updates targetX and targetY)
-		MovementOrder moveOrder = behaviors.getNextMovementOrder(this, visibleCells);
+		ActionOrder nextOrder = behaviors.getNextActionOrder(this, visibleCells);
 		// update the cell's current behavior
-		currBehavior = moveOrder.getBehaviorType();
+		currBehavior = nextOrder.getSourceBehavior().getBehaviorType();
 		
-		// get and apply the corresponding vector
-		targetingVector = moveOrder.getVector();
-		xVelocity += targetingVector.getUnitVector().getXComponent() * moveOrder.getVectorScalar();
-		yVelocity += targetingVector.getUnitVector().getYComponent() * moveOrder.getVectorScalar();
+		// for movement behaviors, we adjust velocity
+		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("MOVE")) {
+			// get and apply the corresponding vector
+			targetingVector = nextOrder.getVector();
+			xVelocity += targetingVector.getUnitVector().getXComponent() * nextOrder.getVectorScalar();
+			yVelocity += targetingVector.getUnitVector().getYComponent() * nextOrder.getVectorScalar();
+			
+			// and apply energy cost according to formula
+			// TODO replace right away
+			if (species.equals("Grazer") || species.equals("Predator"))
+				if (getAge() % 4 == 0)
+					spendEnergy(1);
+		}
 		
-		// TODO currently, energy costs are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
+		// TODO eating code
+		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("EAT")) {
+			if (nextOrder.getSourceBehavior().getBehaviorType().equals("eat")) {
+				energy += nextOrder.getTarget().getEnergy();
+				nextOrder.getTarget().kill("eaten");
+				if (!SUPPRESS_EVENT_PRINTING)
+					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving " + nextOrder.getTarget().getEnergy() + " energy.");
+			}
+		}
+		
+		// TODO currently, energy costs for movement are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
 		// TODO goal is that this method will no longer need to be overriden (instead cells will apply controllers to themselves)
 	}
-
-	/**
-	 * The cell may consume certain other cells, or gain energy by other means. The general rule for eating cells is that the target cell's centerpoint must fall within this cell's circle
-	 * 
-	 * @param visibleCells a list of cells this cell can see based on its vision range and size
-	 */
-	abstract void eat(ArrayList<Cell> visibleCells);
 
 	/**
 	 * The cell may expend energy to increase its size.
@@ -395,7 +406,7 @@ public abstract class Cell {
 	/**
 	 * @param behaviors a CellMovementController object encapsulating the movement behaviors (evasion, pursuit, hunting, etc.) that a cell can take with respect to types of targets, and their priority levels
 	 */
-	public void setBehaviors(CellMovementController behaviors) {
+	public void setBehaviors(CellBehaviorController behaviors) {
 		this.behaviors = behaviors;
 	}
 
