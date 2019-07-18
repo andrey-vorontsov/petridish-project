@@ -9,7 +9,7 @@ package avorontsov.petridish;
  */
 public class Behavior {
 	
-	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "mate"};
+	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone"};
 	// eat and graze are related to eat(). evade, pursue, hunt, wander are move() modes. mate is used by reproduce()
 
 	private String behaviorCategory; // automatically initalized to sort eat(), move(), reproduce() behaviors
@@ -30,6 +30,8 @@ public class Behavior {
 	// used for hit detection. touching is used for collision detection, engulfing is used for eatability detection
 	private boolean targetCellMustBeTouching = false;
 	private boolean targetCellMustBeEngulfed = false;
+	// used for reproduction.
+	private int maximumVisiblePopulation = Integer.MAX_VALUE; // the maximum number of other members of its species for it to attempt this behavior
 	// TODO valid eat and squish detection must use these
 	
 	int priority; // used by CellMovementController to discriminate between higher and lower level
@@ -65,7 +67,7 @@ public class Behavior {
 		// assign behavior category. defaults to move
 		if (behaviorType.equals("eat") || behaviorType.equals("graze"))
 			behaviorCategory = "EAT";
-		else if (behaviorType.equals("mate"))
+		else if (behaviorType.equals("clone"))
 			behaviorCategory = "REPRODUCE";
 		else
 			behaviorCategory = "MOVE";
@@ -231,6 +233,20 @@ public class Behavior {
 	 */
 	public void setThisCellMinEnergy(int thisCellMinEnergy) {
 		this.thisCellMinEnergy = thisCellMinEnergy;
+	}
+
+	/**
+	 * @return the maximumVisiblePopulation
+	 */
+	public int getMaximumVisiblePopulation() {
+		return maximumVisiblePopulation;
+	}
+
+	/**
+	 * @param maximumVisiblePopulation the maximumVisiblePopulation to set
+	 */
+	public void setMaximumVisiblePopulation(int maximumVisiblePopulation) {
+		this.maximumVisiblePopulation = maximumVisiblePopulation;
 	}
 
 	/**

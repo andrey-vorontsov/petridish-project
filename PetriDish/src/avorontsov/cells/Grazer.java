@@ -47,6 +47,11 @@ public class Grazer extends Cell {
 		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatAgars);
 		
+		Behavior cloneMyself = new Behavior("clone", null, 2);
+		cloneMyself.setThisCellMinEnergy(100);
+		// TODO behavior needs to support this cell min size
+		behaviorSet.addBehavior(cloneMyself);
+		
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
 		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
 		behaviorSet.addBehavior(avoidPredators);
@@ -56,7 +61,7 @@ public class Grazer extends Cell {
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = false;
+		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
@@ -79,24 +84,24 @@ public class Grazer extends Cell {
 		}
 	}
 
-	/**
-	 * Grazers reproduce after reaching their maximum size and a threshold
-	 * energy.
-	 * 
-	 * @see Cell#reproduce(java.util.ArrayList)
-	 */
-	@Override
-	public Cell reproduce(ArrayList<Cell> visibleCells) {
-		Grazer child = null;
-		if (energy > 100 && size >= 8) { // right now: herbivore spends 20 energy to split in half and spawn an
-											// offspring, they also split their energy evenly
-			size = size / 2;
-			energy = (energy - 20) / 2;
-			child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
-			if (!SUPPRESS_EVENT_PRINTING)
-				System.out.println(this + " spawned " + child + ".");
-		}
-		return child;
-	}
+//	/**
+//	 * Grazers reproduce after reaching their maximum size and a threshold
+//	 * energy.
+//	 * 
+//	 * @see Cell#reproduce(java.util.ArrayList)
+//	 */
+//	@Override
+//	public Cell reproduce(ArrayList<Cell> visibleCells) {
+//		Grazer child = null;
+//		if (energy > 100 && size >= 8) { // right now: herbivore spends 20 energy to split in half and spawn an
+//											// offspring, they also split their energy evenly
+//			size = size / 2;
+//			energy = (energy - 20) / 2;
+//			child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
+//			if (!SUPPRESS_EVENT_PRINTING)
+//				System.out.println(this + " spawned " + child + ".");
+//		}
+//		return child;
+//	}
 
 }

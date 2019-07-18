@@ -61,7 +61,6 @@ public class CellBehaviorController {
 		for (int i=0; i<allBehaviors.size(); i++) {
 			// load the next behavior to consider
 			Behavior currBehavior = allBehaviors.get(i);
-			String currBehaviorType = currBehavior.getBehaviorType();
 			
 			// if the behavior requires a target, choose one
 			// otherwise leave the target as null (currently: used for wander behavior)
@@ -113,7 +112,19 @@ public class CellBehaviorController {
 					} // no target found, check the next behavior
 					
 				} else { // handle no-target behaviors here (current only wander, which is just passed straight on)
-					return new ActionOrder(me, currBehavior, null); // technically could be the same statement as the targeted one since target is null anyway but this is clearer I hope
+					if (currBehavior.getBehaviorType().equals("clone")) {
+						int visiblePopulationCount = 0;
+						for (Cell c: visibleCells) {
+							if (c.getSpecies().equals(me.getSpecies())) {
+								visiblePopulationCount++;
+							}
+						}
+						if (visiblePopulationCount <= currBehavior.getMaximumVisiblePopulation()) {
+							return new ActionOrder(me, currBehavior, null);
+						}
+					} else {
+						return new ActionOrder(me, currBehavior, null); // technically could be the same statement as the targeted one since target is null anyway but this is clearer I hope
+					}
 				}
 			} // couldn't muster the energy, try the next behavior
 		}

@@ -42,16 +42,5 @@ public class Agar extends Cell {
 		// agar can't grow
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see Cell#reproduce(java.util.ArrayList)
-	 */
-	@Override
-	public Cell reproduce(ArrayList<Cell> visibleCells) {
-		// agar doesn't reproduce
-		return null;
-	}
-
+	
 }

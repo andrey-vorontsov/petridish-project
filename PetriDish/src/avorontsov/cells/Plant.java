@@ -38,11 +38,15 @@ public class Plant extends Cell {
 		this.energy = energy;
 		color = Color.FORESTGREEN;
 		species = "Plant";
-		visionRange = 0;
+		visionRange = 100;
 		
 		updateGraphicSideLength();
 		
 		CellBehaviorController behaviorSet = new CellBehaviorController();
+		
+		Behavior sporePlants = new Behavior("clone", 1);
+		sporePlants.setMaximumVisiblePopulation(3);
+		behaviorSet.addBehavior(sporePlants);
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
 		setBehaviors(behaviorSet);
 		
@@ -52,7 +56,7 @@ public class Plant extends Cell {
 	/**
 	 * Helper method to update the Plant's graphic appearance in response to size changes
 	 */
-	private void updateGraphicSideLength() {
+	protected void updateGraphicSideLength() {
 		// (size/.75)*2 yields the full diagonal of the square (equivalent to 8/3 the size)
 		// this squared yields the square of the hypotenuse of the right triangle
 		// divide that by two and take the sqrt by pythagorean theorem to get side length of the square
@@ -66,6 +70,7 @@ public class Plant extends Cell {
 	 */
 	@Override
 	public void grow() {
+		energy += 5;
 		if (energy > 200 && size < 16 && rng.nextInt(100) < 5) {
 			size++;
 			energy -= 20;
@@ -74,27 +79,27 @@ public class Plant extends Cell {
 		}
 	}
 
-	/**
-	 * Plants reproduce by 'spores'. Their children get squish()ed away from them. TODO Plants should have a density cap
-	 * 
-	 * @see Cell#reproduce(java.util.ArrayList)
-	 */
-	@Override
-	public Cell reproduce(ArrayList<Cell> visibleCells) {
-		Plant child = null;
-		if (energy > 100 && size >= 14 && age % 3 == 0 && rng.nextInt(100) < 1) { 
-			size -= 3;
-			energy -= 50;
-			child = new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, 0, 0, 2, energy);
-			if (!SUPPRESS_EVENT_PRINTING)
-				System.out.println(this + " spawned " + child + ".");
-		}
-		// any size changes will occur either in grow() or here
-		// so we should update side length here
-		updateGraphicSideLength();
-		
-		return child;
-	}
+//	/**
+//	 * Plants reproduce by 'spores'. Their children get squish()ed away from them. TODO Plants should have a density cap
+//	 * 
+//	 * @see Cell#reproduce(java.util.ArrayList)
+//	 */
+//	@Override
+//	public Cell reproduce(ArrayList<Cell> visibleCells) {
+//		Plant child = null;
+//		if (energy > 100 && size >= 14 && age % 3 == 0 && rng.nextInt(100) < 1) { 
+//			size -= 3;
+//			energy -= 50;
+//			child = new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, 0, 0, 2, energy);
+//			if (!SUPPRESS_EVENT_PRINTING)
+//				System.out.println(this + " spawned " + child + ".");
+//		}
+//		// any size changes will occur either in grow() or here
+//		// so we should update side length here
+//		updateGraphicSideLength(); // TODO this needs to be done in act() now instead
+//		
+//		return child;
+//	}
 	
 	/**
 	 * Plants push all other cells away.

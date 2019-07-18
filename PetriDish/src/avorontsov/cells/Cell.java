@@ -90,20 +90,18 @@ public abstract class Cell {
 	 * the simulation.
 	 * 
 	 * @param visibleCells a list of cells visible to this cell, based on the cell's vision range
-	 * @param touchedCells a list of cells contacting this cell (the distance between them is less than the sum of their radii)
 	 * @param eatableCells a list of cells that this cell could eat (the centerpoints of which are within the radius of this cell)
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
-	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+	public Cell update(ArrayList<Cell> visibleCells) {
 		age++;
 
-		act(visibleCells); // the cell enacts its behavior list (combines the old move() + eat() methods)
+		Cell newCell = act(visibleCells); // the cell enacts its behavior list (combines the old move() + eat() + reproduce() methods)
 
-		Cell newCell = null;
 		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
 			grow(); // the cell has a chance to grow itself
-			newCell = reproduce(visibleCells); // the cell has a chance to spawn offspring (visibleCells argument included to possibly support future sexual reproduction)
+			ArrayList<Cell> touchedCells = new ArrayList<Cell>();
 			squish(touchedCells); // stop cells from overlapping others of the same species
 		}
 
@@ -123,7 +121,7 @@ public abstract class Cell {
 	 * 
 	 * @param visibleCells a list of cells this cell can see based on its vision range and size
 	 */
-	public void act(ArrayList<Cell> visibleCells) {
+	public Cell act(ArrayList<Cell> visibleCells) {
 		if (behaviors == null) {
 			throw new NullPointerException("Cell " + this + " does not have a movement controller!");
 		}
@@ -154,7 +152,37 @@ public abstract class Cell {
 				if (!SUPPRESS_EVENT_PRINTING)
 					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving " + nextOrder.getTarget().getEnergy() + " energy.");
 			}
+		
 		}
+		
+		// TODO breeding code
+		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("REPRODUCE")) {
+			if (nextOrder.getSourceBehavior().getBehaviorType().equals("clone")) {
+				Cell child = null;
+				if (size >= 8) { // copy pasted from predator for now; plant custom reproduction no work
+					size = size / 2;
+					energy = (energy - 20) / 2;
+					// this is a hack. eventually this gets weeded out as well
+					if (this instanceof Predator)
+						child = new Predator(petri, rng, x, y, 0, 0, size, energy);
+					if (this instanceof Grazer)
+						child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
+					if (this instanceof Plant)
+						child = new Plant(petri, rng, x, y, 0, 0, size, energy);
+					if (SUPPRESS_EVENT_PRINTING)
+						System.out.println(this + " spawned " + child + ".");
+				}
+				return child;
+			}
+		
+		}
+		
+		if (this instanceof Plant) {
+			Plant me = (Plant)this;
+			me.updateGraphicSideLength(); // TODO this needs to be done in act() now instead, an override
+		}
+		
+		return null; // did not breed this round
 		
 		// TODO currently, energy costs for movement are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
 		// TODO goal is that this method will no longer need to be overriden (instead cells will apply controllers to themselves)
@@ -164,14 +192,6 @@ public abstract class Cell {
 	 * The cell may expend energy to increase its size.
 	 */
 	abstract void grow(); // TODO consider growth as volume rather than radius
-
-	/**
-	 * The cell may expend energy to spawn an offspring.
-	 *
-	 * @param visibleCells a list of cells this cell can see based on its vision range and size
-	 * @return an offspring, if one is produced; otherwise return null
-	 */
-	abstract Cell reproduce(ArrayList<Cell> visibleCells);
 
 	/**
 	 * Cells die when they are killed.

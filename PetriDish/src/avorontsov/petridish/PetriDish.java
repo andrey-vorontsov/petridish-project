@@ -1,4 +1,5 @@
 package avorontsov.petridish;
+
 import avorontsov.cells.*;
 
 import javafx.application.Platform;
@@ -14,35 +15,53 @@ import java.util.ArrayList;
  * GUI thread via Platform.runLater(). In addition, this class includes a
  * handful of helper methods used internally by the simulation.
  * 
+ * TODO as a temporary feature, this class contains a hardcoded debug preset
+ * (creating cells at the start of the simulation) as well as code to create
+ * food during the simulation. These functions will eventually be extracted from
+ * this class.
+ * 
  * @author Andrey Vorontsov
  */
 public class PetriDish implements Runnable {
 
-	public final long SIMULATION_TICK_DELAY_MS = 30L; // TODO source from config. this is the minimum time between update ticks of the simulation (may be exceeded if processing takes longer)
-	public final long SIMULATION_TICK_DELAY_NANOS = SIMULATION_TICK_DELAY_MS * 1000000;  
-	// note to self. around 20 ms is the minimum tick delay to avoid inconsistent tick rate at least on my machine, tested at 1000 cells. 2000 cells is enough to push delays to over 60 ms easily
-	// note to self. as cell number increases, simulation complexity increases faster than graphics complexity. So, the load gets bigger on that thread
-	// note to self. Since the graphics thread is also handling all the JavaFX layers and events, it slows down whenever an event occurs (e.g. user click) and this can last 100s of ms easily...
-	
+	public final long SIMULATION_TICK_DELAY_MS = 30L; // TODO should be configurable, and may be moved to PetriDishApp.
+														// this is the minimum time between update ticks of the
+														// simulation (may be exceeded if processing takes longer). Not
+														// a hard limit.
+	public final long SIMULATION_TICK_DELAY_NANOS = SIMULATION_TICK_DELAY_MS * 1000000; // for convenience with
+																						// System.nanoTime(), which is
+																						// used to track performance
+
+	// Some notes. Around 20 ms is the minimum tick delay to avoid inconsistent tick
+	// rate, on my machine, with under 1000 cells. Delay grows much faster as cell
+	// count increases. As cell number increases, simulation complexity increases
+	// faster than graphics complexity. Since the graphics thread is also handling
+	// all the JavaFX layers and events, it slows down whenever an event occurs
+	// (e.g. user click)
+
 	// timers used to track performance
 	long simulationCycleDelta;
-	long graphicsCycleDelta = 0; // a sentinel value. in any case the simulation thread waits for the graphics thread to complete its work, at which time it updates this value
+	long graphicsCycleDelta = 0; // a sentinel value. in any case the simulation thread waits for the graphics
+									// thread to complete its work, at which time it updates this value
+	private boolean waitingForGraphics; // set to true when the simulation thread asks for a frame to be drawn; once the
+										// graphics frame is done, set to false
 
-	
-	private boolean done; // true only when the simulation thread must be stopped
-	private PetriDishApp app; // refers to the application thread - aka the GUI thread, needed to send
-								// graphics updates to it
-	private boolean waitingForGraphics; // set to true when the simulation thread asks for a frame to be drawn; once the graphics frame is done, set to false
-	
-	private Random rng; // used for random behavior of the overall simulation
+	private boolean done = false; // true only when the simulation thread must be stopped
+	private PetriDishApp app; // refers to the application thread - aka the graphics thread, used to retrieve
+								// the scene graph root that graphics information is built upon
 
-	private ArrayList<Cell> allCells; // contains all the single-celled organisms inhabiting the petri dish
-	private ArrayList<Cell> cellsToDraw; // re-created after every simulation cycle for use by the graphics thread
-	
+	private Random rng = new Random(); // used for random behavior of the simulation; if set to use a specific seed,
+										// the resulting simulation will be identical every time TODO configurable
+
+	private ArrayList<Cell> allCells = new ArrayList<Cell>(); // contains all the single-celled organisms inhabiting the
+																// petri dish
+	private ArrayList<Cell> cellsToDraw; // re-created after every simulation cycle for use by the graphics thread - to
+											// avoid have the two threads reading/writing from/to the same list
+
 	/**
 	 * Starts the petri dish simulation thread.
 	 * 
-	 * @param app a reference to the GUI thread to enable graphics output of this
+	 * @param app a reference to the GUI thread to enable graphics output from this
 	 *            thread
 	 */
 	public PetriDish(PetriDishApp app) {
@@ -56,141 +75,161 @@ public class PetriDish implements Runnable {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
-	@SuppressWarnings("unchecked") // I cast the Object returned by ArrayList.clone() to the ArrayList of the type, which I know. this is safe
+	@SuppressWarnings("unchecked") // I cast the Object returned by ArrayList.clone() to the ArrayList of the type.
 	@Override
 	public void run() {
 
-		// set up simulation
-		done = false;
-		rng = new Random(); // no fixed seed for testing purposes TODO configurable
-		allCells = new ArrayList<Cell>();
-
-		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 1; i++) { // a herd of herbivores, to the left
+		// set up simulation debug preset TODO extract this functionality
+		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 5));
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 5, 500));
 		}
-		for (int i = 0; i < 0; i++) { // a herd of predators, to the right
+		for (int i = 0; i < 1; i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 6));
 		}
-		for (int i = 0; i < 0; i++) { // a small pile of food, in the center
+		for (int i = 0; i < 30; i++) { // a small pile of food, in the center
 			allCells.add(new Agar(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
-		for (int i=0; i < 3; i++) {
-		allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-				rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
+		for (int i = 0; i < 3; i++) { // three plants at totally random locations in the dish
+			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
 		}
-		
-		cellsToDraw = (ArrayList<Cell>)allCells.clone(); // this array is used by the simulation thread to push a list of cells to draw to the graphics thread. this step is necessary because the threads run in parallel, and it is dangerous if the simulation thread starts modifying the allCells array while the graphics thread is digging around in it
-		
+
+		cellsToDraw = (ArrayList<Cell>) allCells.clone(); // this array is used by the simulation thread to push a list
+															// of cells to draw to the graphics thread. this step is
+															// necessary because the threads run in parallel, and it is
+															// dangerous if the simulation thread starts modifying the
+															// allCells array while the graphics thread is reading it
+
 		// main simulation loop
 		do {
-			
+
 			// set timers for this cycle
 			long cycleStartTime = System.nanoTime();
 			waitingForGraphics = true;
 
-			// ask to draw the next tick of the simulation on the graphics thread
+			// this request is sent to the graphics thread and runs in parallel to this
+			// thread; thus, the graphics thread draws the previous tick while the
+			// simulation prepares the next tick.
 			Platform.runLater(new Runnable() {
 
 				@Override
 				public void run() {
 
-					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
-										
-					// iterate through the graphics nodes list and replace it with refreshed
-					// graphics
+					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list - all
+																						// graphics are made to be
+																						// children of the petri dish
+																						// window's scene graph root
+
+					// iterate through the graphics nodes list and replace it with refreshed graphics
 					for (int i = 0; i < Math.min(allNodes.size(), cellsToDraw.size()); i++) {
-						allNodes.set(i, cellsToDraw.get(i).getGraphic()); // update the graphic for the cell in the nodes
-																		// list
+						allNodes.set(i, cellsToDraw.get(i).getGraphic()); // set() is used to avoid having to move other
+																			// entries in the list
 					}
 
-					// load graphics from new cells
-					if (allNodes.size() < cellsToDraw.size()) { // in the past update, more cells were born than died. so,
-																// we need to expand the allNodes list
+					// if the number of cells grew since last time, we must expand the graphics list
+					// to match using add()
+					if (allNodes.size() < cellsToDraw.size()) {
 						for (int i = allNodes.size(); i < cellsToDraw.size(); i++) {
 							allNodes.add(cellsToDraw.get(i).getGraphic());
 						}
 					}
 
-					// forget graphics from old cells
-					if (allNodes.size() > cellsToDraw.size()) { // in the past update, more cells died than were born. so,
-																// we need to contract the allNodes list
+					// if the number of cells decreased since last time, we must contract the
+					// graphics list by removing from the end
+					if (allNodes.size() > cellsToDraw.size()) {
 						for (int i = allNodes.size(); i > cellsToDraw.size(); i--) {
 							allNodes.remove(allNodes.size() - 1); // removes the last n graphics nodes, where n is
 																	// allNodes.size() - allCells.size()
 						}
 					}
-					
-					graphicsCycleDelta = System.nanoTime() - cycleStartTime;
-					waitingForGraphics = false; // graphics thread finished its work. simulation thread can continue once it is also finished
+
+					// after these actions, the scene graph of the petri dish window has been
+					// completely replaced
+
+					graphicsCycleDelta = System.nanoTime() - cycleStartTime; // stop this thread's work timer
+					waitingForGraphics = false; // graphics thread finished its work. simulation thread can continue
+												// once it is also finished
 				}
 
-			}); // this request is sent to the graphics thread and runs in parallel to this
-				// thread; thus, the graphics thread draws the previous tick while the
-				// simulation prepares the next tick.
+			}); // end of code for the graphics thread
 
 			// run the simulation by asking all the living cells to take their turns
-			
+
 			for (int i = 0; i < allCells.size(); i++) {
-				if (allCells.get(i).isAlive()) { // verify the cell is living before updating it
-					Cell newCell = allCells.get(i).update(getCellsInRange(allCells.get(i), allCells.get(i).getVisionRange()),
-							getTouchingCells(allCells.get(i))); // give the cell a list of visible cells to reference, as well as lists of cells it is touching TODO this all gets removed
+
+				// verify the cell is living before updating it
+				if (allCells.get(i).isAlive()) {
+
+					// for each update, the cell is given a list of cells it can see
+					// also given the opportunity to return a reference to a single new offspring
+
+					Cell newCell = allCells.get(i)
+							.update(getCellsInRange(allCells.get(i), allCells.get(i).getVisionRange()));
+
 					if (newCell != null) {
 						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
-												// that newborn cells are updated on the same cycle they are born (cell
-												// implementations should handle this somehow)
+												// that newborn cells are updated on the same cycle they are born
 					}
+
 				} else { // if a cell died, the allCells list shrinks in size
-					allCells.remove(i);
-					i--; // decrement i to avoid skipping over a cell
+					// note that order of the allCells list doesn't matter; so rather than running
+					// O(n) remove(), we can do a O(1) swap with the last entry
+
+					allCells.set(i, allCells.get(allCells.size() - 1)); // swap with the end
+					allCells.remove(allCells.size() - 1); // trim off the end
+					// note that for the last element, the call to set() does nothing
 				}
-				while (allCells.size() < 100) { // deploy food at any random point TODO for debug purposes
+
+				// below a certain total population, sprinkle food at random points
+				// TODO extract, this is here for debug only
+				while (allCells.size() < 100) {
 					allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 							rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
 				}
-			}
-			
-			cellsToDraw = (ArrayList<Cell>)allCells.clone(); // prepare the cells to draw list for the next cycle
-						
-			// the simulation sometimes runs a lot faster than the graphics thread (which is
-			// full of heavy JavaFX bloat); so it might finish working before waitingForGraphics becomes false again
 
-			// record how much time the simulation thread took
+			} // finished updating all petri dish inhabitants
+
+			cellsToDraw = (ArrayList<Cell>) allCells.clone(); // prepare the cells to draw list for the next cycle
+
+			// stop this thread's work timer
 			simulationCycleDelta = System.nanoTime() - cycleStartTime;
-			
+
 			// wait for the graphics thread to catch up if needed
 			while (waitingForGraphics) {
 				try {
-					Thread.sleep(0, 100); // unsure of the exact outcome of this call TODO study
+					Thread.sleep(0, 100); // presumably waits for 100 nanoseconds; in reality, Windows granularity means
+											// we only have ~1 ms precision
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 			// now both threads are finished and have reported their delta time
-			
-			// this should never happen
-			if (graphicsCycleDelta == 0)
-				throw new IllegalStateException("Petri Dish cannot continue. The graphics thread failed to responding.");
-			
-			long timeRemainingNanos; // calculate how much time we have left after our threads finish
+
+			// calculate how much time we have left after our threads finish
+			long timeRemainingNanos;
+
 			if (graphicsCycleDelta > simulationCycleDelta) { // program is bottlenecked by graphics thread
 				timeRemainingNanos = SIMULATION_TICK_DELAY_NANOS - graphicsCycleDelta;
 				if (timeRemainingNanos < 0) {
-					System.out.println("WARNING: The graphics thread is lagging. Lost " + (-1*timeRemainingNanos)/1000000 + " milliseconds."); // rounding down
+					System.out.println("WARNING: The graphics thread is lagging. Lost "
+							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
+
 			} else { // program is bottlenecked by simulation thread
 				timeRemainingNanos = SIMULATION_TICK_DELAY_NANOS - simulationCycleDelta;
 				if (timeRemainingNanos < 0) {
-					System.out.println("WARNING: The simulation thread is lagging. Lost " + (-1*timeRemainingNanos)/1000000 + " milliseconds."); // rounding down
+					System.out.println("WARNING: The simulation thread is lagging. Lost "
+							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
 			}
-			
+
 			// if any time remains, sleep until it's time to start working on the next cycle
-			long timeRemainingMillis = timeRemainingNanos / 1000000; // java rounds down... shouldn't matter that much, we might gain a millisecond worst case scenario
+			long timeRemainingMillis = timeRemainingNanos / 1000000; // java rounds down, but <1 ms precision is
+																		// retained
 			if (timeRemainingMillis > 0) {
 				try {
 					Thread.sleep(timeRemainingMillis);
@@ -198,73 +237,42 @@ public class PetriDish implements Runnable {
 					e.printStackTrace();
 				}
 			}
-			
 
-		} while (!done);
+		} while (!done); // check if we have gotten an order to stop since the last tick
 	}
 
 	/**
 	 * Helper method for cells that want to know what objects they can see in the
-	 * petri dish (those within a certain range of them) Said objects must be within
-	 * the max distance, alive, and not the querying cell itself
-	 * If the maxDistance is exactly zero, return null.
+	 * petri dish (those within a certain range of them). Said objects must be
+	 * within the max distance, alive, and not the querying cell itself. If the
+	 * maxDistance is exactly zero, returns an empty ArrayList.
 	 * 
 	 * @param me          the querying cell
 	 * @param maxDistance the distance to search within
 	 * @return a list of cells in the range
 	 */
 	public ArrayList<Cell> getCellsInRange(Cell me, double maxDistance) {
+		// this shortcut saves some time because some Cells have a vision range of 0
 		if (maxDistance == 0) {
-			return null;
+			return new ArrayList<Cell>();
 		}
+
 		ArrayList<Cell> visibleCells = new ArrayList<Cell>();
 		for (int i = 0; i < allCells.size(); i++) {
 			Cell curr = allCells.get(i);
-			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < maxDistance && curr.isAlive()
+			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < maxDistance
+					&& curr.isAlive()
 					&& !curr.equals(me)) { // a cell is in my range iff it is closer than the max distance, it is alive,
 											// and it is not myself
+
 				visibleCells.add(curr);
 			}
 		}
 		return visibleCells;
 	}
-	
-	/**
-	 * Helper method returning a list of cells that are in range to eat TODO legacy method
-	 * 
-	 * @param me          the querying cell
-	 * @return a list of edible cells
-	 */
-	public ArrayList<Cell> getEatableCells(Cell me) {
-		return getCellsInRange(me, me.getSize());
-	}
 
 	/**
-	 * A similar method to getCellsInRange(); however, this method takes into
-	 * account the radii of both the querying cell and the other cells to judge
-	 * whether the two cells are touching - that is, if there is any overlap at all
-	 * between their circles - as opposed to getCellsInRange() which looks at
-	 * distance between their centerpoints (without considering their sizes)
-	 * 
-	 * @param me the querying cell
-	 * @return a list of cells touching this cell
-	 */
-	public ArrayList<Cell> getTouchingCells(Cell me) {
-		ArrayList<Cell> touchedCells = new ArrayList<Cell>();
-		for (int i = 0; i < allCells.size(); i++) {
-			Cell curr = allCells.get(i);
-			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < me.getSize() + curr.getSize()
-					&& curr.isAlive() && !curr.equals(me)) { // a cell is in my range iff it is closer than the sum of
-																// our radii, it is alive,
-																// and it is not myself
-				touchedCells.add(curr);
-			}
-		}
-		return touchedCells;
-	}
-
-	/**
-	 * Helper method to get distance between two points in the petri dish
+	 * Helper method to get distance between two points in the petri dish.
 	 * 
 	 * @param x1 first point's x
 	 * @param y1 first point's y
@@ -277,7 +285,7 @@ public class PetriDish implements Runnable {
 	}
 
 	/**
-	 * Causes the main loop to exit shortly after call
+	 * Causes the simulation thread to terminate ASAP after call
 	 */
 	public void stop() {
 		done = true;

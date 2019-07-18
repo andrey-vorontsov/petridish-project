@@ -48,6 +48,11 @@ public class Predator extends Cell {
 		eatGrazers.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatGrazers);
 		
+		Behavior cloneMyself = new Behavior("clone", null, 2);
+		cloneMyself.setThisCellMinEnergy(150);
+		// TODO behavior needs to support this cell min size
+		behaviorSet.addBehavior(cloneMyself);
+		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
 		huntingGrazers.setTargetCellMaxDistance(40);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
@@ -65,20 +70,6 @@ public class Predator extends Cell {
 		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
-
-//	/**
-//	 * Predators get their energy from consuming Grazers or agars.
-//	 * 
-//	 * @see Cell#eat(java.util.ArrayList)
-//	 */
-//	@Override
-//	public void eat(ArrayList<Cell> eatableCells) {
-//		for (Cell c : eatableCells) {
-//			// for now, Predators can eat agars and any grazers that are at least 3 smaller
-//			if (c.getSpecies().equals("Agar") || (c.getSpecies().equals("Grazer") && c.getSize() + 3 <= size)) {
-//				
-//		}
-//	}
 
 	/**
 	 * Predators grow when well-fed and shrink when starving.
@@ -98,25 +89,6 @@ public class Predator extends Cell {
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
-	}
-
-	/**
-	 * Herbivores reproduce after reaching their maximum size and a threshold
-	 * energy.
-	 * 
-	 * @see Cell#reproduce(java.util.ArrayList)
-	 */
-	@Override
-	public Cell reproduce(ArrayList<Cell> visibleCells) {
-		Predator child = null;
-		if (energy > 150 && size >= 10) { // predator reproduction is more expensive
-			size = size / 2;
-			energy = (energy - 20) / 2;
-			child = new Predator(petri, rng, x, y, 0, 0, size, energy);
-			if (!SUPPRESS_EVENT_PRINTING)
-				System.out.println(this + " spawned " + child + ".");
-		}
-		return child;
 	}
 
 }

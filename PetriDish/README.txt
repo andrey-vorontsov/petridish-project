@@ -125,19 +125,32 @@ Version 0.0.6.2
 Working on code cleanup.
 Eating reimplemented; cells now eat INSTEAD of moving on a given tick, and can only eat a single target per turn.
 We paid a slight performance price for increased modularity, will make an effort to optimize the system.
-Known issue: Cells stop wandering when they have a Plant in sight. Very curious.
+Grazers now don't wander while a plant is in sight, nor do they expend energy; this is expected, because the grazing behavior is undefined.
+As a test, I gave plants and agars a wandering behavior. As expected, they did not move because their friction value is 0 (they also do not spend energy by the current model, which will need to be replaced).
+All in all, the reimplementation of eating, moving, and energy consumption mechanics seems to have gone off without a hitch.
 
-ROADMAP (Current: 0.0.6.2)
+Version 0.0.6.3
+Transferred reproduction into the same framework.
+The result is a little unlike what we used to have but appears to work well.
+Plants now do not reproduce into clusters of more than three.
+Code cleanup is underway; slightly optimized the core simulation code.
+Squishing temporarily disabled for testing purposes.
 
-Features for 0.0.6.3
-	Build similar infrastructure for reproduction behaviors
-		Plant maximum density checking
+ROADMAP (Current: 0.0.6.3)
 
 Features for 0.0.6.4
+	Code cleanup, optimization, and removal of old dead/redundant code after some major refactoring.
+		ActionOrder
+		Behavior
+		CellBehaviorController
+		Agar
+		Cell
+		Grazer
+		Plant
+		Predator
 	Develop new behaviors within the framework
 		Grazing
 		Sleeping
-	Build an abstract framework for future mating behavior
 
 Features for 0.0.6.5
 	Rework size calculation
@@ -152,18 +165,7 @@ Features for 0.0.6.6
 				(cells have a field controlling energy efficiency considering force exerted)
 		Tweak vision range formula
 		
-Features for 0.0.7
-	Code cleanup, optimization, and removal of old dead/redundant code after some major refactoring. Remove from list when done.
-		ActionOrder
-		Behavior
-		CellBehaviorController
-		PetriDish
-		PetriDishApp
-		Agar
-		Cell
-		Grazer
-		Plant
-		Predator
+Release 0.0.7
 
 Features for 0.1.0
 	Fix known issues:

@@ -19,7 +19,7 @@ import javafx.event.EventHandler;
  */
 public class PetriDishApp extends Application {
 
-	public static final int PETRI_DISH_WIDTH = 1400; // TODO configurable
+	public static final int PETRI_DISH_WIDTH = 1400; // TODO needs to be configurable
 	public static final int PETRI_DISH_HEIGHT = 800;
 
 	private Group guiRoot; // the root node of the GUI window scene graph
@@ -28,7 +28,7 @@ public class PetriDishApp extends Application {
 								// thread
 
 	/**
-	 * Launches the Petri Dish application (JavaFX Application thread startup)
+	 * Launches the Petri Dish application (JavaFX Application thread startup).
 	 * 
 	 * @param args unused
 	 */
@@ -40,7 +40,7 @@ public class PetriDishApp extends Application {
 	 * Initializes the GUI and simulation windows, then starts the simulation
 	 * thread. After this method runs at launch, there are two windows open and two
 	 * threads running (one graphics thread updating both windows, one simulation
-	 * thread running the petri dish in the background)
+	 * thread running the petri dish in the background).
 	 * 
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
 	 * @param appWindow supplied by JavaFX
@@ -57,7 +57,7 @@ public class PetriDishApp extends Application {
 		ObservableList<Node> allGuiNodes = guiRoot.getChildren();
 
 		// scene graph contains only a text message for now
-		Text currMsg = new Text("Initializing Petri Dish.");
+		Text currMsg = new Text("Initialized Petri Dish.");
 		currMsg.setX(30);
 		currMsg.setY(30);
 		allGuiNodes.add(currMsg);
@@ -81,8 +81,10 @@ public class PetriDishApp extends Application {
 		// no nodes; initially simulation window is blank, so no need to modify
 		// petriRoot's children
 
+		// set the petri dish window dimensions from configuration
 		Scene petriScene = new Scene(petriRoot, PETRI_DISH_WIDTH, PETRI_DISH_HEIGHT);
 
+		// set the petri dish window's stats, incl. title, location
 		petriWindow.setTitle("Petri Dish");
 		petriWindow.setScene(petriScene);
 		petriWindow.setResizable(false);
@@ -110,7 +112,7 @@ public class PetriDishApp extends Application {
 		appWindow.show();
 		petriWindow.show();
 
-		// start the simulation thread and hook it to this thread
+		// start the simulation thread and give it a hook to this thread
 
 		petri = new PetriDish(this);
 
@@ -118,7 +120,7 @@ public class PetriDishApp extends Application {
 
 	/**
 	 * Gets the root node of the scene graph of the simulation window, allowing the
-	 * auxiliary thread to get a reference to send graphics to
+	 * auxiliary thread to get a reference to send graphics to.
 	 * 
 	 * @return the root node of the scene graph of the simulation window
 	 */
@@ -127,7 +129,9 @@ public class PetriDishApp extends Application {
 	}
 
 	/**
-	 * When the app closes it will close down the simulation thread as well
+	 * When the app closes it will terminate down the simulation thread as well. The
+	 * simulation will terminate once it finishes the simulation tick it was working
+	 * on at the time.
 	 * 
 	 * @see javafx.application.Application#stop()
 	 */
