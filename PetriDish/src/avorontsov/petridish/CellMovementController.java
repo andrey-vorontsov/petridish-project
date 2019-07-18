@@ -59,7 +59,6 @@ public class CellMovementController {
 		// ; ultimately this logic should allow for equal priorities
 		// TODO this is extremely suboptimal. a good implementation would search for everything at the same time and then act on the highest priority one only (O(n)) while this is O(n^2)
 		
-		Cell target = null;
 		for (int i=0; i<allBehaviors.size(); i++) {
 			// load the next behavior to consider
 			Behavior currBehavior = allBehaviors.get(i);
@@ -73,11 +72,12 @@ public class CellMovementController {
 					return new MovementOrder(me, "wander", null);
 
 				// check all visible cells to find closest cell matching the behavior's targeting specifications
+				Cell target = null;
+				double distanceToTarget = Double.MAX_VALUE; // used for comparison to find closest matching target. safe as long as the petri dish is not insanely large (and other stuff will break before then)
 				for (Cell c : visibleCells) {
 					
 					// load some useful values for the comparisons
 					double distanceToCell = PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY());
-					double distanceToTarget = Double.MAX_VALUE; // used for comparison to find closest matching target. safe as long as the petri dish is not insanely large (and other stuff will break before then)
 					int cellsRelSize = me.getSize() - c.getSize(); // positive when this cell is bigger
 					double cellsRelVel = 0; // TODO
 					
@@ -97,7 +97,7 @@ public class CellMovementController {
 							
 							&& (target == null || distanceToTarget > distanceToCell)) { // finally, target is closer than any matching previous target
 						target = c;
-						distanceToTarget = PetriDish.distanceBetween(target.getX(), target.getY(), me.getX(), me.getY());
+						distanceToTarget = distanceToCell;
 					}
 				}
 				if (target != null) {// a target was found, generate the appropriate order

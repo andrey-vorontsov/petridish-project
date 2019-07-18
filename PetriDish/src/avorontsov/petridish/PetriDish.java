@@ -20,9 +20,9 @@ public class PetriDish implements Runnable {
 
 	public final long SIMULATION_TICK_DELAY_MS = 30L; // TODO source from config. this is the minimum time between update ticks of the simulation (may be exceeded if processing takes longer)
 	public final long SIMULATION_TICK_DELAY_NANOS = SIMULATION_TICK_DELAY_MS * 1000000;  
-	// note to self. 15 ms (or perhaps 13 or 14) is the minimum tick delay to avoid inconsistent tick rate at least on my machine
-	// note to self. as cell number increases, simulation complexity increases as a factorial (I think - because each cell checks each other cell multiple times per tick) - but graphics complexity (I assume) is linear - so the simulation stops getting ahead and starts being the slow one
-	// note to self. Since the graphics thread is also handling all the JavaFX layers and events, it slows down whenever an event occurs (e.g. user click) and this can lasts up to ~30 ms easily
+	// note to self. around 20 ms is the minimum tick delay to avoid inconsistent tick rate at least on my machine, tested at 1000 cells. 2000 cells is enough to push delays to over 60 ms easily
+	// note to self. as cell number increases, simulation complexity increases faster than graphics complexity. So, the load gets bigger on that thread
+	// note to self. Since the graphics thread is also handling all the JavaFX layers and events, it slows down whenever an event occurs (e.g. user click) and this can last 100s of ms easily...
 	
 	// timers used to track performance
 	long simulationCycleDelta;
@@ -66,20 +66,22 @@ public class PetriDish implements Runnable {
 		allCells = new ArrayList<Cell>();
 
 		// fill the petri dish with cells TODO this is for debug
-		for (int i = 0; i < 20; i++) { // a herd of herbivores, to the left
+		for (int i = 0; i < 1; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 5));
 		}
-		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
+		for (int i = 0; i < 0; i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 6));
 		}
-		for (int i = 0; i < 60; i++) { // a small pile of food, in the center
+		for (int i = 0; i < 0; i++) { // a small pile of food, in the center
 			allCells.add(new Agar(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
-		//allCells.add(new Plant(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(50) - 25,
-		//		PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(50) - 25, 0, 0, 3));
+		for (int i=0; i < 3; i++) {
+		allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+				rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
+		}
 		
 		cellsToDraw = (ArrayList<Cell>)allCells.clone(); // this array is used by the simulation thread to push a list of cells to draw to the graphics thread. this step is necessary because the threads run in parallel, and it is dangerous if the simulation thread starts modifying the allCells array while the graphics thread is digging around in it
 		
@@ -146,7 +148,7 @@ public class PetriDish implements Runnable {
 					allCells.remove(i);
 					i--; // decrement i to avoid skipping over a cell
 				}
-				while (allCells.size() < 1000) { // deploy food at any random point TODO for debug purposes
+				while (allCells.size() < 100) { // deploy food at any random point TODO for debug purposes
 					allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 							rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
 				}

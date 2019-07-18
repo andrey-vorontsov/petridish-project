@@ -118,30 +118,46 @@ Version 0.0.6.1
 Rewrote the thread synchronization system, with full infrastructure for future frame rate tracking, etc. now in place.
 Bug fix: The rare indexing crash should also now be fixed, through use of a buffer array (at a substantial performance cost).
 
+Version 0.0.6.1a
+Bug fix: Cells now prioritize targets by proximity again
 
-ROADMAP (Current: 0.0.6.1)
+
+ROADMAP (Current: 0.0.6.1a)
+
+Features for 0.0.6.2
+	Build infrastructure (interfacing with old methods somehow) to start moving eating behavior into generalized behavior framework
+		Reimplement eating with new system
 	
-Features for 0.0.7
-	Work eating, grazing, sleeping, and mating behaviors into the generalized behavior framework
-		New behaviors
-			Plant maximum density checks
-			Grazers grazing
-			Cells sleeping to save energy
-		Old behaviors (reimplement)
-			Eating
+Features for 0.0.6.3
+	Build similar infrastructure for reproduction behaviors
+		Plant maximum density checking
+
+Features for 0.0.6.4
+	Develop new behaviors within the framework
+		Grazing
+		Sleeping
+	Build an abstract framework for future mating behavior
+
+Features for 0.0.6.5
 	Rework size calculation
-		Modify function of MovementOrder method
-			Calculate energy consumption based on size (later area) and vector magnitude
-				Cells should have a field controlling energy efficiency (per velocity unit)
-		Current size variable should represent area of a circle
-		Cells should have different speed and energy consumption with larger size (consider mass)
+		Current size variable refactored as "radius" and represents only the hitbox
+		New size variable refers to the area of the circle
+
+Features for 0.0.6.6
+	Propagate size calculation changes
+		Cells should have correctly calculated speed
+			(each MovementOrder should have an instead associated FORCE, based on mass * acceleration)
+				(mass proportional to size = area)
+				(cells have a field controlling energy efficiency considering force exerted)
 		Tweak vision range formula
+		
+Features for 0.0.7
+	At least one 0.1.0 task - simulation will be largely feature-complete for 0.1.0 by this version's release excluding bugs, setup ideas, and GUI/animation/visual stuff
 
 Features for 0.1.0
 	Fix known issues:
 		Cells stuck against each other trying to reach the same target
-		Cells misprioritizing their targets by proximity (multiple possible causes, evaluate)
-		Strange jitteriness of cells - must be a limitation of the graphics engine (no solution?)
+		Strange jitteriness of cells - possibly caused by squishing function
 	Basic GUI
 		Simulation speed control
 			Slider to control speed
