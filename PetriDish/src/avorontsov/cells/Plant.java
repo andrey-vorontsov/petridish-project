@@ -27,7 +27,7 @@ public class Plant extends Cell {
 	}
 
 	/**
-	 * Create a Grazer with a specified amount of starting energy (used for
+	 * Create a Plant with a specified amount of starting energy (used for
 	 * reproducing).
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
@@ -37,20 +37,82 @@ public class Plant extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.FORESTGREEN;
+		friction = 0; // cannot move
 		species = "Plant";
-		visionRange = 100;
+		baseVisionRange = 100; // needs to be able to see to evaluate density of its population
 		
-		updateGraphicSideLength();
+		updateGraphicSideLength(); // custom method necessary to use the square graphic
 		
 		CellBehaviorController behaviorSet = new CellBehaviorController();
+		
+		// TODO go through these and double check
 		
 		Behavior sporePlants = new Behavior("clone", 1);
 		sporePlants.setMaximumVisiblePopulation(3);
 		behaviorSet.addBehavior(sporePlants);
-		behaviorSet.addBehavior(new Behavior("wander", null, 4));
-		setBehaviors(behaviorSet);
+		behaviorSet.addBehavior(new Behavior("sleep", null, 2));
+		setBehaviorController(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = true;
+	}
+
+	/**
+	 * Plants slowly grow above a certain energy, but can't decrease in size.
+	 * 
+	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
+	 */
+	@Override
+	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		energy += 5;
+		if (energy > 200 && size < 16 && getRNG().nextInt(100) < 5) {
+			size++;
+			energy -= 20;
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " grew one size.");
+		}
+		
+		super.customizedCellBehaviors(visibleCells, touchedCells); // calls the customized squish() and checks for death by starvation
+	}
+
+	/**
+	 * Customized squish() method. Plants push all other cells away, and push other Plants extra far. Plants use this technique to send their children a slight extra distance away.
+	 * 
+	 * @see Cell#squish(ArrayList)
+	 */
+	@Override
+	public void squish(ArrayList<Cell> touchedCells) {
+		for (Cell c : touchedCells) {
+			if (true) { // all species get squished out of the way by plants
+				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
+				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
+				double pushMagnitude = c.getSize() + size;
+				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude, pushUnit.getYComponent() * pushMagnitude);
+				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
+				
+				// push their offspring extra far
+				if (c.getAge() < 2 && c.getSpecies().equals("Plant")) {
+					c.setX(x + 3 * push.getXComponent() + 0.01);
+					c.setY(y + 3 * push.getYComponent() + 0.01);
+				} else {
+					c.setX(x + push.getXComponent() + 0.01);
+					c.setY(y + push.getYComponent() + 0.01);
+				}
+			}
+		}
+		
+	}
+
+	/**
+	 * Customzied getGraphic(). Plants use a square.
+	 * 
+	 * @see Cell#getGraphic()
+	 */
+	@Override
+	public Node getGraphic() {
+		updateGraphicSideLength();
+		Rectangle graphic = new Rectangle(x-(side/2), y-(side/2), side, side);
+		graphic.setFill(color);
+		return graphic;
 	}
 	
 	/**
@@ -63,79 +125,5 @@ public class Plant extends Cell {
 		side = Math.sqrt(Math.pow(((double)size/.75)*2,2)/2);
 	}
 
-	/**
-	 * Plants slowly grow above a certain energy. Plants can't starve.
-	 * 
-	 * @see Cell#grow()
-	 */
-	@Override
-	public void grow() {
-		energy += 5;
-		if (energy > 200 && size < 16 && rng.nextInt(100) < 5) {
-			size++;
-			energy -= 20;
-			if (!SUPPRESS_EVENT_PRINTING)
-				System.out.println(this + " grew one size.");
-		}
-	}
-
-//	/**
-//	 * Plants reproduce by 'spores'. Their children get squish()ed away from them. TODO Plants should have a density cap
-//	 * 
-//	 * @see Cell#reproduce(java.util.ArrayList)
-//	 */
-//	@Override
-//	public Cell reproduce(ArrayList<Cell> visibleCells) {
-//		Plant child = null;
-//		if (energy > 100 && size >= 14 && age % 3 == 0 && rng.nextInt(100) < 1) { 
-//			size -= 3;
-//			energy -= 50;
-//			child = new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, 0, 0, 2, energy);
-//			if (!SUPPRESS_EVENT_PRINTING)
-//				System.out.println(this + " spawned " + child + ".");
-//		}
-//		// any size changes will occur either in grow() or here
-//		// so we should update side length here
-//		updateGraphicSideLength(); // TODO this needs to be done in act() now instead
-//		
-//		return child;
-//	}
-	
-	/**
-	 * Plants push all other cells away.
-	 * 
-	 * @see Cell#squish()
-	 */
-	@Override
-	public void squish(ArrayList<Cell> touchedCells) {
-		for (Cell c : touchedCells) {
-			if (true) { // all species get squished out of the way by plants
-				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
-				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
-				double pushMagnitude = c.getSize() + size;
-				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude, pushUnit.getYComponent() * pushMagnitude);
-				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
-				
-				// push their offspring twice as far)
-				if (c.getAge() < 2 && c.getSpecies().equals("Plant")) {
-					c.setX(x + 2 * push.getXComponent() + 0.01);
-					c.setY(y + 2 * push.getYComponent() + 0.01);
-				} else {
-					c.setX(x + push.getXComponent() + 0.01);
-					c.setY(y + push.getYComponent() + 0.01);
-				}
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see Cell#getGraphic()
-	 */
-	@Override
-	public Node getGraphic() {
-		Rectangle graphic = new Rectangle(x-(side/2), y-(side/2), side, side);
-		graphic.setFill(color);
-		return graphic;
-	}
 
 }

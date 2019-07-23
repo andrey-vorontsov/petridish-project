@@ -8,7 +8,7 @@ package avorontsov.petridish;
  */
 public class Behavior {
 	
-	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone"};
+	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone", "sleep", "grow", "starve"};
 	
 	// Notes on adding new behaviors or adjusting the implementation of old ones.
 	// Movement type behaviors are interpreted in ActionOrder.generateMovementVector()

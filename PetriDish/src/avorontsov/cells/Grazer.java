@@ -1,4 +1,5 @@
 package avorontsov.cells;
+
 import avorontsov.petridish.*;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import javafx.scene.paint.Color;
 /**
  * A simple creature, made for testing out various functions such as cell
  * eating, reproduction, growth and movement. Grazers search for plants and
- * agars, exhibiting a grazing behavior as well as a predator evasion behavior
+ * agars, exhibiting a grazing behavior as well as a predator evasion behavior.
  * Currently unfinished.
  * 
  * @author Andrey Vorontsov
@@ -16,8 +17,8 @@ import javafx.scene.paint.Color;
 public class Grazer extends Cell {
 
 	/**
-	 * Create a Grazer. Grazers start out with 75 energy (almost enough to
-	 * start growing right away), and they are green.
+	 * Create a Grazer. Grazers start out with 75 energy (almost enough to start
+	 * growing right away), and they are green.
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
@@ -31,47 +32,50 @@ public class Grazer extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Grazer(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+	public Grazer(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size,
+			int energy) {
 		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
 		color = Color.LAWNGREEN;
 		friction = 0.85;
 		species = "Grazer";
-		visionRange = 50;
-		
+		baseVisionRange = 50;
+
 		// create the set of behaviors used by this cell
 		CellBehaviorController behaviorSet = new CellBehaviorController();
-		
+
+		// TODO go through these one more time and double check
+
 		Behavior eatAgars = new Behavior("eat", "Agar", 1);
 		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatAgars);
-		
+
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(100);
-		// TODO behavior needs to support this cell min size
 		behaviorSet.addBehavior(cloneMyself);
-		
+
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
 		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
 		behaviorSet.addBehavior(avoidPredators);
-		
+
 		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 2));
 		behaviorSet.addBehavior(new Behavior("graze", "Plant", 3));
 		behaviorSet.addBehavior(new Behavior("wander", null, 4));
-		setBehaviors(behaviorSet);
-		
+		setBehaviorController(behaviorSet);
+
 		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
-	 * Grazers grow when well-fed and shrink when starving.
+	 * Customized Grazer behavior. Grazers can grow up to a maximum and starve down
+	 * to a minimum size, depending on available energy.
 	 * 
-	 * @see Cell#grow()
+	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
-	public void grow() {
-		if (energy > 75 && size < 8) { // right now: herbivore spends 10 energy to grow one size
+	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		if (energy > 75 && size < 8) {
 			size++;
 			energy -= 8;
 			if (!SUPPRESS_EVENT_PRINTING)
@@ -82,26 +86,9 @@ public class Grazer extends Cell {
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
-	}
 
-//	/**
-//	 * Grazers reproduce after reaching their maximum size and a threshold
-//	 * energy.
-//	 * 
-//	 * @see Cell#reproduce(java.util.ArrayList)
-//	 */
-//	@Override
-//	public Cell reproduce(ArrayList<Cell> visibleCells) {
-//		Grazer child = null;
-//		if (energy > 100 && size >= 8) { // right now: herbivore spends 20 energy to split in half and spawn an
-//											// offspring, they also split their energy evenly
-//			size = size / 2;
-//			energy = (energy - 20) / 2;
-//			child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
-//			if (!SUPPRESS_EVENT_PRINTING)
-//				System.out.println(this + " spawned " + child + ".");
-//		}
-//		return child;
-//	}
+		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
+
+	}
 
 }

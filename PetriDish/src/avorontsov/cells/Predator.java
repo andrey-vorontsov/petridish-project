@@ -6,15 +6,14 @@ import java.util.Random;
 import javafx.scene.paint.Color;
 
 /**
- * A creature with similar traits to the Grazer, except that in addition to eating agars it preys on small Grazers.
- * As of version 0.0.5 their life cycle is reliant on agars, because newborns are too small to hunt. But because the Grazers are better at getting agars than them, they tend to die. So Grazers win. Funny stuff.
+ * A creature with similar traits to the Grazer, except that in addition to eating agars it preys on small Grazers. Newborns are too small to hunt, so they are reliant on agars.
  * 
  * @author Andrey Vorontsov
  */
 public class Predator extends Cell {
 
 	/**
-	 * Create a predator. Predators start out with 100 energy and are hot pink.
+	 * Predators start out with 100 energy and are hot pink.
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
@@ -34,10 +33,12 @@ public class Predator extends Cell {
 		color = Color.HOTPINK;
 		friction = 0.8;
 		species = "Predator";
-		visionRange = 70;
+		baseVisionRange = 70;
 		
 		// create the set of behaviors used by this cell
 		CellBehaviorController behaviorSet = new CellBehaviorController();
+		
+		// TODO review...
 		
 		Behavior eatAgars = new Behavior("eat", "Agar", 1);
 		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
@@ -50,7 +51,6 @@ public class Predator extends Cell {
 		
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(150);
-		// TODO behavior needs to support this cell min size
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
@@ -66,19 +66,19 @@ public class Predator extends Cell {
 		
 		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 5)); // agars pursued indiscrimnately
 		behaviorSet.addBehavior(new Behavior("wander", null, 6));
-		setBehaviors(behaviorSet);
+		setBehaviorController(behaviorSet);
 		
 		SUPPRESS_EVENT_PRINTING = true;
 	}
 
 	/**
-	 * Predators grow when well-fed and shrink when starving.
+	 * Predators grow when well-fed and shrink when starving, akin to Grazers
 	 * 
-	 * @see Cell#grow()
+	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
-	public void grow() {
-		if (energy > 90 && size < 10) { // preds spend 10 to grow one size, similar to grazers
+	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		if (energy > 90 && size < 10) {
 			size++;
 			energy -= 8;
 			if (!SUPPRESS_EVENT_PRINTING)

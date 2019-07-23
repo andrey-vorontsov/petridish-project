@@ -163,11 +163,12 @@ public class PetriDish implements Runnable {
 				// verify the cell is living before updating it
 				if (allCells.get(i).isAlive()) {
 
-					// for each update, the cell is given a list of cells it can see
+					// for each update, the cell is given lists of visible and touched cells
 					// also given the opportunity to return a reference to a single new offspring
 
 					Cell newCell = allCells.get(i)
-							.update(getCellsInRange(allCells.get(i), allCells.get(i).getVisionRange()));
+							.update(getCellsInRange(allCells.get(i), allCells.get(i).getScaledVisionRange()),
+									getTouchingCells(allCells.get(i)));
 
 					if (newCell != null) {
 						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
@@ -269,6 +270,37 @@ public class PetriDish implements Runnable {
 			}
 		}
 		return visibleCells;
+	}
+
+	/**
+	 * A similar method to getCellsInRange(); however, this method takes into
+	 * account the radii of both the querying cell and the other cells to judge
+	 * whether the two cells are touching - that is, if there is any overlap at all
+	 * between their circles - as opposed to getCellsInRange() which looks at
+	 * distance between their centerpoints (without considering their sizes)
+	 * 
+	 * @param me the querying cell
+	 * @return a list of cells touching this cell
+	 */
+	public ArrayList<Cell> getTouchingCells(Cell me) {
+		ArrayList<Cell> touchedCells = new ArrayList<Cell>();
+		for (int i = 0; i < allCells.size(); i++) {
+			Cell curr = allCells.get(i);
+			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < me.getSize() + curr.getSize()
+					&& curr.isAlive() && !curr.equals(me)) { // a cell is touching me iff it is closer than the sum of
+																// our radii, it is alive,
+																// and it is not myself
+				touchedCells.add(curr);
+			}
+		}
+		return touchedCells;
+	}
+	
+	/**
+	 * @return the Random object used by the simulation
+	 */
+	public Random getRNG() {
+		return rng;
 	}
 
 	/**

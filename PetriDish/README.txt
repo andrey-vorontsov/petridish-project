@@ -132,7 +132,7 @@ All in all, the reimplementation of eating, moving, and energy consumption mecha
 Version 0.0.6.3
 Transferred reproduction into the same framework.
 The result is a little unlike what we used to have but appears to work well.
-Plants now do not reproduce into clusters of more than three.
+Plants now do not reproduce into clusters of more than three (this functionality is not yet enabled).
 Code cleanup is underway; slightly optimized the core simulation code.
 Squishing temporarily disabled for testing purposes.
 
@@ -140,40 +140,47 @@ Version 0.0.6.3a
 This version is nonfunctional.
 Code cleanup is still underway with some slight optimizations and robustness improvements coming along.
 
-ROADMAP (Current: 0.0.6.3a)
+Version 0.0.6.4
+Cleanup completed for a lot of mucky code, radically improving clarity.
+This version is once again functional.
+Squishing should be re-enabled.
+The energy mechanic was temporarily disabled (cells spend no energy to move/act).
+Known issue: Cells do nothing except reproduce constantly, rapidly creating thousands of cells.
 
-NOTES
-Record all locations needed for modification here and in Behavior.java
-ActionOrder.generateMovementVector() must be updated for new movement orders
-Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
-Any new properties need to be added as fields to Behavior together with getters and setters
-CellBehaviorController.getNextActionOrder() must be updated with any new property checks
+ROADMAP (Current: 0.0.6.4)
 
-
-Features for 0.0.6.4
-	Code cleanup, optimization, and removal of old dead/redundant code after some major refactoring.
-		Agar
-		Cell
+Features for 0.0.6.5
+	Behavior property support:
+		Minimum size
+		Energy cost
+	Review and correct behavior list
 		Grazer
 		Plant
 		Predator
+
+Features for 0.0.6.6
+	Behavior property support:
+		Random value
 	Develop new behaviors within the framework
 		Grazing
 		Sleeping
+		Grow
+		Starve
+	Correct function of reproduction behavior (currently implemented incorrectly)
 
-Features for 0.0.6.5
+Features for 0.0.6.7
 	Rework size calculation
 		Current size variable refactored as "radius" and represents only the hitbox
 		New size variable refers to the area of the circle
 
-Features for 0.0.6.6
+Features for 0.0.6.8
 	Propagate size calculation changes
 		Cells should have correctly calculated speed
 			(each MovementOrder should have an instead associated FORCE, based on mass * acceleration)
 				(mass proportional to size = area)
 				(cells have a field controlling energy efficiency considering force exerted)
 		Tweak vision range formula
-		
+
 Release 0.0.7
 
 Features for 0.1.0
@@ -193,9 +200,14 @@ Features for 1.0.0
 	GUI
 		Mouse interaction with petri dish
 			Can create cells of any variety
-			Can select a cell and see its stats
+			Can select a cell
+				to see its stats
+				to make changes to it
+					kill the cell
+					clone it
+					etc.
+				Can select many cells
 			Can drag a cell to a new location in the dish
-			Can kill a cell
 		Simulation speed control
 			Robust frame rate tracking
 			Pause/unpause button has full interaction while paused
@@ -213,14 +225,24 @@ Features for 1.0.0
 		Cells remember locations of recently seen objects
 		Cells remember 'what they were doing'
 		Allow and optimize equal prioritization of behaviors
-			Esp. eating - should be on one pedestal
+			Esp. eating
 	Genetic heredity
 		Basics
 			Data structure
 			Color/superficial features
+			Stats
 			Behaviors
 		Mutation
 			TBD
 		Evolution
 			Cells develop behaviors dynamically (powergoal)
 			Cells speciate (powergoal)
+
+NOTES
+
+REGARDING THE BEHAVIOR SYSTEM
+ActionOrder.generateMovementVector() must be updated for new movement orders
+Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
+Any new properties need to be added as fields to Behavior together with getters and setters
+CellBehaviorController.getNextActionOrder() must be updated with any new property checks
+Cell.act() contains the meat, actually enforcing the ActionOrder

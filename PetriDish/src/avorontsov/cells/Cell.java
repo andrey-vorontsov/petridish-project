@@ -1,4 +1,5 @@
 package avorontsov.cells;
+
 import avorontsov.petridish.*;
 
 import java.util.ArrayList;
@@ -9,19 +10,47 @@ import javafx.scene.paint.Color;
 
 /**
  * Represents a single-celled organism inhabiting the petri dish environment.
- * Capable of moving, eating, reproducing, etc. Additionally, holds
- * information associated with the cell's appearance and various stats. This
- * class is used as a data structure by the petri dish simulation thread, as
- * well as holding many helper methods for cell behavior. Classes extending Cell
- * can configure the basic functionality or override methods to achieve desired behavior.
+ * Capable of moving, eating, reproducing, etc. Additionally, holds information
+ * associated with the cell's appearance and various stats. This class is used
+ * as a data structure by the petri dish simulation thread, as well as holding
+ * many helper methods for cell behavior. Classes extending Cell can configure
+ * elements of the basic functionality or override methods to achieve desired
+ * behavior.
  * 
- * In general, protected fields of this class should be set in the constructor of any extending class, with
- * the following exceptions: x, y, xVelocity, yVelocity (exposed for ease of extending methods)
+ * About cell behaviors: Generally, cell behaviors associated with movement,
+ * eating/getting energy, and reproduction are encapsulated by the
+ * CellBehaviorController very abstractly and are configurable through it.
+ * Any other custom behaviors (particularly related to changing the cell's
+ * size due to growth, or to pushing other cells away) can be encapsulated
+ * in customizedCellBehaviors().
+ * Unfortunately, this system is a tad incomplete/inconsistent with its level of
+ * abstraction.
+ * 
+ * In general, all protected fields of this class should be set in the
+ * constructor of any extending class, with the following exceptions: x, y,
+ * xVelocity, yVelocity (exposed for ease of modification).
+ * 
  * So children should set:
- * SUPPRESS_EVENT_PRINTING, health, energy, size, color, friction, visionRange, species
- * Additionally, children should
- * 1. Customize and add a CellBehaviorController
- * 2. Override getGraphic()
+ * SUPPRESS_EVENT_PRINTING, health, energy, size, color, friction,
+ * baseVisionRange, species
+ * 
+ * Additionally, children should:
+ * 1. In the constructor, customize and add a CellBehaviorController
+ * 2. Optionally, override customizedCellBehaviors() - this is where any custom
+ * behavior that is not encapsulated by a CellBehaviorController should be
+ * implemented (generally, it should call super.customizedCellBehaviors())
+ * 3. Optionally, override squish() - default behavior is to push away all
+ * cells of the same species to avoid overlapping them
+ * 4. Optionally, override getGraphic() - default behavior is to generate a
+ * circle of appropriate radius and color
+ * 5. Optionally, override getScaledVisionRange() to apply a customized vision
+ * range calculation
+ * 
+ * Generally, children should AVOID: 1. Overriding any other methods of the Cell
+ * class (especially update(), act(), kill(), and updatePhysics())
+ * 
+ * In any case, when overriding methods, a call to the superclass version of that
+ * method is often warranted.
  * 
  * @author Andrey Vorontsov
  */
@@ -45,12 +74,12 @@ public abstract class Cell {
 	// for all cells
 	private boolean isAlive;
 	private int age;
-	
+
 	// varies based on cell type, protected fields
-	protected int health;
-	protected int energy;
+	protected int health = 0;
+	protected int energy = 0;
 	protected int size;
-	
+
 	// for cell behaviors
 	private double targetX;
 	private double targetY;
@@ -60,9 +89,9 @@ public abstract class Cell {
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
-	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more
-								// friction)
-	protected double visionRange; // base distance the cell can see (radius of a circle around its center)
+	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more)
+	protected double baseVisionRange; // base distance the cell can see (radius of a circle around its center)
+										// usually the cell can see much further, depending on its size
 	protected String species;
 
 	/**
@@ -70,6 +99,7 @@ public abstract class Cell {
 	 * ID, are alive by default, and start at an age of 0.
 	 * 
 	 * @param petri     the petri dish the cell will inhabit
+	 * @param rng       the Random object used by this cell's randomized behavior
 	 * @param x         the x location to put the cell at
 	 * @param y         the y location to put the cell at
 	 * @param xVelocity the initial x velocity of the cell
@@ -95,83 +125,92 @@ public abstract class Cell {
 		nextCellID++;
 	}
 
+	// core functionality methods
+
 	/**
 	 * Core method, representing the basic actions the cell can take each tick of
 	 * the simulation.
 	 * 
-	 * @param visibleCells a list of cells visible to this cell, based on the cell's vision range and size
+	 * @param visibleCells a list of cells visible to this cell, based on the cell's
+	 *                     vision range and size
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
-	public Cell update(ArrayList<Cell> visibleCells) {
-		age++;
+	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		age++; // cells have an age of 0 after being created; but new cells are updated on the
+				// same cycle they are created, so they end the cycle at age 1.
 
-		Cell newCell = act(visibleCells); // the cell invokes its CellBehaviorController
+		Cell newCell = act(visibleCells); // the cell invokes its CellBehaviorController to enact policies regarding
+											// movement, eating, and reproduction
 
-		if (age > 1) { // certain unexpected/risky things occur if these things are allowed to happen on the same update that a cell is born
-			grow(); // the cell has a chance to grow itself
-			ArrayList<Cell> touchedCells = new ArrayList<Cell>();
-			squish(touchedCells); // stop cells from overlapping others of the same species
-		}
+		customizedCellBehaviors(visibleCells, touchedCells); // any behaviors not defined in the CellBehaviorController
+																// are enforced here by custom implementation
 
 		updatePhysics(); // the cell moves according to physics
-		
-		if (energy <= 0) { // the cell checks itself for death by starvation
-			kill("starvation");
-		}
 
 		return newCell;
 	}
 
 	/**
-	 * The cell may expend energy to accelerate itself. This should be done with a
-	 * module that generates a CellMovementVector, then a module that adjusts
-	 * velocity and applies energy cost accordingly. TODO
+	 * The cell invokes its CellBehaviorController to choose an action, and then
+	 * enforces it.
 	 * 
-	 * @param visibleCells a list of cells this cell can see based on its vision range and size
+	 * @param visibleCells a list of cells this cell can see based on its vision
+	 *                     range and size
+	 * @return a Cell offspring, if one was produced by reproduction
 	 */
 	public Cell act(ArrayList<Cell> visibleCells) {
 		if (behaviors == null) {
 			throw new NullPointerException("Cell " + this + " does not have a movement controller!");
 		}
-		// calculate the next move order (this process also updates targetX and targetY)
+
+		Cell child = null; // prepare to reproduce
+
+		// engage the behavior controller's encapsulated logic to choose an appropriate
+		// behavior to enforce this update
 		ActionOrder nextOrder = behaviors.getNextActionOrder(this, visibleCells);
-		// update the cell's current behavior
+
+		// update the cell's current behavior String to keep track of what it chose to
+		// do
 		currBehavior = nextOrder.getSourceBehavior().getBehaviorType();
-		
-		// for movement behaviors, we adjust velocity
+
+		// for movement behaviors, we adjust the cell's target information and its
+		// velocity
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("MOVE")) {
-			// get and apply the corresponding vector
+
+			// get the vector leading to our next target
 			targetingVector = nextOrder.getVector();
+
+			// update our target coordinates
+			targetX = targetingVector.getXComponent() + x;
+			targetY = targetingVector.getYComponent() + y;
+
+			// adjust our velocity by the appropriate amount
 			xVelocity += targetingVector.getUnitVector().getXComponent() * nextOrder.getVectorScalar();
 			yVelocity += targetingVector.getUnitVector().getYComponent() * nextOrder.getVectorScalar();
-			
-			// and apply energy cost according to formula
-			// TODO replace right away
-			if (species.equals("Grazer") || species.equals("Predator"))
-				if (getAge() % 4 == 0)
-					spendEnergy(1);
+
 		}
-		
-		// TODO eating code
+
+		// for eating/energy gain behaviors, we currently enforce the following:
+		// "eat" - kill the target, take all of its energy
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("EAT")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("eat")) {
 				energy += nextOrder.getTarget().getEnergy();
 				nextOrder.getTarget().kill("eaten");
 				if (!SUPPRESS_EVENT_PRINTING)
-					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving " + nextOrder.getTarget().getEnergy() + " energy.");
+					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving "
+							+ nextOrder.getTarget().getEnergy() + " energy.");
 			}
-		
 		}
-		
-		// TODO breeding code
+
+		// for reproduction behaviors, we currently enforce the following:
+		// "clone" - produce a new instance of this cell TODO: this section must be
+		// completely replaced
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("REPRODUCE")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("clone")) {
-				Cell child = null;
-				if (size >= 8) { // copy pasted from predator for now; plant custom reproduction no work
+				if (size >= 8) { // copy pasted from predator for now; plant custom reproduction doesn't work
 					size = size / 2;
-					energy = (energy - 20) / 2;
-					// this is a hack. eventually this gets weeded out as well
+					// this is a hack. unacceptable
 					if (this instanceof Predator)
 						child = new Predator(petri, rng, x, y, 0, 0, size, energy);
 					if (this instanceof Grazer)
@@ -181,32 +220,53 @@ public abstract class Cell {
 					if (SUPPRESS_EVENT_PRINTING)
 						System.out.println(this + " spawned " + child + ".");
 				}
-				return child;
 			}
-		
+
 		}
-		
+
+		// TODO apply the energy cost of the action order, if any
+		// energy -= nextOrder.getEnergyCost();
+
+		// TODO ugh another damn hack
 		if (this instanceof Plant) {
-			Plant me = (Plant)this;
-			me.updateGraphicSideLength(); // TODO this needs to be done in act() now instead, an override
+			Plant me = (Plant) this;
+			me.updateGraphicSideLength();
 		}
-		
-		return null; // did not breed this round
-		
-		// TODO currently, energy costs for movement are calculated trivially by the cell's move method; ideally, moveOrder should calculate energy costs
-		// TODO goal is that this method will no longer need to be overriden (instead cells will apply controllers to themselves)
+
+		return child; // null, unless initialized by reproduction
+
 	}
 
 	/**
-	 * The cell may expend energy to increase its size.
+	 * This method is called on every update. Cell behaviors that cannot be
+	 * abstractly described by its configuration of its CellBehaviorController can
+	 * be implemented here. Ideally, overriding methods should have their contents
+	 * wrapped into clearly named helper methods and be as simple as possible. The
+	 * Cell update() method provides this method with the visibleCells and
+	 * touchedCells lists.
+	 * 
+	 * Default behavior is to call squish(), which may be overriden separately, to
+	 * prevent this cell from overlapping any cells of its own species; and also to
+	 * check whether the cell died of starvation (energy <= 0). These behaviors may
+	 * be disabled in custom cells.
+	 * 
+	 * @param visibleCells a list of Cells this cell can see
+	 * @param touchedCells a list of Cells this cell is touching
 	 */
-	abstract void grow(); // TODO consider growth as volume rather than radius
+	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		if (age > 1) {
+			squish(touchedCells);
+		}
+		if (energy <= 0) { // the cell checks itself for death by starvation
+			kill("starvation");
+		}
+	}
 
 	/**
 	 * Cells die when they are killed.
 	 * 
 	 * @param reason the String reason for the death. Examples of reasons include
-	 *               "starvation" and "eaten".
+	 *               "starvation" and "eaten". Used to generate a death message.
 	 */
 	public void kill(String reason) {
 
@@ -230,7 +290,7 @@ public abstract class Cell {
 
 	/**
 	 * Adjusts the cell's physical location based on its velocity and the friction
-	 * factor it experiences
+	 * factor it experiences, and keeps cells in-bounds
 	 */
 	public void updatePhysics() {
 
@@ -260,18 +320,22 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Cells should avoid overlapping cells of the same species. This is accomplished by pushing other cells out of the way.
+	 * This method may be overriden for custom "squishing" behavior. By default, all
+	 * cells of the same species are pushed away to avoid overlap.
 	 * 
 	 * @param touchedCells the list of cells to squish away
 	 */
 	public void squish(ArrayList<Cell> touchedCells) {
 		for (Cell c : touchedCells) {
 			if (c.getSpecies().equals(species)) {
-				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
+				// get the unit vector along which to push, then scale it so that the magnitude
+				// is equal to the sum of the radii of the cells
 				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
 				double pushMagnitude = c.getSize() + size;
-				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude, pushUnit.getYComponent() * pushMagnitude);
-				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
+				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude,
+						pushUnit.getYComponent() * pushMagnitude);
+				// use the scaled vector to place the other cell at the appropriate distance,
+				// plus a tiny margin
 				c.setX(x + push.getXComponent() + 0.01);
 				c.setY(y + push.getYComponent() + 0.01);
 			}
@@ -279,11 +343,25 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Helper method for the cell to refresh its targeting vector to another,
-	 * possibly moving, point
+	 * This method should be overriden by any extending class that wants to
+	 * customize its graphic. By default, the graphic is a circle with the cell's
+	 * radius and color.
 	 * 
-	 * @param targetX
-	 * @param targetY
+	 * @return any kind of Graphics object that can represent the cell (typically a
+	 *         JavaFX Circle or Square)
+	 */
+	public Node getGraphic() {
+		Circle graphic = new Circle(x, y, size);
+		graphic.setFill(color);
+		return graphic;
+	}
+
+	/**
+	 * Helper method for the cell to refresh its targeting vector to another,
+	 * possibly moving, point.
+	 * 
+	 * @param targetX the location to target
+	 * @param targetY the location to targer
 	 * @return a vector representing the movement vector from this cell to the
 	 *         target
 	 */
@@ -292,45 +370,73 @@ public abstract class Cell {
 	}
 
 	/**
-	 * @return the x location of this cell's center
+	 * Vision range is calculated by the base value + size * 6 by default If the
+	 * cell cannot see, returns 0.
+	 * 
+	 * @return how far the cell can actually see
+	 */
+	public double getScaledVisionRange() {
+		if (!canSee())
+			return 0;
+		return baseVisionRange + size * 6;
+	}
+
+	/**
+	 * @return true only if the cell can see (its baseVisionRange > 0)
+	 */
+	public boolean canSee() {
+		return baseVisionRange > 0;
+	}
+
+	// getters and setters
+
+	/**
+	 * @return the Random object used by the simulation
+	 */
+	public Random getRNG() {
+		return rng;
+	}
+
+	/**
+	 * @return the x position of the cell
 	 */
 	public double getX() {
 		return x;
 	}
 
 	/**
-	 * @return the y location of this cell's center
+	 * @return the y position of the cell
 	 */
 	public double getY() {
 		return y;
 	}
-	
+
 	/**
-	 * Set the x position
+	 * @return the xVelocity of the cell
 	 */
-	public void setX(double x) {
-		this.x = x;
+	public double getXVelocity() {
+		return xVelocity;
 	}
 
 	/**
-	 * Set the y position
+	 * @return the yVelocity of the cell
 	 */
-	public void setY(double y) {
-		this.y = y;
+	public double getYVelocity() {
+		return yVelocity;
 	}
 
 	/**
-	 * @return this cell's color
-	 */
-	public Color getColor() {
-		return color;
-	}
-
-	/**
-	 * @return true only while this cell is alive (existing in the petri dish)
+	 * @return true only if the cell is alive
 	 */
 	public boolean isAlive() {
 		return isAlive;
+	}
+
+	/**
+	 * @return the age
+	 */
+	public int getAge() {
+		return age;
 	}
 
 	/**
@@ -346,14 +452,6 @@ public abstract class Cell {
 	public int getEnergy() {
 		return energy;
 	}
-	
-	/**
-	 * The cell is debited energy for taking an action.
-	 * @param energySpent the energy the cell has expended
-	 */
-	public void spendEnergy(int energySpent) {
-		energy -= energySpent;
-	}
 
 	/**
 	 * @return the size
@@ -363,10 +461,53 @@ public abstract class Cell {
 	}
 
 	/**
-	 * @return the age
+	 * @return the x coordinate of the location the cell is currently moving to
 	 */
-	public int getAge() {
-		return age;
+	public double getTargetX() {
+		return targetX;
+	}
+
+	/**
+	 * @return the y coordinate of the location the cell is currently moving to
+	 */
+	public double getTargetY() {
+		return targetY;
+	}
+
+	/**
+	 * @return the targetingVector along which the cell is moving
+	 */
+	public CellMovementVector getTargetingVector() {
+		return targetingVector;
+	}
+
+	/**
+	 * @return the CellBehaviorController currently applied to this cell
+	 */
+	public CellBehaviorController getBehaviors() {
+		return behaviors;
+	}
+
+	/**
+	 * @return the behavior type String which represents the type of action the Cell
+	 *         last took
+	 */
+	public String getCurrBehavior() {
+		return currBehavior;
+	}
+
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * @return the friction
+	 */
+	public double getFriction() {
+		return friction;
 	}
 
 	/**
@@ -375,94 +516,30 @@ public abstract class Cell {
 	public String getSpecies() {
 		return species;
 	}
-	
+
 	/**
-	 * Vision range is calculated by the base value + size * 6 by default 
-	 * If the cell cannot see, returns 0.
-	 * TODO review this
-	 * 
-	 * @return the Cell's vision range
+	 * @param x the x position to put this cell at
 	 */
-	public double getVisionRange() {
-		if (!canSee())
-			return 0;
-		return visionRange + size*6; // TODO fix
+	public void setX(double x) {
+		this.x = x;
 	}
 
 	/**
-	 * 
-	 * @return true only if the cell can see
+	 * @param y the y position to put this cell at
 	 */
-	public boolean canSee() {
-		return !(visionRange == 0);
+	public void setY(double y) {
+		this.y = y;
 	}
 
 	/**
-	 * @return the targetX
+	 * @param behaviors the CellBehaviorController that this cell will use to govern
+	 *                  its behavior
 	 */
-	public double getTargetX() {
-		return targetX;
-	}
-
-	/**
-	 * @param targetX the targetX to set
-	 */
-	public void setTargetX(double targetX) {
-		this.targetX = targetX;
-	}
-
-	/**
-	 * @return the targetY
-	 */
-	public double getTargetY() {
-		return targetY;
-	}
-
-	/**
-	 * @param targetY the targetY to set
-	 */
-	public void setTargetY(double targetY) {
-		this.targetY = targetY;
-	}
-
-	/**
-	 * @return the Cell's targetingVector
-	 */
-	public CellMovementVector getTargetingVector() {
-		return targetingVector;
-	}
-
-	/**
-	 * @param behaviors a CellMovementController object encapsulating the movement behaviors (evasion, pursuit, hunting, etc.) that a cell can take with respect to types of targets, and their priority levels
-	 */
-	public void setBehaviors(CellBehaviorController behaviors) {
+	public void setBehaviorController(CellBehaviorController behaviors) {
 		this.behaviors = behaviors;
 	}
 
-	/**
-	 * @return the current behavior of this cell
-	 */
-	public String getCurrBehavior() {
-		return currBehavior;
-	}
-
-	/**
-	 * @return any kind of Graphics object that can represent the cell (typically a JavaFX Circle or Square)
-	 */
-	public Node getGraphic() {
-		Circle graphic = new Circle(x, y, size);
-		graphic.setFill(color);
-		return graphic;
-	}
-	
-	/**
-	 * A single Random object is instantiated by the petri dish simulation and all random numbers are drawn from it. Given no changes to the code, a particular seed should always produce the same simulation outcome
-	 * 
-	 * @return the Random object to use
-	 */
-	public Random getRNG() {
-		return rng;
-	}
+	// utility methods
 
 	/**
 	 * String representation of a cell is of the form "Species #cellID" For example,
@@ -476,9 +553,10 @@ public abstract class Cell {
 		return species + " #" + cellID;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Cells are equal iff they have the same cellID field.
 	 * 
+	 * @param other another Object to which to compare.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

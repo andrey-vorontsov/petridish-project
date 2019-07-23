@@ -1,4 +1,5 @@
 package avorontsov.cells;
+
 import avorontsov.petridish.*;
 
 import java.util.Random;
@@ -13,33 +14,28 @@ import javafx.scene.paint.Color;
 public class Agar extends Cell {
 
 	/**
-	 * Agar is intended as a simple food unit worth 25 energy. They are yellow.
+	 * Agars are intended as a food unit worth 25 energy. They are yellow and cannot
+	 * move.
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
 	public Agar(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
 		super(petri, rng, x, y, xVelocity, yVelocity, size);
+		health = 0;
 		energy = 25;
 		color = Color.YELLOW;
+		friction = 0; // cannot move
 		species = "Agar";
-		visionRange = 0;
-		
+		baseVisionRange = 0; // cannot see
+
 		CellBehaviorController behaviorSet = new CellBehaviorController();
-		behaviorSet.addBehavior(new Behavior("sleep", null, 1));
-		setBehaviors(behaviorSet);
-		
+		behaviorSet.addBehavior(new Behavior("sleep", null, 1)); // does nothing
+		setBehaviorController(behaviorSet);
+
 		SUPPRESS_EVENT_PRINTING = true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see Cell#grow()
-	 */
-	@Override
-	public void grow() {
-		// agar can't grow
 
 	}
-	
+
+	// agar requires no further customization
+
 }

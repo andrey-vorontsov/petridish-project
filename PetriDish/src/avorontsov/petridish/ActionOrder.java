@@ -100,8 +100,8 @@ public class ActionOrder {
 		} else if (newBehaviorType.equals("hunt")) { // hunt: like pursuit, but with an extra large vector
 
 			// target our victim, like with pursuit
-			me.setTargetX(target.getX());
-			me.setTargetY(target.getY());
+			newTargetX = target.getX();
+			newTargetY = target.getY();
 			// but we can expend a burst of energy to chase them down
 			vectorScalar = 3;
 
