@@ -28,8 +28,7 @@ import javafx.scene.paint.Color;
  * 
  * In general, all protected fields of this class should be set in the
  * constructor of any extending class, with the following exceptions: x, y,
- * xVelocity, yVelocity, rng, petri (exposed for ease of writing reproduction
- * methods)
+ * xVelocity, yVelocity (exposed for ease of modification).
  * 
  * So children should set:
  * SUPPRESS_EVENT_PRINTING, health, energy, size, color, friction,
@@ -40,12 +39,11 @@ import javafx.scene.paint.Color;
  * 2. Optionally, override customizedCellBehaviors() - this is where any custom
  * behavior that is not encapsulated by a CellBehaviorController should be
  * implemented (generally, it should call super.customizedCellBehaviors())
- * 3. Optionally, override behaviorClone() - used to implement the "clone" behavior
- * 4. Optionally, override squish() - default behavior is to push away all
+ * 3. Optionally, override squish() - default behavior is to push away all
  * cells of the same species to avoid overlapping them
- * 5. Optionally, override getGraphic() - default behavior is to generate a
+ * 4. Optionally, override getGraphic() - default behavior is to generate a
  * circle of appropriate radius and color
- * 6. Optionally, override getScaledVisionRange() to apply a customized vision
+ * 5. Optionally, override getScaledVisionRange() to apply a customized vision
  * range calculation
  * 
  * Generally, children should AVOID: 1. Overriding any other methods of the Cell
@@ -59,11 +57,11 @@ import javafx.scene.paint.Color;
 public abstract class Cell {
 
 	// utility
-	protected Random rng; // use the same Random object as the rest of the simulation
-	protected PetriDish petri; // a reference to the petri dish the cell lives in
+	private Random rng; // use the same Random object as the rest of the simulation
+	private PetriDish petri; // a reference to the petri dish the cell lives in
 	private static long nextCellID = 1; // each cell is assigned a unique ID
 	public final long cellID;
-	protected boolean SUPPRESS_EVENT_PRINTING = true; // children of this class may choose to set this to true to
+	protected boolean SUPPRESS_EVENT_PRINTING = false; // children of this class may choose to set this to true to
 														// prevent status messages from that species from printing
 
 	// physical information
@@ -206,11 +204,20 @@ public abstract class Cell {
 		}
 
 		// for reproduction behaviors, we currently enforce the following:
-		// "clone" - produce a new instance of this cell
+		// "clone" - produce a new instance of this cell TODO: this section must be
+		// completely replaced
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("REPRODUCE")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("clone")) {
-					child = behaviorClone();
-					if (!SUPPRESS_EVENT_PRINTING)
+					size = size / 2;
+					energy = energy / 2;
+					// this is a hack. unacceptable
+					if (this instanceof Predator)
+						child = new Predator(petri, rng, x, y, 0, 0, size, energy);
+					if (this instanceof Grazer)
+						child = new Grazer(petri, rng, x, y, 0, 0, size, energy);
+					if (this instanceof Plant)
+						child = new Plant(petri, rng, x, y, 0, 0, size, energy);
+					if (SUPPRESS_EVENT_PRINTING)
 						System.out.println(this + " spawned " + child + ".");
 			}
 
@@ -246,23 +253,6 @@ public abstract class Cell {
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 		}
-	}
-	
-	/**
-	 * A method to encapsulate the functionality of the clone behavior, to allow
-	 * for proper customization of the reproduction functionality. In most cases,
-	 * the cell should apply a reasonable energy cost to itself, before dividing
-	 * in two (size = size/2, create a new child)
-	 * 
-	 * Unfortunately, another deviation from the original Cell Behavior plan;
-	 * though this method ends up being activated by a corresponding "clone"
-	 * behavior, we really didn't accomplish anything by making the steps to its
-	 * activation that much more convoluted.
-	 * 
-	 * @return a child cell, if one is produced
-	 */
-	protected Cell behaviorClone() {
-		return null;
 	}
 
 	/**

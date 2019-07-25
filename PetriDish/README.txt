@@ -154,21 +154,6 @@ Energy is now represented as a double value to allow fractional energies.
 Known issue: Reproduction energy cost isn't applied the way I want.
 Known issue: Plants need their custom reproduction scheme re-implemented. Energy costs currently make the parent instantly die after reproducing.
 
-Version 0.0.6.6
-Isolated reproduction code back into a separate method, undermining the organization plan but simplifying accessibility to that code.
-Bug fix: Reproduction energy costs.
-Bug fix: Plant children somehow banish their parents to the shadow realm (NaN, NaN)
-Plant reproduction now fully implemented (cluster size capped at 3, proper squishing behavior).
-Known - shippable issue: There is a 1 in 7e308 chance, whenever a cell is born, that the parent will be squished to coordinates (NaN, NaN).
-Known issue: Plants sometimes somehow get squished out of the way of a cell (they should always be the ones squishing).
-Known issue: Cells get stuck trying to get through Plants obstructing their path.
-
-KNOWN ISSUES
-
-Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
-Strange jitteriness of cells - cause unknown, occurences are rare.
-Plants sometimes get squished out of the way of a moving cell.
-Cells get stuck trying to get through obstructing Plants.
 
 NOTES
 
@@ -179,21 +164,25 @@ Any new properties need to be added as fields to Behavior together with getters 
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
 
-ROADMAP (Current: 0.0.6.6)
+ROADMAP (Current: 0.0.6.5)
 
-Features for 0.0.6.7
+Features for 0.0.6.6
+	Behavior property support:
+		Random value
+			Apply to plant growth chance
 	Develop new behaviors within the framework
 		Grazing
 			Configure Grazers to use this correctly
 		Sleeping
 			Configure Plants, Agars, and starving Predators/Grazers to use this correctly
+	Correct function of reproduction behavior (currently implemented incorrectly)
 
-Features for 0.0.6.8
+Features for 0.0.6.7
 	Rework size calculation
 		Current size variable refactored as "radius" and represents only the hitbox
 		New size variable refers to the area of the circle
 
-Features for 0.0.6.9
+Features for 0.0.6.8
 	Propagate size calculation changes
 		Cells should have correctly calculated speed
 			(each MovementOrder should have an instead associated FORCE, based on mass * acceleration)

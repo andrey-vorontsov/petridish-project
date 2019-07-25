@@ -83,13 +83,13 @@ public class CellBehaviorController {
 					// yes, the max population limit was set
 
 					// so we need to count them up
-					int visiblePopulationCount = 1; // incl. myself
+					int visiblePopulationCount = 0;
 					for (Cell c : visibleCells) {
 						if (c.getSpecies().equals(me.getSpecies())) {
 							visiblePopulationCount++;
 						}
 					}
-					if (visiblePopulationCount >= currBehavior.getMaximumVisiblePopulation()) {
+					if (visiblePopulationCount > currBehavior.getMaximumVisiblePopulation()) {
 						populationCheckPassed = false; // the population density is too high!
 															// can't take this behavior
 					}
