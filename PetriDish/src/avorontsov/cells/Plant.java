@@ -52,7 +52,6 @@ public class Plant extends Cell {
 		sporePlants.setMaximumVisiblePopulation(3);
 		sporePlants.setThisCellMinSize(12);
 		sporePlants.setThisCellMinEnergy(175);
-		sporePlants.setEnergyCost(100);
 		behaviorSet.addBehavior(sporePlants);
 		
 		// passive behavior description
@@ -78,7 +77,9 @@ public class Plant extends Cell {
 		}
 		// replace the functionality of the superclass method
 		// which calls the customized squish() and checks for death by starvation
-		squish(touchedCells);
+		if (getAge() > 1) {
+			squish(touchedCells);
+		}
 		if (energy <= 0) {
 			kill("starvation");
 		}
@@ -112,6 +113,18 @@ public class Plant extends Cell {
 			}
 		}
 		
+	}
+	
+	/**
+	 * Plants spend 100 energy to spawn a tiny offspring "seed".
+	 * 
+	 * @see avorontsov.cells.Cell#behaviorClone()
+	 */
+	@Override
+	public Cell behaviorClone() {
+		energy = (energy-100)/2;
+		size--;
+		return new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, xVelocity, yVelocity, 2, 25);
 	}
 
 	/**
