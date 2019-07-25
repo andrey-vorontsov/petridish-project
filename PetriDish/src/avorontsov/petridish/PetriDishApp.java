@@ -19,8 +19,8 @@ import javafx.event.EventHandler;
  */
 public class PetriDishApp extends Application {
 
-	public static final int PETRI_DISH_WIDTH = 1400; // TODO needs to be configurable
-	public static final int PETRI_DISH_HEIGHT = 800;
+	public static final int PETRI_DISH_WIDTH = 700; // TODO needs to be configurable
+	public static final int PETRI_DISH_HEIGHT = 700;
 
 	private Group guiRoot; // the root node of the GUI window scene graph
 	private Group petriRoot; // the root node of the simulation window scene graph

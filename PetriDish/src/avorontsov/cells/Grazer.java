@@ -56,7 +56,6 @@ public class Grazer extends Cell {
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(100);
 		cloneMyself.setThisCellMinSize(8);
-		cloneMyself.setEnergyCost(20);
 		behaviorSet.addBehavior(cloneMyself);
 
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
@@ -104,6 +103,18 @@ public class Grazer extends Cell {
 
 		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
 
+	}
+	
+	/**
+	 * Grazers spend 20 energy to divide.
+	 * 
+	 * @see avorontsov.cells.Cell#behaviorClone()
+	 */
+	@Override
+	public Cell behaviorClone() {
+		energy = (energy-20)/2;
+		size = size/2;
+		return new Grazer(petri, rng, x, y, xVelocity, yVelocity, size, energy);
 	}
 
 }

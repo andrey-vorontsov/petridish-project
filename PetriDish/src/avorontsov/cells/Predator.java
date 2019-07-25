@@ -52,7 +52,6 @@ public class Predator extends Cell {
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(150);
 		cloneMyself.setThisCellMinSize(10);
-		cloneMyself.setEnergyCost(20);
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
@@ -102,6 +101,18 @@ public class Predator extends Cell {
 		
 		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
 
+	}
+	
+	/**
+	 * Predators spend 20 energy to divide.
+	 * 
+	 * @see avorontsov.cells.Cell#behaviorClone()
+	 */
+	@Override
+	public Cell behaviorClone() {
+		energy = (energy-20)/2;
+		size = size/2;
+		return new Predator(petri, rng, x, y, xVelocity, yVelocity, size, energy);
 	}
 
 }
