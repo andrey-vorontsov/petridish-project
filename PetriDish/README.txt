@@ -147,25 +147,34 @@ Squishing should be re-enabled.
 The energy mechanic was temporarily disabled (cells spend no energy to move/act).
 Known issue: Cells do nothing except reproduce constantly, rapidly creating thousands of cells.
 
-ROADMAP (Current: 0.0.6.4)
+Version 0.0.6.5
+Behaviors now support an energy cost for applying that behavior.
+In sight of this, re-implemented energy costs for all cell behaviors.
+Energy is now represented as a double value to allow fractional energies.
+Known issue: Reproduction energy cost isn't applied the way I want.
+Known issue: Plants need their custom reproduction scheme re-implemented. Energy costs currently make the parent instantly die after reproducing.
 
-Features for 0.0.6.5
-	Behavior property support:
-		Minimum size
-		Energy cost
-	Review and correct behavior list
-		Grazer
-		Plant
-		Predator
+
+NOTES
+
+REGARDING THE BEHAVIOR SYSTEM
+ActionOrder.generateMovementVector() must be updated for new movement orders
+Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
+Any new properties need to be added as fields to Behavior together with getters and setters
+CellBehaviorController.getNextActionOrder() must be updated with any new property checks
+Cell.act() contains the meat, actually enforcing the ActionOrder
+
+ROADMAP (Current: 0.0.6.5)
 
 Features for 0.0.6.6
 	Behavior property support:
 		Random value
+			Apply to plant growth chance
 	Develop new behaviors within the framework
 		Grazing
+			Configure Grazers to use this correctly
 		Sleeping
-		Grow
-		Starve
+			Configure Plants, Agars, and starving Predators/Grazers to use this correctly
 	Correct function of reproduction behavior (currently implemented incorrectly)
 
 Features for 0.0.6.7
@@ -226,6 +235,8 @@ Features for 1.0.0
 		Cells remember 'what they were doing'
 		Allow and optimize equal prioritization of behaviors
 			Esp. eating
+		Improve overall robustness by allowing multiple acceptable behaviors to occur
+			Esp. grow and starve - currently implemented as custom behaviors
 	Genetic heredity
 		Basics
 			Data structure
@@ -237,12 +248,3 @@ Features for 1.0.0
 		Evolution
 			Cells develop behaviors dynamically (powergoal)
 			Cells speciate (powergoal)
-
-NOTES
-
-REGARDING THE BEHAVIOR SYSTEM
-ActionOrder.generateMovementVector() must be updated for new movement orders
-Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
-Any new properties need to be added as fields to Behavior together with getters and setters
-CellBehaviorController.getNextActionOrder() must be updated with any new property checks
-Cell.act() contains the meat, actually enforcing the ActionOrder

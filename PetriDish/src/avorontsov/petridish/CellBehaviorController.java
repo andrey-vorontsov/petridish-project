@@ -165,6 +165,6 @@ public class CellBehaviorController {
 		// loop completed, no ActionOrder produced
 
 		System.out.println("WARNING: " + me + "'s behavior controller failed to produce an action order.");
-		return new ActionOrder(me, new Behavior("wander", 0), null); // a default ActionOrder with a basic wander
+		return new ActionOrder(me, new Behavior("sleep", 0), null); // a default ActionOrder
 	}
 }

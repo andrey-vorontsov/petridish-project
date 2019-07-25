@@ -26,7 +26,7 @@ public class Predator extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Predator(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+	public Predator(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, double energy) {
 		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
@@ -35,11 +35,11 @@ public class Predator extends Cell {
 		species = "Predator";
 		baseVisionRange = 70;
 		
+		// TODO review the behavior list
+		
 		// create the set of behaviors used by this cell
 		CellBehaviorController behaviorSet = new CellBehaviorController();
-		
-		// TODO review...
-		
+				
 		Behavior eatAgars = new Behavior("eat", "Agar", 1);
 		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatAgars);
@@ -51,6 +51,8 @@ public class Predator extends Cell {
 		
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(150);
+		cloneMyself.setThisCellMinSize(10);
+		cloneMyself.setEnergyCost(20);
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
@@ -58,17 +60,25 @@ public class Predator extends Cell {
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
 		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
+		huntingGrazers.setEnergyCost(2); // the vector is three times longer; so this is fair
 		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 4);
 		pursuitGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
+		pursuitGrazers.setEnergyCost(.3);
 		behaviorSet.addBehavior(pursuitGrazers);
 		
-		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 5)); // agars pursued indiscrimnately
-		behaviorSet.addBehavior(new Behavior("wander", null, 6));
+		Behavior pursuitAgars = new Behavior("pursue", "Agar", 3);
+		pursuitAgars.setEnergyCost(.3);
+		behaviorSet.addBehavior(pursuitAgars); // agars pursued indiscrimnately
+		
+		Behavior wander = new Behavior("wander", null, 6);
+		wander.setEnergyCost(.3);
+		behaviorSet.addBehavior(wander);
+		
 		setBehaviorController(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = true;
+		SUPPRESS_EVENT_PRINTING = false;
 	}
 
 	/**
@@ -89,6 +99,9 @@ public class Predator extends Cell {
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
+		
+		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
+
 	}
 
 }

@@ -77,7 +77,7 @@ public abstract class Cell {
 
 	// varies based on cell type, protected fields
 	protected int health = 0;
-	protected int energy = 0;
+	protected double energy = 0;
 	protected int size;
 
 	// for cell behaviors
@@ -208,8 +208,8 @@ public abstract class Cell {
 		// completely replaced
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("REPRODUCE")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("clone")) {
-				if (size >= 8) { // copy pasted from predator for now; plant custom reproduction doesn't work
 					size = size / 2;
+					energy = energy / 2;
 					// this is a hack. unacceptable
 					if (this instanceof Predator)
 						child = new Predator(petri, rng, x, y, 0, 0, size, energy);
@@ -219,19 +219,12 @@ public abstract class Cell {
 						child = new Plant(petri, rng, x, y, 0, 0, size, energy);
 					if (SUPPRESS_EVENT_PRINTING)
 						System.out.println(this + " spawned " + child + ".");
-				}
 			}
 
 		}
 
-		// TODO apply the energy cost of the action order, if any
-		// energy -= nextOrder.getEnergyCost();
-
-		// TODO ugh another damn hack
-		if (this instanceof Plant) {
-			Plant me = (Plant) this;
-			me.updateGraphicSideLength();
-		}
+		// apply the energy cost of the action order
+		energy -= nextOrder.getSourceBehavior().getEnergyCost();
 
 		return child; // null, unless initialized by reproduction
 
@@ -449,7 +442,7 @@ public abstract class Cell {
 	/**
 	 * @return the energy
 	 */
-	public int getEnergy() {
+	public double getEnergy() {
 		return energy;
 	}
 

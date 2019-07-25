@@ -105,6 +105,10 @@ public class ActionOrder {
 			// but we can expend a burst of energy to chase them down
 			vectorScalar = 3;
 
+		} else if (newBehaviorType.equals("sleep")) { // sleep: do nothing
+			
+			// target x and y stay the same by default
+			
 		} else {
 			System.out.println("WARNING: Unrecognized behavior: " + newBehaviorType + ".");
 		}

@@ -8,7 +8,7 @@ package avorontsov.petridish;
  */
 public class Behavior {
 	
-	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone", "sleep", "grow", "starve"};
+	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone", "sleep"};
 	
 	// Notes on adding new behaviors or adjusting the implementation of old ones.
 	// Movement type behaviors are interpreted in ActionOrder.generateMovementVector()
@@ -35,13 +35,16 @@ public class Behavior {
 	// properties of this cell that must be satisfied for the behavior
 	private int thisCellMinSize = 0;
 	private int thisCellMaxSize = Integer.MAX_VALUE;
-	private int thisCellMinEnergy = 0;
-	private int thisCellMaxEnergy = Integer.MAX_VALUE;
+	private double thisCellMinEnergy = 0;
+	private double thisCellMaxEnergy = Double.MAX_VALUE;
 
 	// properties of the overall environment/misc
 	private int maximumVisiblePopulation = Integer.MAX_VALUE; // the maximum number of other members of its species in vision range
 	
-	int priority; // used by CellMovementController to discriminate between higher and lower level
+	// energy cost is applied when this behavior is used
+	private double energyCost = 0;
+	
+	private int priority; // used by CellMovementController to discriminate between higher and lower level
 					// importance behaviors (scale from 1 to 10, 1 highest)
 
 	/**
@@ -135,6 +138,8 @@ public class Behavior {
 	}
 
 	/**
+	 * Relsize is positive when this cell is BIGGER. Relsize is negative when this cell is SMALLER.
+	 * 
 	 * @param targetCellMinRelSize the targetCellMinRelSize to set
 	 */
 	public void setTargetCellMinRelSize(int targetCellMinRelSize) {
@@ -179,15 +184,22 @@ public class Behavior {
 	/**
 	 * @param thisCellMinEnergy the thisCellMinEnergy to set
 	 */
-	public void setThisCellMinEnergy(int thisCellMinEnergy) {
+	public void setThisCellMinEnergy(double thisCellMinEnergy) {
 		this.thisCellMinEnergy = thisCellMinEnergy;
 	}
 
 	/**
 	 * @param thisCellMaxEnergy the thisCellMaxEnergy to set
 	 */
-	public void setThisCellMaxEnergy(int thisCellMaxEnergy) {
+	public void setThisCellMaxEnergy(double thisCellMaxEnergy) {
 		this.thisCellMaxEnergy = thisCellMaxEnergy;
+	}
+
+	/**
+	 * @param energyCost the energyCost to set
+	 */
+	public void setEnergyCost(double energyCost) {
+		this.energyCost = energyCost;
 	}
 
 	/**
@@ -291,15 +303,22 @@ public class Behavior {
 	/**
 	 * @return the thisCellMinEnergy
 	 */
-	public int getThisCellMinEnergy() {
+	public double getThisCellMinEnergy() {
 		return thisCellMinEnergy;
 	}
 
 	/**
 	 * @return the thisCellMaxEnergy
 	 */
-	public int getThisCellMaxEnergy() {
+	public double getThisCellMaxEnergy() {
 		return thisCellMaxEnergy;
+	}
+
+	/**
+	 * @return the energyCost
+	 */
+	public double getEnergyCost() {
+		return energyCost;
 	}
 
 	/**

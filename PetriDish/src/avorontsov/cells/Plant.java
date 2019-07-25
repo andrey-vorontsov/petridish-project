@@ -32,7 +32,7 @@ public class Plant extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, int energy) {
+	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, double energy) {
 		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
@@ -43,35 +43,47 @@ public class Plant extends Cell {
 		
 		updateGraphicSideLength(); // custom method necessary to use the square graphic
 		
+		// TODO review the behavior list
+		
 		CellBehaviorController behaviorSet = new CellBehaviorController();
-		
-		// TODO go through these and double check
-		
+
+		// reproduction behavior description
 		Behavior sporePlants = new Behavior("clone", 1);
 		sporePlants.setMaximumVisiblePopulation(3);
+		sporePlants.setThisCellMinSize(12);
+		sporePlants.setThisCellMinEnergy(175);
+		sporePlants.setEnergyCost(100);
 		behaviorSet.addBehavior(sporePlants);
+		
+		// passive behavior description
 		behaviorSet.addBehavior(new Behavior("sleep", null, 2));
 		setBehaviorController(behaviorSet);
 		
-		SUPPRESS_EVENT_PRINTING = true;
+		SUPPRESS_EVENT_PRINTING = false;
 	}
 
 	/**
-	 * Plants slowly grow above a certain energy, but can't decrease in size.
+	 * Plants slowly grow above a certain energy, but can't decrease in size. They also passively gain energy every update.
 	 * 
 	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		energy += 5;
+		energy += .5;
 		if (energy > 200 && size < 16 && getRNG().nextInt(100) < 5) {
 			size++;
 			energy -= 20;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
 		}
+		// replace the functionality of the superclass method
+		// which calls the customized squish() and checks for death by starvation
+		squish(touchedCells);
+		if (energy <= 0) {
+			kill("starvation");
+		}
 		
-		super.customizedCellBehaviors(visibleCells, touchedCells); // calls the customized squish() and checks for death by starvation
+		updateGraphicSideLength(); // updates this cell's custom graphic
 	}
 
 	/**
@@ -90,7 +102,7 @@ public class Plant extends Cell {
 				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
 				
 				// push their offspring extra far
-				if (c.getAge() < 2 && c.getSpecies().equals("Plant")) {
+				if (c.getSpecies().equals("Plant")) {
 					c.setX(x + 3 * push.getXComponent() + 0.01);
 					c.setY(y + 3 * push.getYComponent() + 0.01);
 				} else {

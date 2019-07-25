@@ -33,7 +33,7 @@ public class Grazer extends Cell {
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
 	public Grazer(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size,
-			int energy) {
+			double energy) {
 		super(petri, rng, x, y, xVelocity, yVelocity, size);
 		health = 100;
 		this.energy = energy;
@@ -45,26 +45,41 @@ public class Grazer extends Cell {
 		// create the set of behaviors used by this cell
 		CellBehaviorController behaviorSet = new CellBehaviorController();
 
-		// TODO go through these one more time and double check
-
+		// TODO review the behavior list
+		
+		// eating agars behavior description
 		Behavior eatAgars = new Behavior("eat", "Agar", 1);
-		eatAgars.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
+		eatAgars.setTargetCellMustBeEngulfed(true);
 		behaviorSet.addBehavior(eatAgars);
-
+		
+		// reproduction
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(100);
+		cloneMyself.setThisCellMinSize(8);
+		cloneMyself.setEnergyCost(20);
 		behaviorSet.addBehavior(cloneMyself);
 
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
 		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
+		avoidPredators.setTargetCellMaxRelSize(-3); // only bother evading if we are small enough to be eaten (less than -3 bigger, aka more than 3 smaller) 
+		avoidPredators.setEnergyCost(.25);
 		behaviorSet.addBehavior(avoidPredators);
 
-		behaviorSet.addBehavior(new Behavior("pursue", "Agar", 2));
+		Behavior chaseAgars = new Behavior("pursue", "Agar", 2);
+		chaseAgars.setEnergyCost(.25);
+		behaviorSet.addBehavior(chaseAgars);
+		
+		// TODO configure
 		behaviorSet.addBehavior(new Behavior("graze", "Plant", 3));
-		behaviorSet.addBehavior(new Behavior("wander", null, 4));
+		
+		
+		Behavior wander = new Behavior("wander", null, 4);
+		wander.setEnergyCost(.25);
+		behaviorSet.addBehavior(wander);
+		
 		setBehaviorController(behaviorSet);
 
-		SUPPRESS_EVENT_PRINTING = true;
+		SUPPRESS_EVENT_PRINTING = false;
 	}
 
 	/**
