@@ -50,7 +50,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(eatGrazers);
 		
 		Behavior cloneMyself = new Behavior("clone", null, 2);
-		cloneMyself.setThisCellMinEnergy(150);
+		cloneMyself.setThisCellMinEnergy(200);
 		cloneMyself.setThisCellMinSize(10);
 		behaviorSet.addBehavior(cloneMyself);
 		
@@ -70,6 +70,11 @@ public class Predator extends Cell {
 		Behavior pursuitAgars = new Behavior("pursue", "Agar", 3);
 		pursuitAgars.setEnergyCost(.3);
 		behaviorSet.addBehavior(pursuitAgars); // agars pursued indiscrimnately
+		
+		Behavior sleepWhenStarving = new Behavior("sleep", 5);
+		sleepWhenStarving.setThisCellMaxEnergy(7);
+		sleepWhenStarving.setEnergyCost(.1);
+		behaviorSet.addBehavior(sleepWhenStarving);
 		
 		Behavior wander = new Behavior("wander", null, 6);
 		wander.setEnergyCost(.3);

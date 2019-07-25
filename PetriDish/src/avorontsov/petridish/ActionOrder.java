@@ -105,6 +105,12 @@ public class ActionOrder {
 			// but we can expend a burst of energy to chase them down
 			vectorScalar = 3;
 
+		} else if (newBehaviorType.equals("graze")) { // graze: used by Grazers to glue themselves to Plants
+			
+			// target our victim, like with pursuit, but wiggle around a little bit to show involvement
+			newTargetX = target.getX() + (me.getRNG().nextDouble() - 0.5) * target.getSize() * 0.25;
+			newTargetY = target.getY() + (me.getRNG().nextDouble() - 0.5) * target.getSize() * 0.25;
+			
 		} else if (newBehaviorType.equals("sleep")) { // sleep: do nothing
 			
 			// target x and y stay the same by default

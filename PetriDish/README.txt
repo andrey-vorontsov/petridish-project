@@ -155,6 +155,7 @@ Known issue: Reproduction energy cost isn't applied the way I want.
 Known issue: Plants need their custom reproduction scheme re-implemented. Energy costs currently make the parent instantly die after reproducing.
 
 Version 0.0.6.6
+This version is once again properly polished and shippable!
 Isolated reproduction code back into a separate method, undermining the organization plan but simplifying accessibility to that code.
 Bug fix: Reproduction energy costs.
 Bug fix: Plant children somehow banish their parents to the shadow realm (NaN, NaN)
@@ -163,12 +164,25 @@ Known - shippable issue: There is a 1 in 7e308 chance, whenever a cell is born, 
 Known issue: Plants sometimes somehow get squished out of the way of a cell (they should always be the ones squishing).
 Known issue: Cells get stuck trying to get through Plants obstructing their path.
 
+Version 0.0.6.7
+Implemented the grazing behavior, with some other changes made to accomodate the change.
+Grazers now approach Plants and 'nibble' on them to slowly leech energy away.
+As a prerequisite, implemented backend functionality to allow certain behaviors to have 'cooldowns' - only usable every x ticks.
+Mobile cells also go to sleep when starving to save energy.
+Rebalanced a few stats here and there to make the simulation more interesting to watch.
+Known issue: Grazers look pretty awkward piling on to and spinning around Plants. 
+Known issue: Sleeping cells vibrate.
+Known issue: Cells clip into each other and spaz out.
+
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
 Strange jitteriness of cells - cause unknown, occurences are rare.
 Plants sometimes get squished out of the way of a moving cell.
 Cells get stuck trying to get through obstructing Plants.
+Grazers look pretty awkward piling on to and spinning around Plants.
+Sleeping cells vibrate.
+Cells clip into each other and spaz out.
 
 NOTES
 
@@ -179,14 +193,7 @@ Any new properties need to be added as fields to Behavior together with getters 
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
 
-ROADMAP (Current: 0.0.6.6)
-
-Features for 0.0.6.7
-	Develop new behaviors within the framework
-		Grazing
-			Configure Grazers to use this correctly
-		Sleeping
-			Configure Plants, Agars, and starving Predators/Grazers to use this correctly
+ROADMAP (Current: 0.0.6.7)
 
 Features for 0.0.6.8
 	Rework size calculation

@@ -66,12 +66,23 @@ public class CellBehaviorController {
 			Behavior currBehavior = allBehaviors.get(i);
 
 			// first check : does this cell match the conditions to take this behavior?
+			
+			// load this behavior's cooldown value, if it is on a cooldown right now
+			int myCooldown = 0;
+			for (BehaviorCooldown bc : me.getBehaviorCooldowns()) {
+				if (bc.getBehavior().equals(currBehavior)) { // equals() works... I think. TODO check
+					myCooldown = bc.getTicksRemaining();
+					break;
+				}
+			}
 
 			if (currBehavior.getThisCellMinEnergy() <= me.getEnergy() // this cell is in energy spec
 					&& currBehavior.getThisCellMaxEnergy() >= me.getEnergy()
 
 					&& currBehavior.getThisCellMinSize() <= me.getSize() // this cell is in size spec
-					&& currBehavior.getThisCellMaxSize() >= me.getSize()) {
+					&& currBehavior.getThisCellMaxSize() >= me.getSize()
+					
+					&& myCooldown <= 0) { // this cell doesn't have this behavior on cooldown
 
 				// second check : do the environmental conditions match?
 
@@ -123,7 +134,7 @@ public class CellBehaviorController {
 									
 									&& cellsRelSize >= currBehavior.getTargetCellMinRelSize() // relative size
 									&& cellsRelSize <= currBehavior.getTargetCellMaxRelSize() // constraints
-
+									
 									&& (distanceToTarget > distanceToCell)) { // finally, target is closer than any
 																				// matching previous target
 

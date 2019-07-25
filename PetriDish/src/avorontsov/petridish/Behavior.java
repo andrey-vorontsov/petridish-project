@@ -8,7 +8,7 @@ package avorontsov.petridish;
  */
 public class Behavior {
 	
-	private static final String[] VALID_BEHAVIORS = {"eat", "graze", "evade", "pursue", "hunt", "wander", "clone", "sleep"};
+	private static final String[] VALID_BEHAVIORS = {"eat", "nibble", "graze", "evade", "pursue", "hunt", "wander", "clone", "sleep"};
 	
 	// Notes on adding new behaviors or adjusting the implementation of old ones.
 	// Movement type behaviors are interpreted in ActionOrder.generateMovementVector()
@@ -43,6 +43,8 @@ public class Behavior {
 	
 	// energy cost is applied when this behavior is used
 	private double energyCost = 0;
+	// the number of ticks that must pass before this behavior can be used again
+	private int coolDown = 0;
 	
 	private int priority; // used by CellMovementController to discriminate between higher and lower level
 					// importance behaviors (scale from 1 to 10, 1 highest)
@@ -75,7 +77,7 @@ public class Behavior {
 		this.behaviorType = behaviorType;
 		
 		// assign behavior category
-		if (behaviorType.equals("eat") || behaviorType.equals("graze"))
+		if (behaviorType.equals("eat") || behaviorType.equals("nibble"))
 			behaviorCategory = "EAT";
 		else if (behaviorType.equals("clone"))
 			behaviorCategory = "REPRODUCE";
@@ -203,6 +205,13 @@ public class Behavior {
 	}
 
 	/**
+	 * @param coolDown the coolDown to set
+	 */
+	public void setCoolDown(int coolDown) {
+		this.coolDown = coolDown;
+	}
+
+	/**
 	 * @param maximumVisiblePopulation the maximumVisiblePopulation to set
 	 */
 	public void setMaximumVisiblePopulation(int maximumVisiblePopulation) {
@@ -319,6 +328,13 @@ public class Behavior {
 	 */
 	public double getEnergyCost() {
 		return energyCost;
+	}
+
+	/**
+	 * @return the coolDown
+	 */
+	public int getCoolDown() {
+		return coolDown;
 	}
 
 	/**

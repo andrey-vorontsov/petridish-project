@@ -55,7 +55,7 @@ public class Grazer extends Cell {
 		// reproduction
 		Behavior cloneMyself = new Behavior("clone", null, 2);
 		cloneMyself.setThisCellMinEnergy(100);
-		cloneMyself.setThisCellMinSize(8);
+		cloneMyself.setThisCellMinSize(6);
 		behaviorSet.addBehavior(cloneMyself);
 
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
@@ -68,11 +68,23 @@ public class Grazer extends Cell {
 		chaseAgars.setEnergyCost(.25);
 		behaviorSet.addBehavior(chaseAgars);
 		
-		// TODO configure
-		behaviorSet.addBehavior(new Behavior("graze", "Plant", 3));
+		Behavior nibblePlants = new Behavior("nibble", "Plant", 1);
+		nibblePlants.setTargetCellMustBeTouching(true);
+		nibblePlants.setTargetCellMinSize(4);
+		nibblePlants.setCoolDown(5);
+		behaviorSet.addBehavior(nibblePlants);
 		
+		Behavior grazePlants = new Behavior("graze", "Plant", 3);
+		grazePlants.setEnergyCost(.25);
+		grazePlants.setTargetCellMinSize(4);
+		behaviorSet.addBehavior(grazePlants);
 		
-		Behavior wander = new Behavior("wander", null, 4);
+		Behavior sleepWhenStarving = new Behavior("sleep", 4);
+		sleepWhenStarving.setThisCellMaxEnergy(10);
+		sleepWhenStarving.setEnergyCost(.1);
+		behaviorSet.addBehavior(sleepWhenStarving);
+		
+		Behavior wander = new Behavior("wander", null, 5);
 		wander.setEnergyCost(.25);
 		behaviorSet.addBehavior(wander);
 		
@@ -89,12 +101,12 @@ public class Grazer extends Cell {
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		if (energy > 75 && size < 8) {
+		if (energy > 75 && size < 6) {
 			size++;
 			energy -= 8;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
-		} else if (energy < 25 && size > 5) {
+		} else if (energy < 25 && size > 3) {
 			size--;
 			energy += 7;
 			if (!SUPPRESS_EVENT_PRINTING)

@@ -62,18 +62,24 @@ public class Plant extends Cell {
 	}
 
 	/**
-	 * Plants slowly grow above a certain energy, but can't decrease in size. They also passively gain energy every update.
+	 * Plants slowly grow above a certain energy, and can get starved down. They also passively gain energy every update.
 	 * 
 	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		energy += .5;
+		energy += 0.5;
 		if (energy > 200 && size < 16 && getRNG().nextInt(100) < 5) {
 			size++;
 			energy -= 20;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
+		}
+		if (energy < 30 && size > 3) {
+			size--;
+			energy += 18;
+			if (!SUPPRESS_EVENT_PRINTING)
+				System.out.println(this + " is starving!");
 		}
 		// replace the functionality of the superclass method
 		// which calls the customized squish() and checks for death by starvation

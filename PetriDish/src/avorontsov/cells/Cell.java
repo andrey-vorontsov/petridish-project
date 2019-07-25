@@ -88,6 +88,7 @@ public abstract class Cell {
 	private CellMovementVector targetingVector;
 	private CellBehaviorController behaviors; // defines the set of movement behaviors this cell has
 	private String currBehavior;
+	private ArrayList<BehaviorCooldown> behaviorCooldowns = new ArrayList<BehaviorCooldown>();
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
@@ -149,6 +150,14 @@ public abstract class Cell {
 																// are enforced here by custom implementation
 
 		updatePhysics(); // the cell moves according to physics
+		
+		// update any cooldowns that behaviors might have
+		for (int i=0; i<behaviorCooldowns.size(); i++) {
+			if (behaviorCooldowns.get(i).update()) { // for each behavior on cooldown, update it, and if it ran out - get rid of it
+				behaviorCooldowns.remove(i);
+				i--;
+			}
+		}
 
 		return newCell;
 	}
@@ -195,6 +204,7 @@ public abstract class Cell {
 
 		// for eating/energy gain behaviors, we currently enforce the following:
 		// "eat" - kill the target, take all of its energy
+		// "nibble" - for Plants - chew on the target, leeching some energy
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("EAT")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("eat")) {
 				energy += nextOrder.getTarget().getEnergy();
@@ -202,6 +212,13 @@ public abstract class Cell {
 				if (!SUPPRESS_EVENT_PRINTING)
 					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving "
 							+ nextOrder.getTarget().getEnergy() + " energy.");
+			}
+			
+			if (nextOrder.getSourceBehavior().getBehaviorType().equals("nibble")) {
+				energy += 5;
+				nextOrder.getTarget().setEnergy(nextOrder.getTarget().getEnergy() - 5);
+				if (!SUPPRESS_EVENT_PRINTING)
+					System.out.println(this + " nibbled on " + nextOrder.getTarget() + ", receiving 5 energy.");
 			}
 		}
 
@@ -214,6 +231,11 @@ public abstract class Cell {
 						System.out.println(this + " spawned " + child + ".");
 			}
 
+		}
+		
+		// set the action order's source behavior's cooldown, if applicable
+		if (nextOrder.getSourceBehavior().getCoolDown() != 0) {
+			behaviorCooldowns.add(new BehaviorCooldown(nextOrder.getSourceBehavior()));
 		}
 
 		// apply the energy cost of the action order
@@ -492,6 +514,13 @@ public abstract class Cell {
 	}
 
 	/**
+	 * @return the behaviorCooldowns
+	 */
+	public ArrayList<BehaviorCooldown> getBehaviorCooldowns() {
+		return behaviorCooldowns;
+	}
+
+	/**
 	 * @return the behavior type String which represents the type of action the Cell
 	 *         last took
 	 */
@@ -532,6 +561,13 @@ public abstract class Cell {
 	 */
 	public void setY(double y) {
 		this.y = y;
+	}
+	
+	/**
+	 * @param energy the energy to put this cell at
+	 */
+	public void setEnergy(double energy) {
+		this.energy = energy;
 	}
 
 	/**
