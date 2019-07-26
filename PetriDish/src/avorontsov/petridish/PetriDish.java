@@ -82,20 +82,20 @@ public class PetriDish implements Runnable {
 		// set up simulation debug preset TODO extract this functionality
 		for (int i = 0; i < 16; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 30));
 		}
 		for (int i = 0; i < 6; i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 6));
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 100));
 		}
 		for (int i = 0; i < 200; i++) { // scatter some food to start
 			allCells.add(new Agar(this, rng,
 					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 30));
 		}
 		for (int i = 0; i < 20; i++) { // three plants at totally random locations in the dish
 			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 6));
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
 		}
 
 		cellsToDraw = (ArrayList<Cell>) allCells.clone(); // this array is used by the simulation thread to push a list
@@ -254,7 +254,7 @@ public class PetriDish implements Runnable {
 	 * @return a list of cells in the range
 	 */
 	public ArrayList<Cell> getCellsInRange(Cell me, double maxDistance) {
-		// this shortcut saves some time because some Cells have a vision range of 0
+		// this shortcut saves some time because many Cells have a vision range of 0
 		if (maxDistance == 0) {
 			return new ArrayList<Cell>();
 		}
@@ -287,7 +287,7 @@ public class PetriDish implements Runnable {
 		ArrayList<Cell> touchedCells = new ArrayList<Cell>();
 		for (int i = 0; i < allCells.size(); i++) {
 			Cell curr = allCells.get(i);
-			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < me.getSize() + curr.getSize()
+			if (distanceBetween(curr.getX(), curr.getY(), me.getX(), me.getY()) < me.getRadius() + curr.getRadius()
 					&& curr.isAlive() && !curr.equals(me)) { // a cell is touching me iff it is closer than the sum of
 																// our radii, it is alive,
 																// and it is not myself

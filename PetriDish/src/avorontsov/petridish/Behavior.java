@@ -19,22 +19,22 @@ public class Behavior {
 	
 	// properties of the cells to be targeted, with default values
 	private String targetCellSpecies;
-	private int targetCellMinSize = 0;
-	private int targetCellMaxSize = Integer.MAX_VALUE;
+	private int targetCellMinMass = 0;
+	private int targetCellMaxMass = Integer.MAX_VALUE;
 	private double targetCellMinDistance = 0;
 	private double targetCellMaxDistance = Double.MAX_VALUE;
 	
 	// relative properties, that is, comparisons between the target cell and this cell
-	private int targetCellMinRelSize = Integer.MIN_VALUE;
-	private int targetCellMaxRelSize = Integer.MAX_VALUE;
+	private int targetCellMinRelMass = Integer.MIN_VALUE;
+	private int targetCellMaxRelMass = Integer.MAX_VALUE;
 	
 	// used for hit detection. touching is used for collision detection, engulfing is used for eatability detection
 	private boolean targetCellMustBeTouching = false;
 	private boolean targetCellMustBeEngulfed = false;
 	
 	// properties of this cell that must be satisfied for the behavior
-	private int thisCellMinSize = 0;
-	private int thisCellMaxSize = Integer.MAX_VALUE;
+	private int thisCellMinMass = 0;
+	private int thisCellMaxMass = Integer.MAX_VALUE;
 	private double thisCellMinEnergy = 0;
 	private double thisCellMaxEnergy = Double.MAX_VALUE;
 
@@ -112,17 +112,17 @@ public class Behavior {
 	}
 
 	/**
-	 * @param targetCellMinSize the targetCellMinSize to set
+	 * @param targetCellMinMass the targetCellMinMass to set
 	 */
-	public void setTargetCellMinSize(int targetCellMinSize) {
-		this.targetCellMinSize = targetCellMinSize;
+	public void setTargetCellMinMass(int targetCellMinMass) {
+		this.targetCellMinMass = targetCellMinMass;
 	}
 
 	/**
-	 * @param targetCellMaxSize the targetCellMaxSize to set
+	 * @param targetCellMaxMass the targetCellMaxMass to set
 	 */
-	public void setTargetCellMaxSize(int targetCellMaxSize) {
-		this.targetCellMaxSize = targetCellMaxSize;
+	public void setTargetCellMaxMass(int targetCellMaxMass) {
+		this.targetCellMaxMass = targetCellMaxMass;
 	}
 
 	/**
@@ -140,19 +140,21 @@ public class Behavior {
 	}
 
 	/**
-	 * Relsize is positive when this cell is BIGGER. Relsize is negative when this cell is SMALLER.
+	 * Relsize is positive when this cell is BIGGER. Relmass is negative when this cell is SMALLER.
 	 * 
-	 * @param targetCellMinRelSize the targetCellMinRelSize to set
+	 * @param targetCellMinRelMass the targetCellMinRelMass to set
 	 */
-	public void setTargetCellMinRelSize(int targetCellMinRelSize) {
-		this.targetCellMinRelSize = targetCellMinRelSize;
+	public void setTargetCellMinRelMass(int targetCellMinRelMass) {
+		this.targetCellMinRelMass = targetCellMinRelMass;
 	}
 
 	/**
-	 * @param targetCellMaxRelSize the targetCellMaxRelSize to set
+	 * Relsize is positive when this cell is BIGGER. Relmass is negative when this cell is SMALLER.
+	 * 
+	 * @param targetCellMaxRelMass the targetCellMaxRelMass to set
 	 */
-	public void setTargetCellMaxRelSize(int targetCellMaxRelSize) {
-		this.targetCellMaxRelSize = targetCellMaxRelSize;
+	public void setTargetCellMaxRelMass(int targetCellMaxRelMass) {
+		this.targetCellMaxRelMass = targetCellMaxRelMass;
 	}
 
 	/**
@@ -170,17 +172,17 @@ public class Behavior {
 	}
 
 	/**
-	 * @param thisCellMinSize the thisCellMinSize to set
+	 * @param thisCellMinMass the thisCellMinMass to set
 	 */
-	public void setThisCellMinSize(int thisCellMinSize) {
-		this.thisCellMinSize = thisCellMinSize;
+	public void setThisCellMinMass(int thisCellMinMass) {
+		this.thisCellMinMass = thisCellMinMass;
 	}
 
 	/**
-	 * @param thisCellMaxSize the thisCellMaxSize to set
+	 * @param thisCellMaxMass the thisCellMaxMass to set
 	 */
-	public void setThisCellMaxSize(int thisCellMaxSize) {
-		this.thisCellMaxSize = thisCellMaxSize;
+	public void setThisCellMaxMass(int thisCellMaxMass) {
+		this.thisCellMaxMass = thisCellMaxMass;
 	}
 
 	/**
@@ -240,17 +242,17 @@ public class Behavior {
 	}
 
 	/**
-	 * @return the targetCellMinSize
+	 * @return the targetCellMinMass
 	 */
-	public int getTargetCellMinSize() {
-		return targetCellMinSize;
+	public int getTargetCellMinMass() {
+		return targetCellMinMass;
 	}
 
 	/**
-	 * @return the targetCellMaxSize
+	 * @return the targetCellMaxMass
 	 */
-	public int getTargetCellMaxSize() {
-		return targetCellMaxSize;
+	public int getTargetCellMaxMass() {
+		return targetCellMaxMass;
 	}
 
 	/**
@@ -268,17 +270,17 @@ public class Behavior {
 	}
 
 	/**
-	 * @return the targetCellMinRelSize
+	 * @return the targetCellMinRelMass
 	 */
-	public int getTargetCellMinRelSize() {
-		return targetCellMinRelSize;
+	public int getTargetCellMinRelMass() {
+		return targetCellMinRelMass;
 	}
 
 	/**
-	 * @return the targetCellMaxRelSize
+	 * @return the targetCellMaxRelMass
 	 */
-	public int getTargetCellMaxRelSize() {
-		return targetCellMaxRelSize;
+	public int getTargetCellMaxRelMass() {
+		return targetCellMaxRelMass;
 	}
 
 	/**
@@ -296,17 +298,17 @@ public class Behavior {
 	}
 
 	/**
-	 * @return the thisCellMinSize
+	 * @return the thisCellMinMass
 	 */
-	public int getThisCellMinSize() {
-		return thisCellMinSize;
+	public int getThisCellMinMass() {
+		return thisCellMinMass;
 	}
 
 	/**
 	 * @return the thisCellMaxSize
 	 */
-	public int getThisCellMaxSize() {
-		return thisCellMaxSize;
+	public int getThisCellMaxMass() {
+		return thisCellMaxMass;
 	}
 
 	/**

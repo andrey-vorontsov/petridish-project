@@ -19,8 +19,8 @@ public class Agar extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Agar(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
-		super(petri, rng, x, y, xVelocity, yVelocity, size);
+	public Agar(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, double mass) {
+		super(petri, rng, x, y, xVelocity, yVelocity, mass);
 		health = 0;
 		energy = 25;
 		color = Color.YELLOW;

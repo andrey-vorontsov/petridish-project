@@ -4,6 +4,8 @@ First functional version.
 Underlying application structure, graphics flow, data structures, and simulation flow.
 Cells created, can move, eat each other, and die with basic behavior.
 EDIT: Versions 0.0.1 through 0.0.4 followed each other in relatively quick succession with baseline elements and early bugs being handled.
+EDIT: These versions would be better thought of as 0.0.3.1, 0.0.3.2, 0.0.3.3, and 0.0.4.
+EDIT: This reflects that the progress made between 0.0.1 and 0.0.4 is really not as much as between, say, 0.0.5 and 0.0.6.
 
 Version 0.0.2
 Bug fix: Cells dying multiple times, two cells simultaneously eating each other, related issues.
@@ -182,11 +184,24 @@ Bug fix: Sleeping cells vibrate.
 Bug fix: Cells get stuck trying to get through obstructing Plants.
 Messed with balance some more (Predators are still dying out too fast).
 
+Version 0.0.6.8
+Size system rewrite.
+Cells now track their mass (area) instead of their radius.
+Radius information is still tracked, but purely to generate the graphics.
+The result is a lot of subtle changes which may or may not be working correctly.
+Cell behaviors had to be reconfigured; they were reconfigured as closely to how they were in 0.0.6.7b as reasonably possible.
+Known issue: Cell behaviors are trashed (Predators growing to ridiculous sizes as an obvious issue).
+Known issue: Cells sometimes appear to blink out of existence for one or two frames (possibly linked to the existing jitteriness bug).
+Known issue: Cells may visually bounce back and forth between two positions if stuck against a plant (also linked to the above).
+
 
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
 Strange jitteriness of cells - cause unknown, inconsistent.
+Cell behaviors are trashed (Predators growing to ridiculous sizes as an obvious issue).
+Cells sometimes appear to blink out of existence for one or two frames (possibly linked to the existing jitteriness bug).
+Cells may visually bounce back and forth between two positions if stuck against a plant (also linked to the above).
 Plants sometimes get squished out of the way of a moving cell (very rare).
 Grazers look pretty awkward piling on to and spinning around Plants.
 Cells clip into each other and spaz out.
@@ -200,27 +215,18 @@ Any new properties need to be added as fields to Behavior together with getters 
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
 
-USAGE OF SIZE VARIABLE
-The size variable currently has a dual functionality; it serves as the radius of the cell circle, and also as the abstract representation of the cell's physical mass.
-The desired implementation is for the radius to be a separate variable from the mass (which should be proportionate to the circle's area).
-To extricate these functionalities, a list of usages will be compiled, then the variable appropriately refactored.
-The old size variable will become the radius. A new variable "mass" will be calculated from it, and updated to reflect energy consumption.
-The radius will be recalculated from mass on a call to getGraphic().
-
 ROADMAP (Current: 0.0.6.7)
 
-Features for 0.0.6.8
-	Rework size calculation
-		Current size variable refactored as "radius" and represents only the hitbox
-		New size variable refers to the area of the circle
-
 Features for 0.0.6.9
+	The graphics system needs yet another rewrite
+		(As it turns out, while thinking about the radius/mass system I realized how to correctly optimize the graphics system).
+	
+Features for 0.0.6.10
 	Propagate size calculation changes
 		Cells should have correctly calculated speed
 			(each MovementOrder should have an instead associated FORCE, based on mass * acceleration)
 				(mass proportional to size = area)
 				(cells have a field controlling energy efficiency considering force exerted)
-		Tweak vision range formula
 
 Release 0.0.7
 

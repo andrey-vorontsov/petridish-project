@@ -22,8 +22,8 @@ public class Plant extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
-		this(petri, rng, x, y, xVelocity, yVelocity, size, 100);
+	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, double mass) {
+		this(petri, rng, x, y, xVelocity, yVelocity, mass, 100);
 	}
 
 	/**
@@ -32,8 +32,8 @@ public class Plant extends Cell {
 	 * 
 	 * @see Cell#Cell(PetriDish, Random, double, double, double, double, int)
 	 */
-	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size, double energy) {
-		super(petri, rng, x, y, xVelocity, yVelocity, size);
+	public Plant(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, double mass, double energy) {
+		super(petri, rng, x, y, xVelocity, yVelocity, mass);
 		health = 100;
 		this.energy = energy;
 		color = Color.FORESTGREEN;
@@ -50,7 +50,7 @@ public class Plant extends Cell {
 		// reproduction behavior description
 		Behavior sporePlants = new Behavior("clone", 1);
 		sporePlants.setMaximumVisiblePopulation(3);
-		sporePlants.setThisCellMinSize(12);
+		sporePlants.setThisCellMinMass(450);
 		sporePlants.setThisCellMinEnergy(175);
 		behaviorSet.addBehavior(sporePlants);
 		
@@ -69,15 +69,15 @@ public class Plant extends Cell {
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		energy += 0.5;
-		if (energy > 200 && size < 16 && getRNG().nextInt(100) < 5) {
-			size++;
-			energy -= 20;
+		if (energy > 200 && mass < 750 && getRNG().nextInt(100) < 50) {
+			mass += 20;
+			energy -= 2;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
 		}
-		if (energy < 30 && size > 3) {
-			size--;
-			energy += 18;
+		if (energy < 30 && mass > 30) {
+			mass -= 20;
+			energy += 2;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
@@ -104,7 +104,7 @@ public class Plant extends Cell {
 			if (true) { // all species get squished out of the way by plants
 				// get the unit vector along which to push, then scale it so that the magnitude is equal to the sum of the radii of the cells
 				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
-				double pushMagnitude = c.getSize() + size;
+				double pushMagnitude = c.getRadius() + radius;
 				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude, pushUnit.getYComponent() * pushMagnitude);
 				// use the scaled vector to place the other cell at the appropriate distance, plus a tiny margin
 				
@@ -128,9 +128,9 @@ public class Plant extends Cell {
 	 */
 	@Override
 	public Cell behaviorClone() {
-		energy = (energy-100)/2;
-		size--;
-		return new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, xVelocity, yVelocity, 2, 25);
+		energy -= 100;
+		mass -= 35;
+		return new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, xVelocity, yVelocity, 35, 25);
 	}
 
 	/**
@@ -140,6 +140,7 @@ public class Plant extends Cell {
 	 */
 	@Override
 	public Node getGraphic() {
+		super.getGraphic(); // a hack to get the radius value to update (TODO replace)
 		updateGraphicSideLength();
 		Rectangle graphic = new Rectangle(x-(side/2), y-(side/2), side, side);
 		graphic.setFill(color);
@@ -153,7 +154,7 @@ public class Plant extends Cell {
 		// (size/.75)*2 yields the full diagonal of the square (equivalent to 8/3 the size)
 		// this squared yields the square of the hypotenuse of the right triangle
 		// divide that by two and take the sqrt by pythagorean theorem to get side length of the square
-		side = Math.sqrt(Math.pow(((double)size/.75)*2,2)/2);
+		side = Math.sqrt(Math.pow(((double)radius/.75)*2,2)/2);
 	}
 
 

@@ -79,8 +79,8 @@ public class CellBehaviorController {
 			if (currBehavior.getThisCellMinEnergy() <= me.getEnergy() // this cell is in energy spec
 					&& currBehavior.getThisCellMaxEnergy() >= me.getEnergy()
 
-					&& currBehavior.getThisCellMinSize() <= me.getSize() // this cell is in size spec
-					&& currBehavior.getThisCellMaxSize() >= me.getSize()
+					&& currBehavior.getThisCellMinMass() <= me.getMass() // this cell is in size spec
+					&& currBehavior.getThisCellMaxMass() >= me.getMass()
 					
 					&& myCooldown <= 0) { // this cell doesn't have this behavior on cooldown
 
@@ -122,18 +122,18 @@ public class CellBehaviorController {
 
 							// load some useful values for the comparisons
 							double distanceToCell = PetriDish.distanceBetween(c.getX(), c.getY(), me.getX(), me.getY());
-							int cellsRelSize = me.getSize() - c.getSize(); // positive when this cell is bigger
+							double cellsRelSize = me.getMass() - c.getMass(); // positive when this cell is bigger
 
 							// the big if. checks all the behavior's conditions
 							if (c.getSpecies().equals(currBehavior.getTargetCellSpecies()) // target matches species
-									&& c.getSize() >= currBehavior.getTargetCellMinSize() // size
-									&& c.getSize() <= currBehavior.getTargetCellMaxSize() // constraints
+									&& c.getMass() >= currBehavior.getTargetCellMinMass() // size
+									&& c.getMass() <= currBehavior.getTargetCellMaxMass() // constraints
 
 									&& distanceToCell >= currBehavior.getTargetCellMinDistance() // distance
 									&& distanceToCell <= currBehavior.getTargetCellMaxDistance() // constraints
 									
-									&& cellsRelSize >= currBehavior.getTargetCellMinRelSize() // relative size
-									&& cellsRelSize <= currBehavior.getTargetCellMaxRelSize() // constraints
+									&& cellsRelSize >= currBehavior.getTargetCellMinRelMass() // relative size
+									&& cellsRelSize <= currBehavior.getTargetCellMaxRelMass() // constraints
 									
 									&& (distanceToTarget > distanceToCell)) { // finally, target is closer than any
 																				// matching previous target
@@ -141,9 +141,9 @@ public class CellBehaviorController {
 								// additional range checks based on hitboxes (NOT redundant with max distance!)
 
 								// if either hitbox condition is both set and fulfilled
-								if ((currBehavior.doesTargetCellHaveToBeEngulfed() && distanceToCell < me.getSize())
+								if ((currBehavior.doesTargetCellHaveToBeEngulfed() && distanceToCell < me.getRadius())
 										|| (currBehavior.doesTargetCellHaveToBeTouching()
-												&& distanceToCell < (me.getSize() + c.getSize()))
+												&& distanceToCell < (me.getRadius() + c.getRadius()))
 										// or neither of them is set
 										|| (!currBehavior.doesTargetCellHaveToBeEngulfed()
 												&& !currBehavior.doesTargetCellHaveToBeTouching())) {

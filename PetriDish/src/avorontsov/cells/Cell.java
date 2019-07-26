@@ -21,7 +21,7 @@ import javafx.scene.paint.Color;
  * eating/getting energy, and reproduction are encapsulated by the
  * CellBehaviorController very abstractly and are configurable through it.
  * Any other custom behaviors (particularly related to changing the cell's
- * size due to growth, or to pushing other cells away) can be encapsulated
+ * mass due to growth, or to pushing other cells away) can be encapsulated
  * in customizedCellBehaviors().
  * Unfortunately, this system is a tad incomplete/inconsistent with its level of
  * abstraction.
@@ -29,10 +29,10 @@ import javafx.scene.paint.Color;
  * In general, all protected fields of this class should be set in the
  * constructor of any extending class, with the following exceptions: x, y,
  * xVelocity, yVelocity, rng, petri (exposed for ease of writing reproduction
- * methods)
+ * methods) and radius (exposed for convenience of changing graphics appearance)
  * 
  * So children should set:
- * SUPPRESS_EVENT_PRINTING, health, energy, size, color, friction,
+ * SUPPRESS_EVENT_PRINTING, health, energy, mass, color, friction,
  * baseVisionRange, species
  * 
  * Additionally, children should:
@@ -43,7 +43,7 @@ import javafx.scene.paint.Color;
  * 3. Optionally, override behaviorClone() - used to implement the "clone" behavior
  * 4. Optionally, override squish() - default behavior is to push away all
  * cells of the same species to avoid overlapping them
- * 5. Optionally, override getGraphic() - default behavior is to generate a
+ * 5. Optionally, override getGraphic() - default behavior is to update the radius value, then generate a
  * circle of appropriate radius and color
  * 6. Optionally, override getScaledVisionRange() to apply a customized vision
  * range calculation
@@ -80,7 +80,8 @@ public abstract class Cell {
 	// varies based on cell type, protected fields
 	protected int health = 0;
 	protected double energy = 0;
-	protected int size;
+	protected int radius; // updated by the getGraphic method at the end of each simulation update
+	protected double mass; // used by the simulation for size comparisons - mass determines radius
 
 	// for cell behaviors
 	private double targetX;
@@ -94,7 +95,7 @@ public abstract class Cell {
 	protected Color color;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more)
 	protected double baseVisionRange; // base distance the cell can see (radius of a circle around its center)
-										// usually the cell can see much further, depending on its size
+										// hypothetically when the mass is zero (in reality, always more)
 	protected String species;
 
 	/**
@@ -107,16 +108,16 @@ public abstract class Cell {
 	 * @param y         the y location to put the cell at
 	 * @param xVelocity the initial x velocity of the cell
 	 * @param yVelocity the initial y velocity of the cell
-	 * @param size      the initial size of the cell
+	 * @param mass      the initial mass of the cell
 	 */
-	public Cell(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, int size) {
+	public Cell(PetriDish petri, Random rng, double x, double y, double xVelocity, double yVelocity, double mass) {
 		this.petri = petri;
 		this.rng = rng;
 		this.x = x;
 		this.y = y;
 		this.xVelocity = xVelocity;
 		this.yVelocity = yVelocity;
-		this.size = size;
+		this.mass = mass;
 
 		// defaults
 		isAlive = true;
@@ -135,7 +136,7 @@ public abstract class Cell {
 	 * the simulation.
 	 * 
 	 * @param visibleCells a list of cells visible to this cell, based on the cell's
-	 *                     vision range and size
+	 *                     vision range
 	 * @return an offspring produced by this cell during this update, unless one was
 	 *         not produced, in which case return null
 	 */
@@ -167,7 +168,7 @@ public abstract class Cell {
 	 * enforces it.
 	 * 
 	 * @param visibleCells a list of cells this cell can see based on its vision
-	 *                     range and size
+	 *                     range
 	 * @return a Cell offspring, if one was produced by reproduction
 	 */
 	public Cell act(ArrayList<Cell> visibleCells) {
@@ -274,7 +275,7 @@ public abstract class Cell {
 	 * A method to encapsulate the functionality of the clone behavior, to allow
 	 * for proper customization of the reproduction functionality. In most cases,
 	 * the cell should apply a reasonable energy cost to itself, before dividing
-	 * in two (size = size/2, create a new child)
+	 * in two (mass = mass/2, create a new child)
 	 * 
 	 * Unfortunately, another deviation from the original Cell Behavior plan;
 	 * though this method ends up being activated by a corresponding "clone"
@@ -356,7 +357,7 @@ public abstract class Cell {
 				// get the unit vector along which to push, then scale it so that the magnitude
 				// is equal to the sum of the radii of the cells
 				CellMovementVector pushUnit = getVectorToTarget(c.getX(), c.getY()).getUnitVector();
-				double pushMagnitude = c.getSize() + size;
+				double pushMagnitude = c.getRadius() + radius;
 				CellMovementVector push = new CellMovementVector(pushUnit.getXComponent() * pushMagnitude,
 						pushUnit.getYComponent() * pushMagnitude);
 				// use the scaled vector to place the other cell at the appropriate distance,
@@ -372,11 +373,19 @@ public abstract class Cell {
 	 * customize its graphic. By default, the graphic is a circle with the cell's
 	 * radius and color.
 	 * 
+	 * This method is responsible for updating the radius from the mass using
+	 * A = pi*r^2, where mass is taken to be area (they are proportionate).
+	 * Any overriding methods should include the statement
+	 * radius = (int) Math.round(Math.sqrt(mass/Math.PI));
+	 * Which should be safe as long as cell radii are reasonably small.
+	 * 
 	 * @return any kind of Graphics object that can represent the cell (typically a
 	 *         JavaFX Circle or Square)
 	 */
 	public Node getGraphic() {
-		Circle graphic = new Circle(x, y, size);
+		radius = (int) Math.round(Math.sqrt(mass/Math.PI));
+		
+		Circle graphic = new Circle(x, y, radius);
 		graphic.setFill(color);
 		return graphic;
 	}
@@ -395,7 +404,7 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Vision range is calculated by the base value + size * 6 by default If the
+	 * Vision range is calculated by the base value + mass * 6 by default If the
 	 * cell cannot see, returns 0.
 	 * 
 	 * @return how far the cell can actually see
@@ -403,7 +412,7 @@ public abstract class Cell {
 	public double getScaledVisionRange() {
 		if (!canSee())
 			return 0;
-		return baseVisionRange + size * 6;
+		return baseVisionRange + mass / 8;
 	}
 
 	/**
@@ -479,10 +488,17 @@ public abstract class Cell {
 	}
 
 	/**
-	 * @return the size
+	 * @return the radius
 	 */
-	public int getSize() {
-		return size;
+	public int getRadius() {
+		return radius;
+	}
+
+	/**
+	 * @return the mass
+	 */
+	public double getMass() {
+		return mass;
 	}
 
 	/**
@@ -568,6 +584,13 @@ public abstract class Cell {
 	 */
 	public void setEnergy(double energy) {
 		this.energy = energy;
+	}
+
+	/**
+	 * @param mass the mass to set
+	 */
+	public void setMass(double mass) {
+		this.mass = mass;
 	}
 
 	/**
