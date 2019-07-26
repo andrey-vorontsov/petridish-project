@@ -68,16 +68,18 @@ public class Plant extends Cell {
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		energy += 0.5;
-		if (energy > 200 && mass < 750 && getRNG().nextInt(100) < 50) {
+		if (energy < 350) {
+			energy += 1;
+		}
+		if (energy > 200 && mass < 750 && getRNG().nextInt(100) < 10) {
 			mass += 20;
-			energy -= 2;
+			energy -= 10;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
 		}
 		if (energy < 30 && mass > 30) {
 			mass -= 20;
-			energy += 2;
+			energy += 8;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}

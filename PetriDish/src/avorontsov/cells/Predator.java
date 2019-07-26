@@ -31,9 +31,9 @@ public class Predator extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.HOTPINK;
-		friction = 0.8;
+		friction = 0.825;
 		species = "Predator";
-		baseVisionRange = 70;
+		baseVisionRange = 100;
 		
 		// TODO review the behavior list
 		
@@ -45,30 +45,30 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(eatAgars);
 		
 		Behavior eatGrazers = new Behavior("eat", "Grazer", 1);
-		eatGrazers.setTargetCellMinRelMass(100); // the predator must be at least 100 bigger to eat
+		eatGrazers.setTargetCellMinRelMass(42); // the predator must be at least this bigger to eat
 		eatGrazers.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatGrazers);
 		
 		Behavior cloneMyself = new Behavior("clone", null, 2);
-		cloneMyself.setThisCellMinEnergy(200);
-		cloneMyself.setThisCellMinMass(315);
+		cloneMyself.setThisCellMinEnergy(150);
+		cloneMyself.setThisCellMinMass(310);
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
 		huntingGrazers.setTargetCellMaxDistance(45);
-		huntingGrazers.setTargetCellMinRelMass(100); // the predator must be at least 100 bigger
-		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
+		huntingGrazers.setTargetCellMinRelMass(51); // the predator must be at least this bigger
+		huntingGrazers.setTargetCellMinDistance(8); // avoid overshooting/oversteering
 		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
-		huntingGrazers.setEnergyCost(2); // the vector is three times longer; so this is fair
+		huntingGrazers.setEnergyCost(3); // the vector is three times longer; so this is fair
 		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 4);
-		pursuitGrazers.setTargetCellMinRelMass(100); // the predator must be at least 100 bigger
-		pursuitGrazers.setEnergyCost(.3);
+		pursuitGrazers.setTargetCellMinRelMass(50); // the predator must be at least this bigger
+		pursuitGrazers.setEnergyCost(.25);
 		behaviorSet.addBehavior(pursuitGrazers);
 		
 		Behavior pursuitAgars = new Behavior("pursue", "Agar", 3);
-		pursuitAgars.setEnergyCost(.3);
+		pursuitAgars.setEnergyCost(.25);
 		behaviorSet.addBehavior(pursuitAgars); // agars pursued indiscrimnately
 		
 		Behavior sleepWhenStarving = new Behavior("sleep", 5);
@@ -77,7 +77,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(sleepWhenStarving);
 		
 		Behavior wander = new Behavior("wander", null, 6);
-		wander.setEnergyCost(.3);
+		wander.setEnergyCost(.25);
 		behaviorSet.addBehavior(wander);
 		
 		setBehaviorController(behaviorSet);
@@ -92,14 +92,14 @@ public class Predator extends Cell {
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		if (energy > 90 && mass < 300) {
-			mass += 20;
-			energy -= 3;
+		if (energy > 90 && mass < 330) {
+			mass += 10;
+			energy -= 5;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
-		} else if (energy < 20 && mass > 60) {
-			mass += 20;
-			energy += 2;
+		} else if (energy < 20 && mass > 100) {
+			mass -= 10;
+			energy += 4;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}

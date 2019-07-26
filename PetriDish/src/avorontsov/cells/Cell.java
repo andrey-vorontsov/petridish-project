@@ -216,10 +216,10 @@ public abstract class Cell {
 			}
 			
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("nibble")) {
-				energy += 5;
-				nextOrder.getTarget().setEnergy(nextOrder.getTarget().getEnergy() - 5);
+				energy += 8;
+				nextOrder.getTarget().setEnergy(nextOrder.getTarget().getEnergy() - 8);
 				if (!SUPPRESS_EVENT_PRINTING)
-					System.out.println(this + " nibbled on " + nextOrder.getTarget() + ", receiving 5 energy.");
+					System.out.println(this + " nibbled on " + nextOrder.getTarget() + ", receiving 8 energy.");
 			}
 		}
 
@@ -412,7 +412,7 @@ public abstract class Cell {
 	public double getScaledVisionRange() {
 		if (!canSee())
 			return 0;
-		return baseVisionRange + mass / 8;
+		return baseVisionRange + mass / 3.5;
 	}
 
 	/**

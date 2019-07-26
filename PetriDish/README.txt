@@ -194,17 +194,25 @@ Known issue: Cell behaviors are trashed (Predators growing to ridiculous sizes a
 Known issue: Cells sometimes appear to blink out of existence for one or two frames (possibly linked to the existing jitteriness bug).
 Known issue: Cells may visually bounce back and forth between two positions if stuck against a plant (also linked to the above).
 
+Version 0.0.6.9
+Unreleased.
+Graphics feed system rewrite, once again.
+The code has been radically simplified and there should be a slight performance gain.
+While making these changes I gained a better understanding of some of the other ongoing issues:
+Bug fix: Cells bouncing back and forth between two positions.
+Bug fix: Jittery cells.
+Bug fix: Cells clipping into each other (at least visually, doesn't happen anymore).
+Also, located and corrected mistakes that caused these other issues:
+Bug fix: Predators growing out of control (turned a plus into a minus).
+Bug fix: Cells blink out of existence for a frame (happened when another cell, elsewhere, died).
+Tweaked and balanced some miscellaneous stats in an effort to increase playability.
+
 
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
-Strange jitteriness of cells - cause unknown, inconsistent.
-Cell behaviors are trashed (Predators growing to ridiculous sizes as an obvious issue).
-Cells sometimes appear to blink out of existence for one or two frames (possibly linked to the existing jitteriness bug).
-Cells may visually bounce back and forth between two positions if stuck against a plant (also linked to the above).
 Plants sometimes get squished out of the way of a moving cell (very rare).
 Grazers look pretty awkward piling on to and spinning around Plants.
-Cells clip into each other and spaz out.
 
 NOTES
 
@@ -215,12 +223,8 @@ Any new properties need to be added as fields to Behavior together with getters 
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
 
-ROADMAP (Current: 0.0.6.7)
+ROADMAP (Current: 0.0.6.9)
 
-Features for 0.0.6.9
-	The graphics system needs yet another rewrite
-		(As it turns out, while thinking about the radius/mass system I realized how to correctly optimize the graphics system).
-	
 Features for 0.0.6.10
 	Propagate size calculation changes
 		Cells should have correctly calculated speed

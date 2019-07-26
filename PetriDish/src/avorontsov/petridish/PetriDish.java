@@ -55,8 +55,8 @@ public class PetriDish implements Runnable {
 
 	private ArrayList<Cell> allCells = new ArrayList<Cell>(); // contains all the single-celled organisms inhabiting the
 																// petri dish
-	private ArrayList<Cell> cellsToDraw; // re-created after every simulation cycle for use by the graphics thread - to
-											// avoid have the two threads reading/writing from/to the same list
+	private ArrayList<Node> graphicsToDraw = new ArrayList<Node>(); // populated by the simulation thread at the end of every update
+																		// contains graphics objects produced from every cell
 
 	/**
 	 * Starts the petri dish simulation thread.
@@ -75,34 +75,32 @@ public class PetriDish implements Runnable {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
-	@SuppressWarnings("unchecked") // I cast the Object returned by ArrayList.clone() to the ArrayList of the type.
 	@Override
 	public void run() {
 
 		// set up simulation debug preset TODO extract this functionality
-		for (int i = 0; i < 16; i++) { // a herd of herbivores, to the left
+		for (int i = 0; i < 20; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 30));
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 50));
 		}
-		for (int i = 0; i < 6; i++) { // a herd of predators, to the right
+		for (int i = 0; i < 8; i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 100));
 		}
-		for (int i = 0; i < 200; i++) { // scatter some food to start
+		for (int i = 0; i < 250; i++) { // scatter some food to start
 			allCells.add(new Agar(this, rng,
 					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 30));
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
 		}
-		for (int i = 0; i < 20; i++) { // three plants at totally random locations in the dish
+		for (int i = 0; i < 35; i++) { // three plants at totally random locations in the dish
 			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
 		}
 
-		cellsToDraw = (ArrayList<Cell>) allCells.clone(); // this array is used by the simulation thread to push a list
-															// of cells to draw to the graphics thread. this step is
-															// necessary because the threads run in parallel, and it is
-															// dangerous if the simulation thread starts modifying the
-															// allCells array while the graphics thread is reading it
+		// fill the graphics list for initial setup
+		for (Cell c: allCells) {
+			graphicsToDraw.add(c.getGraphic());
+		}							
 
 		// main simulation loop
 		do {
@@ -119,36 +117,12 @@ public class PetriDish implements Runnable {
 				@Override
 				public void run() {
 
-					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list - all
-																						// graphics are made to be
-																						// children of the petri dish
-																						// window's scene graph root
-
-					// iterate through the graphics nodes list and replace it with refreshed graphics
-					for (int i = 0; i < Math.min(allNodes.size(), cellsToDraw.size()); i++) {
-						allNodes.set(i, cellsToDraw.get(i).getGraphic()); // set() is used to avoid having to move other
-																			// entries in the list
-					}
-
-					// if the number of cells grew since last time, we must expand the graphics list
-					// to match using add()
-					if (allNodes.size() < cellsToDraw.size()) {
-						for (int i = allNodes.size(); i < cellsToDraw.size(); i++) {
-							allNodes.add(cellsToDraw.get(i).getGraphic());
-						}
-					}
-
-					// if the number of cells decreased since last time, we must contract the
-					// graphics list by removing from the end
-					if (allNodes.size() > cellsToDraw.size()) {
-						for (int i = allNodes.size(); i > cellsToDraw.size(); i--) {
-							allNodes.remove(allNodes.size() - 1); // removes the last n graphics nodes, where n is
-																	// allNodes.size() - allCells.size()
-						}
-					}
-
-					// after these actions, the scene graph of the petri dish window has been
-					// completely replaced
+					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
+					
+					allNodes.setAll(graphicsToDraw); // replace the old list with a fresh new list of graphics
+					
+					// placing the graphics in allNodes assigns them all to be children of the petri window's root
+					// so the scene graph looks like the root, with a couple hundred direct children (tree height = 1)
 
 					graphicsCycleDelta = System.nanoTime() - cycleStartTime; // stop this thread's work timer
 					waitingForGraphics = false; // graphics thread finished its work. simulation thread can continue
@@ -156,6 +130,10 @@ public class PetriDish implements Runnable {
 				}
 
 			}); // end of code for the graphics thread
+			
+			// start of code for simulation thread
+			
+			ArrayList<Node> newGraphicsToDraw = new ArrayList<Node>(); // to avoid concurrent modification; the simulation thread loads graphics into a temporary list, then shallow copies it to allow the graphics thread to use it on the next cycle
 
 			// run the simulation by asking all the living cells to take their turns
 
@@ -170,7 +148,10 @@ public class PetriDish implements Runnable {
 					Cell newCell = allCells.get(i)
 							.update(getCellsInRange(allCells.get(i), allCells.get(i).getScaledVisionRange()),
 									getTouchingCells(allCells.get(i)));
-
+					
+					// after updating, save the refreshed graphic
+					newGraphicsToDraw.add(allCells.get(i).getGraphic());
+					
 					if (newCell != null) {
 						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
 												// that newborn cells are updated on the same cycle they are born
@@ -182,22 +163,26 @@ public class PetriDish implements Runnable {
 
 					allCells.set(i, allCells.get(allCells.size() - 1)); // swap with the end
 					allCells.remove(allCells.size() - 1); // trim off the end
+					i--; // remember to update the swapped element too
 					// note that for the last element, the call to set() does nothing
 				}
 
-				// below a certain total population, sprinkle food at random points
-				// TODO extract, this is here for debug only
-				while (allCells.size() < 40) {
-					allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-							rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
-				}
+			} // finished updating all petri dish inhabitants and saving copies of their graphics
+			
+			// TODO for debug purposes; here is where cells are sprinkled in during the simulation
+//			for (int i=0; i<rng.nextInt(10)-3; i++) {
+//				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+//			}
 
-			} // finished updating all petri dish inhabitants
-
-			cellsToDraw = (ArrayList<Cell>) allCells.clone(); // prepare the cells to draw list for the next cycle
+			graphicsToDraw = newGraphicsToDraw; // prepare the graphicsToDraw list for the next cycle
 
 			// stop this thread's work timer
 			simulationCycleDelta = System.nanoTime() - cycleStartTime;
+			
+			// end of code for the simulation thread
+			
+			// the rest of this code is run on the simulation thread and should be kept brief
 
 			// wait for the graphics thread to catch up if needed
 			while (waitingForGraphics) {

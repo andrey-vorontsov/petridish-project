@@ -54,13 +54,13 @@ public class Grazer extends Cell {
 		
 		// reproduction
 		Behavior cloneMyself = new Behavior("clone", null, 2);
-		cloneMyself.setThisCellMinEnergy(150);
-		cloneMyself.setThisCellMinMass(140);
+		cloneMyself.setThisCellMinEnergy(100);
+		cloneMyself.setThisCellMinMass(115);
 		behaviorSet.addBehavior(cloneMyself);
 
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
 		avoidPredators.setTargetCellMinDistance(45); // stay just outside of lunging range
-		avoidPredators.setTargetCellMaxRelMass(-100); // only bother evading if we are small enough to be eaten (less than -3 bigger, aka more than 3 smaller) 
+		avoidPredators.setTargetCellMaxRelMass(-65); // only bother evading if we are small enough to be eaten (less than -3 bigger, aka more than 3 smaller) 
 		avoidPredators.setEnergyCost(.25);
 		behaviorSet.addBehavior(avoidPredators);
 
@@ -71,7 +71,7 @@ public class Grazer extends Cell {
 		Behavior nibblePlants = new Behavior("nibble", "Plant", 1);
 		nibblePlants.setTargetCellMustBeTouching(true);
 		nibblePlants.setTargetCellMinMass(50);
-		nibblePlants.setCoolDown(5);
+		nibblePlants.setCoolDown(4);
 		behaviorSet.addBehavior(nibblePlants);
 		
 		Behavior grazePlants = new Behavior("pursue", "Plant", 3);
@@ -101,14 +101,14 @@ public class Grazer extends Cell {
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		if (energy > 75 && mass < 150) {
-			mass+= 20;
-			energy -= 3;
+		if (energy > 75 && mass < 125) {
+			mass+= 10;
+			energy -= 4;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
-		} else if (energy < 25 && mass > 30) {
-			mass -= 20;
-			energy += 1;
+		} else if (energy < 25 && mass > 45) {
+			mass -= 10;
+			energy += 3;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
