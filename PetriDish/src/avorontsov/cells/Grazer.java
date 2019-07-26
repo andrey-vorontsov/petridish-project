@@ -74,7 +74,7 @@ public class Grazer extends Cell {
 		nibblePlants.setCoolDown(5);
 		behaviorSet.addBehavior(nibblePlants);
 		
-		Behavior grazePlants = new Behavior("graze", "Plant", 3);
+		Behavior grazePlants = new Behavior("pursue", "Plant", 3);
 		grazePlants.setEnergyCost(.25);
 		grazePlants.setTargetCellMinSize(4);
 		behaviorSet.addBehavior(grazePlants);

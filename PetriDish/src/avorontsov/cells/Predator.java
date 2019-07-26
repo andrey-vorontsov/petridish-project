@@ -45,7 +45,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(eatAgars);
 		
 		Behavior eatGrazers = new Behavior("eat", "Grazer", 1);
-		eatGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger to eat
+		eatGrazers.setTargetCellMinRelSize(2); // the predator must be at least 2 bigger to eat
 		eatGrazers.setTargetCellMustBeEngulfed(true); // cell has to be engulfed to be eaten
 		behaviorSet.addBehavior(eatGrazers);
 		
@@ -55,7 +55,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
-		huntingGrazers.setTargetCellMaxDistance(43);
+		huntingGrazers.setTargetCellMaxDistance(45);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
 		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
@@ -63,7 +63,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 4);
-		pursuitGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
+		pursuitGrazers.setTargetCellMinRelSize(2); // the predator must be at least 2 bigger
 		pursuitGrazers.setEnergyCost(.3);
 		behaviorSet.addBehavior(pursuitGrazers);
 		

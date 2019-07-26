@@ -177,14 +177,18 @@ Known issue: Cells clip into each other and spaz out.
 Version 0.0.6.7a
 Messed with some cell stats to improve simulation balance/increased playability.
 
+Version 0.0.6.7b
+Bug fix: Sleeping cells vibrate.
+Bug fix: Cells get stuck trying to get through obstructing Plants.
+Messed with balance some more (Predators are still dying out too fast).
+
+
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
-Strange jitteriness of cells - cause unknown, occurences are rare.
-Plants sometimes get squished out of the way of a moving cell.
-Cells get stuck trying to get through obstructing Plants.
+Strange jitteriness of cells - cause unknown, inconsistent.
+Plants sometimes get squished out of the way of a moving cell (very rare).
 Grazers look pretty awkward piling on to and spinning around Plants.
-Sleeping cells vibrate.
 Cells clip into each other and spaz out.
 
 NOTES
@@ -195,6 +199,13 @@ Behavior.Behavior() must have its behavior category assignment and behavior type
 Any new properties need to be added as fields to Behavior together with getters and setters
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
+
+USAGE OF SIZE VARIABLE
+The size variable currently has a dual functionality; it serves as the radius of the cell circle, and also as the abstract representation of the cell's physical mass.
+The desired implementation is for the radius to be a separate variable from the mass (which should be proportionate to the circle's area).
+To extricate these functionalities, a list of usages will be compiled, then the variable appropriately refactored.
+The old size variable will become the radius. A new variable "mass" will be calculated from it, and updated to reflect energy consumption.
+The radius will be recalculated from mass on a call to getGraphic().
 
 ROADMAP (Current: 0.0.6.7)
 

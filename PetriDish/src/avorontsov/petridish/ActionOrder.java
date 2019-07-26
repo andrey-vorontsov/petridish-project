@@ -30,7 +30,7 @@ public class ActionOrder {
 	private double newTargetY;
 	private CellMovementVector newTargetingVector; // the calculated vector along which the cell may need to move; has
 													// an unknown magnitude depending on how far away the target is
-	private int vectorScalar = 1; // the int scalar to scale the vector to. 1 by default (unit vector)
+	private double vectorScalar = 1; // the int scalar to scale the vector to. 1 by default (unit vector)
 
 	/**
 	 * Constructs an ActionOrder for the given Cell 'me' with a particular
@@ -80,7 +80,8 @@ public class ActionOrder {
 
 			// if we just started wandering or as we are approaching our last wander target,
 			// choose a new random target location
-			if (!oldBehaviorType.equals("wander") || oldTargetingVector.getMagnitude() < 5) {
+			// also has a 15% chance to choose a new target location regardless, to prevent getting stuck
+			if (!oldBehaviorType.equals("wander") || oldTargetingVector.getMagnitude() < 5 || me.getRNG().nextInt(100) < 14) {
 				newTargetX = me.getX() + (me.getRNG().nextDouble() - 0.5) * 200;
 				newTargetY = me.getY() + (me.getRNG().nextDouble() - 0.5) * 200;
 
@@ -105,15 +106,9 @@ public class ActionOrder {
 			// but we can expend a burst of energy to chase them down
 			vectorScalar = 3;
 
-		} else if (newBehaviorType.equals("graze")) { // graze: used by Grazers to glue themselves to Plants
-			
-			// target our victim, like with pursuit, but wiggle around a little bit to show involvement
-			newTargetX = target.getX() + (me.getRNG().nextDouble() - 0.5) * target.getSize() * 0.25;
-			newTargetY = target.getY() + (me.getRNG().nextDouble() - 0.5) * target.getSize() * 0.25;
-			
 		} else if (newBehaviorType.equals("sleep")) { // sleep: do nothing
 			
-			// target x and y stay the same by default
+			vectorScalar = 0;
 			
 		} else {
 			System.out.println("WARNING: Unrecognized behavior: " + newBehaviorType + ".");
@@ -176,7 +171,7 @@ public class ActionOrder {
 	/**
 	 * @return the vector scalar to use for movement (typically 1)
 	 */
-	public int getVectorScalar() {
+	public double getVectorScalar() {
 		return vectorScalar;
 	}
 
