@@ -213,6 +213,9 @@ Set up the simulation to really be properly playable.
 The game 'cheats in' agars, grazers, and preds at random intervals to keep the thing going.
 SHIPPABLE VERSION
 
+Version 0.0.7a
+Slightly nerfed agar spawn rate just to make predators less oppressive to grazers.
+SHIPPABLE VERSION
 
 KNOWN ISSUES
 

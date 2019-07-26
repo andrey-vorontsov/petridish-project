@@ -171,7 +171,7 @@ public class PetriDish implements Runnable {
 			
 			// TODO for debug purposes; here is where cells are sprinkled in during the simulation
 			// they aren't drawn until the next cycle, which is fine I reckon (they don't get updated either)
-			for (int i=0; i<rng.nextInt(5)-3; i++) {
+			for (int i=0; i<rng.nextInt(10)-8; i++) {
 				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
 			}
