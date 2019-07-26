@@ -55,7 +55,7 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
-		huntingGrazers.setTargetCellMaxDistance(40);
+		huntingGrazers.setTargetCellMaxDistance(43);
 		huntingGrazers.setTargetCellMinRelSize(3); // the predator must be at least 3 bigger
 		huntingGrazers.setTargetCellMinDistance(10); // avoid overshooting/oversteering
 		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over

@@ -54,8 +54,8 @@ public class Grazer extends Cell {
 		
 		// reproduction
 		Behavior cloneMyself = new Behavior("clone", null, 2);
-		cloneMyself.setThisCellMinEnergy(100);
-		cloneMyself.setThisCellMinSize(6);
+		cloneMyself.setThisCellMinEnergy(150);
+		cloneMyself.setThisCellMinSize(7);
 		behaviorSet.addBehavior(cloneMyself);
 
 		Behavior avoidPredators = new Behavior("evade", "Predator", 1); // higher priority
@@ -101,7 +101,7 @@ public class Grazer extends Cell {
 	 */
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		if (energy > 75 && size < 6) {
+		if (energy > 75 && size < 7) {
 			size++;
 			energy -= 8;
 			if (!SUPPRESS_EVENT_PRINTING)

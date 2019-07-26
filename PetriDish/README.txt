@@ -174,6 +174,9 @@ Known issue: Grazers look pretty awkward piling on to and spinning around Plants
 Known issue: Sleeping cells vibrate.
 Known issue: Cells clip into each other and spaz out.
 
+Version 0.0.6.7a
+Messed with some cell stats to improve simulation balance/increased playability.
+
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.

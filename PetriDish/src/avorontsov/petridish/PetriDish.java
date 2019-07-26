@@ -80,21 +80,22 @@ public class PetriDish implements Runnable {
 	public void run() {
 
 		// set up simulation debug preset TODO extract this functionality
-		for (int i = 0; i < 6; i++) { // a herd of herbivores, to the left
+		for (int i = 0; i < 16; i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
 		}
-		for (int i = 0; i < 1; i++) { // a herd of predators, to the right
+		for (int i = 0; i < 6; i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
 					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 6));
 		}
-		for (int i = 0; i < 30; i++) { // a small pile of food, in the center
-			allCells.add(new Agar(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 2 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 3));
-		}
-		for (int i = 0; i < 10; i++) { // three plants at totally random locations in the dish
-			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+		for (int i = 0; i < 200; i++) { // scatter some food to start
+			allCells.add(new Agar(this, rng,
+					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
+		}
+		for (int i = 0; i < 20; i++) { // three plants at totally random locations in the dish
+			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 6));
 		}
 
 		cellsToDraw = (ArrayList<Cell>) allCells.clone(); // this array is used by the simulation thread to push a list
@@ -186,7 +187,7 @@ public class PetriDish implements Runnable {
 
 				// below a certain total population, sprinkle food at random points
 				// TODO extract, this is here for debug only
-				while (allCells.size() < 25) {
+				while (allCells.size() < 40) {
 					allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 							rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 3));
 				}
