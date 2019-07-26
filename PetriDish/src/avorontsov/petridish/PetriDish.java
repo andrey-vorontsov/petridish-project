@@ -170,10 +170,19 @@ public class PetriDish implements Runnable {
 			} // finished updating all petri dish inhabitants and saving copies of their graphics
 			
 			// TODO for debug purposes; here is where cells are sprinkled in during the simulation
-//			for (int i=0; i<rng.nextInt(10)-3; i++) {
-//				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
-//			}
+			// they aren't drawn until the next cycle, which is fine I reckon (they don't get updated either)
+			for (int i=0; i<rng.nextInt(5)-3; i++) {
+				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+			}
+			if (rng.nextInt(1000) == 1) {
+				allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 50));
+			}
+			if (rng.nextInt(2000) == 1) {
+				allCells.add(new Predator(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
+			}
 
 			graphicsToDraw = newGraphicsToDraw; // prepare the graphicsToDraw list for the next cycle
 

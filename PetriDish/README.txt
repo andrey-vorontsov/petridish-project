@@ -116,6 +116,7 @@ Version 0.0.6
 Rewrote the petri dish dimension limitations to allow rectangular dishes for debug purposes.
 Known issue: Strange jitteriness of cells - either a threading issue, a problem with squishing, or low frame rate.
 
+
 Version 0.0.6.1
 Rewrote the thread synchronization system, with full infrastructure for future frame rate tracking, etc. now in place.
 Bug fix: The rare indexing crash should also now be fixed, through use of a buffer array (at a substantial performance cost).
@@ -207,11 +208,16 @@ Bug fix: Predators growing out of control (turned a plus into a minus).
 Bug fix: Cells blink out of existence for a frame (happened when another cell, elsewhere, died).
 Tweaked and balanced some miscellaneous stats in an effort to increase playability.
 
+Version 0.0.7
+Set up the simulation to really be properly playable.
+The game 'cheats in' agars, grazers, and preds at random intervals to keep the thing going.
+SHIPPABLE VERSION
+
 
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
-Plants sometimes get squished out of the way of a moving cell (very rare).
+Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
 NOTES
@@ -223,16 +229,7 @@ Any new properties need to be added as fields to Behavior together with getters 
 CellBehaviorController.getNextActionOrder() must be updated with any new property checks
 Cell.act() contains the meat, actually enforcing the ActionOrder
 
-ROADMAP (Current: 0.0.6.9)
-
-Features for 0.0.6.10
-	Propagate size calculation changes
-		Cells should have correctly calculated speed
-			(each MovementOrder should have an instead associated FORCE, based on mass * acceleration)
-				(mass proportional to size = area)
-				(cells have a field controlling energy efficiency considering force exerted)
-
-Release 0.0.7
+ROADMAP (Current: 0.0.7)
 
 Features for 0.1.0
 	Fix known issues:
