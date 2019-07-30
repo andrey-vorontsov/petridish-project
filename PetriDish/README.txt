@@ -226,6 +226,7 @@ Implemented simulation speed control (frame delay control).
 Slider and text field both update the value.
 
 <<<<<<< master
+<<<<<<< master
 Version 0.0.7.3
 Implemented the ability to close a simulation and start a new one.
 Multiple simulations running in parallel will not be supported.
@@ -245,6 +246,8 @@ JavaFX will still be used for the GUI half of the project since that was origina
 Processing, if I can figure it out, will be used for the hard part.
 =======
 >>>>>>> bed7df5 Version 0.0.7.3
+=======
+>>>>>>> bed7df5 Version 0.0.7.3
 
 KNOWN ISSUES
 
@@ -252,6 +255,7 @@ Cells get stuck against each other trying to eat the same target; increasingly r
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
+<<<<<<< master
 <<<<<<< master
 ROADMAP (Current: 0.0.7.4)
 
@@ -265,6 +269,8 @@ Features for 0.0.8
 	Code organization for main application, setup, etc.
 	
 =======
+=======
+>>>>>>> bed7df5 Version 0.0.7.3
 ROADMAP (Current: 0.0.7.2)
 		
 Features for 0.0.7.3

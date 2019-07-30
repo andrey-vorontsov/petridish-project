@@ -209,6 +209,7 @@ public class PetriDishApp extends Application {
 		// finished simulation speed controls
 		
 <<<<<<< master
+<<<<<<< master
 		// simulation close and start new buttons
 		
 		Button restartSim = new Button("Start");
@@ -238,6 +239,8 @@ public class PetriDishApp extends Application {
 		
 =======
 >>>>>>> bed7df5 Version 0.0.7.3
+=======
+>>>>>>> bed7df5 Version 0.0.7.3
 		// set the GUI window's dimensions
 		Scene scene = new Scene(guiLayout, 350, 600);
 
@@ -249,6 +252,7 @@ public class PetriDishApp extends Application {
 		appWindow.setY(25);
 		// finished setting up the GUI window
 <<<<<<< master
+<<<<<<< master
 	}
 	
 	/**
@@ -256,6 +260,12 @@ public class PetriDishApp extends Application {
 	 */
 	private void initializeSimulationWindow() {
 		petriWindow = new Stage();
+=======
+
+		// initialize simulation window "petri dish"
+
+		Stage petriWindow = new Stage();
+>>>>>>> bed7df5 Version 0.0.7.3
 =======
 
 		// initialize simulation window "petri dish"
@@ -276,10 +286,25 @@ public class PetriDishApp extends Application {
 		petriWindow.setScene(petriScene);
 		petriWindow.setResizable(false);
 <<<<<<< master
+<<<<<<< master
 		petriWindow.setX(400);
 		petriWindow.setY(25);
 		
 		// closing behavior
+=======
+		petriWindow.setX(425);
+		petriWindow.setY(100);
+
+		// set up closing behavior of the two windows
+
+		appWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) { // the GUI window closes the whole application before closing itself
+				stop();
+				petriWindow.close();
+			}
+		});
+>>>>>>> bed7df5 Version 0.0.7.3
 =======
 		petriWindow.setX(425);
 		petriWindow.setY(100);
