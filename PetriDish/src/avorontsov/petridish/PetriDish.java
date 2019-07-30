@@ -24,21 +24,6 @@ import java.util.ArrayList;
  */
 public class PetriDish implements Runnable {
 
-	public final long SIMULATION_TICK_DELAY_MS = 30L; // TODO should be configurable, and may be moved to PetriDishApp.
-														// this is the minimum time between update ticks of the
-														// simulation (may be exceeded if processing takes longer). Not
-														// a hard limit.
-	public final long SIMULATION_TICK_DELAY_NANOS = SIMULATION_TICK_DELAY_MS * 1000000; // for convenience with
-																						// System.nanoTime(), which is
-																						// used to track performance
-
-	// Some notes. Around 20 ms is the minimum tick delay to avoid inconsistent tick
-	// rate, on my machine, with under 1000 cells. Delay grows much faster as cell
-	// count increases. As cell number increases, simulation complexity increases
-	// faster than graphics complexity. Since the graphics thread is also handling
-	// all the JavaFX layers and events, it slows down whenever an event occurs
-	// (e.g. user click)
-
 	// timers used to track performance
 	long simulationCycleDelta;
 	long graphicsCycleDelta = 0; // a sentinel value. in any case the simulation thread waits for the graphics
@@ -50,7 +35,7 @@ public class PetriDish implements Runnable {
 	private PetriDishApp app; // refers to the application thread - aka the graphics thread, used to retrieve
 								// the scene graph root that graphics information is built upon
 
-	private Random rng = new Random(); // used for random behavior of the simulation; if set to use a specific seed,
+	private Random rng = new Random(1); // used for random behavior of the simulation; if set to use a specific seed,
 										// the resulting simulation will be identical every time TODO configurable
 
 	private ArrayList<Cell> allCells = new ArrayList<Cell>(); // contains all the single-celled organisms inhabiting the
@@ -78,31 +63,10 @@ public class PetriDish implements Runnable {
 	@Override
 	public void run() {
 
-		// set up simulation debug preset TODO extract this functionality
-		for (int i = 0; i < 20; i++) { // a herd of herbivores, to the left
-			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 50));
-		}
-		for (int i = 0; i < 8; i++) { // a herd of predators, to the right
-			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 100));
-		}
-		for (int i = 0; i < 250; i++) { // scatter some food to start
-			allCells.add(new Agar(this, rng,
-					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
-		}
-		for (int i = 0; i < 35; i++) { // three plants at totally random locations in the dish
-			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
-		}
-
-		// fill the graphics list for initial setup
-		for (Cell c: allCells) {
-			graphicsToDraw.add(c.getGraphic());
-		}							
-
-		// main simulation loop
+		setupSimulation(); // spawns cells to start off the simulation (TODO this for debug)
+		
+		// main simulation loop (labeled)
+		main:
 		do {
 
 			// set timers for this cycle
@@ -138,6 +102,23 @@ public class PetriDish implements Runnable {
 			// run the simulation by asking all the living cells to take their turns
 
 			for (int i = 0; i < allCells.size(); i++) {
+				
+				// before updating the cell, consult GUI state info and take any necessary action
+				
+				// if the simulation has been paused by the user since we last checked, put the loop on hold until we get unpaused
+				// this delays the completion of this cycle until unpaused and generates a warning message
+				while (app.isSimulationPaused()) {
+					if (done) {
+						break main; // oh, we're 100% finished
+					}
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				// update the cell
 
 				// verify the cell is living before updating it
 				if (allCells.get(i).isAlive()) {
@@ -166,23 +147,25 @@ public class PetriDish implements Runnable {
 					i--; // remember to update the swapped element too
 					// note that for the last element, the call to set() does nothing
 				}
+				
+				// done updating this cell
 
 			} // finished updating all petri dish inhabitants and saving copies of their graphics
 			
 			// TODO for debug purposes; here is where cells are sprinkled in during the simulation
 			// they aren't drawn until the next cycle, which is fine I reckon (they don't get updated either)
-			for (int i=0; i<rng.nextInt(10)-8; i++) {
+			for (int i=0; i<rng.nextInt(100) - 96; i++) {
 				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
 						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
 			}
-			if (rng.nextInt(1000) == 1) {
-				allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 50));
-			}
-			if (rng.nextInt(2000) == 1) {
-				allCells.add(new Predator(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
-			}
+//			if (rng.nextInt(1000) == 1) {
+//				allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 50));
+//			}
+//			if (rng.nextInt(2000) == 1) {
+//				allCells.add(new Predator(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
+//			}
 
 			graphicsToDraw = newGraphicsToDraw; // prepare the graphicsToDraw list for the next cycle
 
@@ -209,14 +192,14 @@ public class PetriDish implements Runnable {
 			long timeRemainingNanos;
 
 			if (graphicsCycleDelta > simulationCycleDelta) { // program is bottlenecked by graphics thread
-				timeRemainingNanos = SIMULATION_TICK_DELAY_NANOS - graphicsCycleDelta;
+				timeRemainingNanos = app.getSimulationDelay() * 1000000 - graphicsCycleDelta;
 				if (timeRemainingNanos < 0) {
 					System.out.println("WARNING: The graphics thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
 
 			} else { // program is bottlenecked by simulation thread
-				timeRemainingNanos = SIMULATION_TICK_DELAY_NANOS - simulationCycleDelta;
+				timeRemainingNanos = app.getSimulationDelay() * 1000000 - simulationCycleDelta;
 				if (timeRemainingNanos < 0) {
 					System.out.println("WARNING: The simulation thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
@@ -235,6 +218,37 @@ public class PetriDish implements Runnable {
 			}
 
 		} while (!done); // check if we have gotten an order to stop since the last tick
+	}
+	
+	/**
+	 * Helper method to set up the petri dish simulation. Creates assorted single-celled life.
+	 */
+	private void setupSimulation() {
+		
+		// set up simulation debug preset TODO
+		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
+			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 50));
+		}
+		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
+			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
+					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 100));
+		}
+		for (int i = 0; i < 100; i++) { // scatter some food to start
+			allCells.add(new Agar(this, rng,
+					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+		}
+		for (int i = 0; i < 10; i++) { // three plants at totally random locations in the dish
+			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
+		}
+
+		// fill the graphics list for initial setup
+		for (Cell c: allCells) {
+			graphicsToDraw.add(c.getGraphic());
+		}
+
 	}
 
 	/**

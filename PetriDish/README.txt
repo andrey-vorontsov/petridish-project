@@ -217,31 +217,36 @@ Version 0.0.7a
 Slightly nerfed agar spawn rate just to make predators less oppressive to grazers.
 SHIPPABLE VERSION
 
+Version 0.0.7.1
+The GUI panel is now being brought back into the fold.
+Started with a pause/play button that pauses and resumes the simulation.
+
+Version 0.0.7.2
+Implemented simulation speed control (frame delay control).
+Slider and text field both update the value.
+
+
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
-NOTES
-
-REGARDING THE BEHAVIOR SYSTEM
-ActionOrder.generateMovementVector() must be updated for new movement orders
-Behavior.Behavior() must have its behavior category assignment and behavior type validation updated
-Any new properties need to be added as fields to Behavior together with getters and setters
-CellBehaviorController.getNextActionOrder() must be updated with any new property checks
-Cell.act() contains the meat, actually enforcing the ActionOrder
-
-ROADMAP (Current: 0.0.7)
+ROADMAP (Current: 0.0.7.2)
+		
+Features for 0.0.7.3
+	Basic GUI
+		Stop button
+			Closes the simulation window
+			Stops the thread
+		Start button
+			Only available while no other simulation is running
+			Configure window size on startup
 
 Features for 0.1.0
 	Fix known issues:
 		Cells stuck against each other trying to reach the same target
 		Strange jitteriness of cells - possibly caused by squishing function
-	Basic GUI
-		Simulation speed control
-			Slider to control speed
-			Pause/unpause button
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures
