@@ -235,6 +235,11 @@ The GUI looks empty but clean and I think reasonably professional.
 Installed the processing library in preparation for a major graphics code refactor.
 Hopefully our back-end will be fairly easy to move to the new API.
 
+Version 0.0.7.4a
+Encountered some problems with EGit while installing processing, brought about entirely by lack of experience.
+Reverted some changes, but probably with no severe consequences.
+Going to try reinstalling the processing library without messing up this time.
+
 NOTES
 It's clear now that JavaFX, while great for the GUI half of this project, just isn't going to work to generate our simulation's visual.
 A major bug came up during testing with uncapped frame rate; due to limitations of JavaFX Platform.runLater(), the simulation appears to update in 'bursts'.
