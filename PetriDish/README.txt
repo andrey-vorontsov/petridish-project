@@ -225,8 +225,6 @@ Version 0.0.7.2
 Implemented simulation speed control (frame delay control).
 Slider and text field both update the value.
 
-<<<<<<< master
-<<<<<<< master
 Version 0.0.7.3
 Implemented the ability to close a simulation and start a new one.
 Multiple simulations running in parallel will not be supported.
@@ -244,10 +242,6 @@ This is not acceptable.
 Platform.runLater() sure as hell is not meant to do what I want to do. So, time to ditch this system.
 JavaFX will still be used for the GUI half of the project since that was originally the point - studying JavaFX.
 Processing, if I can figure it out, will be used for the hard part.
-=======
->>>>>>> bed7df5 Version 0.0.7.3
-=======
->>>>>>> bed7df5 Version 0.0.7.3
 
 KNOWN ISSUES
 
@@ -255,38 +249,18 @@ Cells get stuck against each other trying to eat the same target; increasingly r
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
-<<<<<<< master
-<<<<<<< master
 ROADMAP (Current: 0.0.7.4)
 
 Features for 0.0.8
-	Code redesign to enable properly uncapped framerate
-		Install, learn, and apply processing library
+	Code redesign to enable properly uncapped framerate.
+		Install, learn, and apply processing library.
 			Will need to reevaluate ETA.
-		Replace JavaFX graphics pipeline with processing pipeline
-	Clean up the GUI visually
-		Need section seperators
+		Replace JavaFX graphics pipeline with processing pipeline.
+	Learn some about JavaFX Layouts and clean up the GUI visually
 	Code organization for main application, setup, etc.
 	
-=======
-=======
->>>>>>> bed7df5 Version 0.0.7.3
-ROADMAP (Current: 0.0.7.2)
-		
-Features for 0.0.7.3
-	Basic GUI
-		Stop button
-			Closes the simulation window
-			Stops the thread
-		Start button
-			Only available while no other simulation is running
-			Configure window size on startup
-
->>>>>>> bed7df5 Version 0.0.7.3
 Features for 0.1.0
-	Fix known issues:
-		Cells stuck against each other trying to reach the same target
-		Strange jitteriness of cells - possibly caused by squishing function
+	Fix known issues
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures
