@@ -35,7 +35,7 @@ public class PetriDish implements Runnable {
 	private PetriDishApp app; // refers to the application thread - aka the graphics thread, used to retrieve
 								// the scene graph root that graphics information is built upon
 
-	private Random rng = new Random(1); // used for random behavior of the simulation; if set to use a specific seed,
+	private Random rng = new Random(); // used for random behavior of the simulation; if set to use a specific seed,
 										// the resulting simulation will be identical every time TODO configurable
 
 	private ArrayList<Cell> allCells = new ArrayList<Cell>(); // contains all the single-celled organisms inhabiting the
@@ -116,6 +116,9 @@ public class PetriDish implements Runnable {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+				}
+				if (done) {
+					break main; // oh, we're 100% finished
 				}
 				
 				// update the cell

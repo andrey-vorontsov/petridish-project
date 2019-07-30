@@ -225,6 +225,10 @@ Version 0.0.7.2
 Implemented simulation speed control (frame delay control).
 Slider and text field both update the value.
 
+Version 0.0.7.3
+Implemented the ability to close a simulation and start a new one.
+Multiple simulations running in parallel will not be supported.
+
 
 KNOWN ISSUES
 
@@ -232,21 +236,15 @@ Cells get stuck against each other trying to eat the same target; increasingly r
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
-ROADMAP (Current: 0.0.7.2)
-		
-Features for 0.0.7.3
-	Basic GUI
-		Stop button
-			Closes the simulation window
-			Stops the thread
-		Start button
-			Only available while no other simulation is running
-			Configure window size on startup
+ROADMAP (Current: 0.0.7.3)
+
+Features for 0.0.8
+	Learn some about JavaFX Layouts and clean up the GUI visually
+	Code organization for main application, setup, etc.
+	
 
 Features for 0.1.0
-	Fix known issues:
-		Cells stuck against each other trying to reach the same target
-		Strange jitteriness of cells - possibly caused by squishing function
+	Fix known issues
 	Simple animations for plants
 	Reasonably interesting initial spawning setup
 	Reasonably balanced stats for the demo creatures
