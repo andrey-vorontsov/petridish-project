@@ -3,20 +3,25 @@ package avorontsov.petridish;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+
+// TODO organize these imports
 
 /**
  * The App class launches the application, starts associated threads and opens
@@ -38,8 +43,7 @@ public class PetriDishApp extends Application {
 	// all the JavaFX layers and events, it slows down whenever an event occurs
 	// (e.g. user click); if delay is uncapped, JavaFX behavior is also quite strange (bursts of motion)
 	
-	private Group guiRoot; // the root node of the GUI window scene graph
-	private Group petriRoot; // the root node of the simulation window scene graph
+	private Group petriRoot; // the root node of the simulation window scene graph (Group is used - no layout required)
 	private PetriDish petri; // the thread responsible for running the simulation in parallel to the GUI
 								// thread
 	private Stage petriWindow; // the window in which the simulation will be shown
@@ -80,19 +84,52 @@ public class PetriDishApp extends Application {
 
 		// initializing GUI window "control panel" as the master window
 
-		// setup the scene graph
-		guiRoot = new Group();
-		ObservableList<Node> allGuiNodes = guiRoot.getChildren();
-		
-		 // I suppose I should learn to use javafx layouts; currently, every node is just being dumped in haphazardly TODO
+		initializeGuiWIndow(appWindow);
 
-		// welcome message/status info placeholder
-		Text currMsg = new Text("Welcome to Petri Dish.");
-		currMsg.setX(30);
-		currMsg.setY(30);
-		allGuiNodes.add(currMsg);
+		// gui window is ready, show them
+
+		appWindow.show();
+
+	}
+	
+	/**
+	 * Helper method to lay out the GUI window at launch. Also contains code for the GUI controls.
+	 * 
+	 * @param appWindow the window supplied by JavaFX
+	 */
+	private void initializeGuiWIndow(Stage appWindow) {
 		
-		// pause/play button implementation TODO allow to interrupt update
+		// setup the scene graph
+		BorderPane guiLayout = new BorderPane();
+		
+		HBox topBox = new HBox();
+		VBox centerColumn = new VBox();
+		HBox botBox = new HBox();
+		
+		topBox.setPadding(new Insets(10, 5, 10, 5));
+		topBox.setSpacing(10);
+		topBox.setAlignment(Pos.CENTER);
+		centerColumn.setPadding(new Insets(10, 5, 10, 5));
+		centerColumn.setSpacing(10);
+		centerColumn.setAlignment(Pos.TOP_CENTER);
+		botBox.setPadding(new Insets(10, 5, 10, 5));
+		botBox.setSpacing(10);
+		botBox.setAlignment(Pos.CENTER);
+		
+		guiLayout.setTop(topBox);
+		guiLayout.setCenter(centerColumn);
+		guiLayout.setBottom(botBox);
+		
+		HBox centerTopBox = new HBox();
+		centerTopBox.setSpacing(10);
+		centerTopBox.setAlignment(Pos.CENTER);
+		centerColumn.getChildren().add(centerTopBox);
+		
+		// welcome message/status info placeholder
+		Label currMsg = new Label("Welcome to Petri Dish.");
+		topBox.getChildren().add(currMsg);
+		
+		// pause/play button implementation
 		Button pause = new Button("Pause");
 		pause.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -109,9 +146,7 @@ public class PetriDishApp extends Application {
 			}
 			
 		});
-		pause.setLayoutX(30);
-		pause.setLayoutY(60);
-		allGuiNodes.add(pause);
+		centerTopBox.getChildren().add(pause);
 		// end of pause/play button
 		
 		// simulation speed text box and slider implementation
@@ -119,8 +154,6 @@ public class PetriDishApp extends Application {
 		TextField simSpeedMsg = new TextField();	
 		simSpeedMsg.setText(simulationDelay + "");
 		simSpeedMsg.setMaxWidth(50);
-		simSpeedMsg.setLayoutX(180);
-		simSpeedMsg.setLayoutY(150);
 		
 		// simulation speed slider (any change is applied immediately)
 		Slider simSpeed = new Slider(0, 100, 30);
@@ -128,8 +161,6 @@ public class PetriDishApp extends Application {
 		simSpeed.setMajorTickUnit(10);
 		simSpeed.setMinorTickCount(1);
 		simSpeed.setShowTickMarks(true);
-		simSpeed.setLayoutX(30);
-		simSpeed.setLayoutY(150);
 
 		// handling enter key input from text field
 		simSpeedMsg.setOnKeyReleased(new EventHandler<KeyEvent>() {
@@ -173,13 +204,14 @@ public class PetriDishApp extends Application {
 			
 		});
 
-		allGuiNodes.add(simSpeedMsg);
-		allGuiNodes.add(simSpeed);
+		centerTopBox.getChildren().add(simSpeed);
+		centerTopBox.getChildren().add(simSpeedMsg);
+
 		// finished simulation speed controls
 		
 		// simulation close and start new buttons
 		
-		Button restartSim = new Button("Close");
+		Button restartSim = new Button("Start");
 		restartSim.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -188,7 +220,7 @@ public class PetriDishApp extends Application {
 					stopSimulationThread();
 					petriWindow.close();
 					petri = null; // TODO check if this will cause exceptions
-					restartSim.setText("Restart");
+					restartSim.setText("Start");
 					currMsg.setText("No simulation running.");
 				} else {
 					initializeSimulationWindow();
@@ -200,14 +232,12 @@ public class PetriDishApp extends Application {
 			}
 			
 		});
-		restartSim.setLayoutX(30);
-		restartSim.setLayoutY(180);
-		allGuiNodes.add(restartSim);
+		botBox.getChildren().add(restartSim);
 		
 		// finished simulation close and start new
 		
 		// set the GUI window's dimensions
-		Scene scene = new Scene(guiRoot, 350, 600);
+		Scene scene = new Scene(guiLayout, 350, 600);
 
 		// set the GUI window's stats incl. title, location
 		appWindow.setTitle("Control Panel");
@@ -226,20 +256,6 @@ public class PetriDishApp extends Application {
 			}
 		});
 		// finished setting up the GUI window
-		
-		// initialize simulation window "petri dish"
-
-		initializeSimulationWindow();
-
-		// both windows are ready, show them
-
-		appWindow.show();
-		petriWindow.show();
-
-		// start the simulation thread and give it a hook to this thread
-
-		petri = new PetriDish(this);
-
 	}
 	
 	/**
@@ -260,8 +276,8 @@ public class PetriDishApp extends Application {
 		petriWindow.setTitle("Petri Dish");
 		petriWindow.setScene(petriScene);
 		petriWindow.setResizable(false);
-		petriWindow.setX(425);
-		petriWindow.setY(100);
+		petriWindow.setX(400);
+		petriWindow.setY(25);
 		
 		// closing behavior
 		petriWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
