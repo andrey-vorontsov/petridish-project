@@ -237,8 +237,12 @@ Hopefully our back-end will be fairly easy to move to the new API.
 
 Version 0.0.7.4a
 Encountered some problems with EGit while installing processing, brought about entirely by lack of experience.
-Reverted some changes, but probably with no severe consequences.
+Ended up learning a valuable lesson.
+Reverted some changes, probably with no severe consequences.
 Going to try reinstalling the processing library without messing up this time.
+
+Version 0.0.7.4b
+Correctly installed the processing library and was able to import it into my code.
 
 NOTES
 It's clear now that JavaFX, while great for the GUI half of this project, just isn't going to work to generate our simulation's visual.
