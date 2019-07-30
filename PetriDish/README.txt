@@ -252,11 +252,12 @@ Grazers look pretty awkward piling on to and spinning around Plants.
 ROADMAP (Current: 0.0.7.4)
 
 Features for 0.0.8
-	Code redesign to enable properly uncapped framerate.
-		Install, learn, and apply processing library.
+	Code redesign to enable properly uncapped framerate
+		Install, learn, and apply processing library
 			Will need to reevaluate ETA.
-		Replace JavaFX graphics pipeline with processing pipeline.
-	Learn some about JavaFX Layouts and clean up the GUI visually
+		Replace JavaFX graphics pipeline with processing pipeline
+	Clean up the GUI visually
+		Need section seperators
 	Code organization for main application, setup, etc.
 	
 Features for 0.1.0
