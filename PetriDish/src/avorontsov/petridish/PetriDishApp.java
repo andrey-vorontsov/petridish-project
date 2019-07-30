@@ -46,7 +46,6 @@ public class PetriDishApp extends Application {
 	private Group petriRoot; // the root node of the simulation window scene graph (Group is used - no layout required)
 	private PetriDish petri; // the thread responsible for running the simulation in parallel to the GUI
 								// thread
-	private Stage petriWindow; // the window in which the simulation will be shown
 	
 	// GUI state information
 	
@@ -209,6 +208,7 @@ public class PetriDishApp extends Application {
 
 		// finished simulation speed controls
 		
+<<<<<<< master
 		// simulation close and start new buttons
 		
 		Button restartSim = new Button("Start");
@@ -236,6 +236,8 @@ public class PetriDishApp extends Application {
 		
 		// finished simulation close and start new
 		
+=======
+>>>>>>> bed7df5 Version 0.0.7.3
 		// set the GUI window's dimensions
 		Scene scene = new Scene(guiLayout, 350, 600);
 
@@ -245,17 +247,8 @@ public class PetriDishApp extends Application {
 		appWindow.setResizable(false);
 		appWindow.setX(25);
 		appWindow.setY(25);
-
-		// set up closing behavior
-
-		appWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent event) { // the GUI window closes the whole application before closing itself
-				stop();
-				petriWindow.close();
-			}
-		});
 		// finished setting up the GUI window
+<<<<<<< master
 	}
 	
 	/**
@@ -263,6 +256,12 @@ public class PetriDishApp extends Application {
 	 */
 	private void initializeSimulationWindow() {
 		petriWindow = new Stage();
+=======
+
+		// initialize simulation window "petri dish"
+
+		Stage petriWindow = new Stage();
+>>>>>>> bed7df5 Version 0.0.7.3
 
 		petriRoot = new Group();
 
@@ -276,16 +275,41 @@ public class PetriDishApp extends Application {
 		petriWindow.setTitle("Petri Dish");
 		petriWindow.setScene(petriScene);
 		petriWindow.setResizable(false);
+<<<<<<< master
 		petriWindow.setX(400);
 		petriWindow.setY(25);
 		
 		// closing behavior
+=======
+		petriWindow.setX(425);
+		petriWindow.setY(100);
+
+		// set up closing behavior of the two windows
+
+		appWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) { // the GUI window closes the whole application before closing itself
+				stop();
+				petriWindow.close();
+			}
+		});
+>>>>>>> bed7df5 Version 0.0.7.3
 		petriWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) { // the simulation window does not close if asked
 				event.consume();
 			}
 		});
+
+		// both windows are ready, show them
+
+		appWindow.show();
+		petriWindow.show();
+
+		// start the simulation thread and give it a hook to this thread
+
+		petri = new PetriDish(this);
+
 	}
 
 	/**
@@ -299,29 +323,16 @@ public class PetriDishApp extends Application {
 	}
 
 	/**
-	 * When the app closes it will terminate the simulation thread as well.
+	 * When the app closes it will terminate the simulation thread as well. The
+	 * simulation will terminate once it finishes the simulation tick it was working
+	 * on at the time.
 	 * 
 	 * @see javafx.application.Application#stop()
 	 */
 	@Override
 	public void stop() {
-		stopSimulationThread();
-	}
-	
-	/**
-	 * The simulation will terminate once it finishes the simulation tick it was working
-	 * on at the time.
-	 */
-	public void stopSimulationThread() {
 		if (petri != null)
 			petri.stop();
-	}
-	
-	/**
-	 * Clears the simulation window. Note that if the simulation thread is still running it will promptly redraw itself on the window.
-	 */
-	public void clearSimulationWindow() {
-		petriRoot.getChildren().clear();
 	}
 
 	/**
