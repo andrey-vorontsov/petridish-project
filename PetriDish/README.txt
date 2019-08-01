@@ -243,14 +243,9 @@ Going to try reinstalling the processing library without messing up this time.
 
 Version 0.0.7.4b
 Correctly installed the processing library and was able to import it into my code.
+Probably the last shippable version for a long time.
+SHIPPABLE VERSION
 
-NOTES
-It's clear now that JavaFX, while great for the GUI half of this project, just isn't going to work to generate our simulation's visual.
-A major bug came up during testing with uncapped frame rate; due to limitations of JavaFX Platform.runLater(), the simulation appears to update in 'bursts'.
-This is not acceptable.
-Platform.runLater() sure as hell is not meant to do what I want to do. So, time to ditch this system.
-JavaFX will still be used for the GUI half of the project since that was originally the point - studying JavaFX.
-Processing, if I can figure it out, will be used for the hard part.
 
 KNOWN ISSUES
 
@@ -258,13 +253,25 @@ Cells get stuck against each other trying to eat the same target; increasingly r
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 
-ROADMAP (Current: 0.0.7.4)
+ROADMAP (Current: 0.0.7.4b)
 
 Features for 0.0.8
-	Code redesign to enable properly uncapped framerate.
-		Install, learn, and apply processing library.
-			Will need to reevaluate ETA.
-		Replace JavaFX graphics pipeline with processing pipeline.
+	Refactor PetriDish graphics system
+		New overall program design
+			GUI/user event thread, built with JavaFX, will handle input and update state information
+			JavaFX launching system will launch the simulation thread and the Processing thread
+				Both JavaFX and Processing backends running alongside our thread
+			Simulation thread sends graphics info to Processing thread instead of JavaFX thread
+		Prerequisites
+			All cell implementations need new getGraphic() methods to use Processing objects
+			PetriDish class must be completely rewritten, ground-up, no alternative
+				Some code will end up being equivalent but in new framework
+			PetriDishApp launcher will need to interface with that new system to get everything started properly
+	Once this is all complete
+		Re-interface GUI controls
+		Properly implement uncapped framerate
+		
+Features for 0.0.9
 	Learn some about JavaFX Layouts and clean up the GUI visually
 	Code organization for main application, setup, etc.
 	
