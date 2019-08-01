@@ -154,22 +154,10 @@ public class PetriDish implements Runnable {
 				// done updating this cell
 
 			} // finished updating all petri dish inhabitants and saving copies of their graphics
-			
-			// TODO for debug purposes; here is where cells are sprinkled in during the simulation
-			// they aren't drawn until the next cycle, which is fine I reckon (they don't get updated either)
-			for (int i=0; i<rng.nextInt(100) - 96; i++) {
-				allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
-			}
-//			if (rng.nextInt(1000) == 1) {
-//				allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 50));
-//			}
-//			if (rng.nextInt(2000) == 1) {
-//				allCells.add(new Predator(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-//						rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
-//			}
 
+			divineIntervention(); // make any changes to the simulation that do not follow from the cells' own actions
+			// any magically summoned cells aren't drawn until the next cycle, which is fine I reckon (they don't get updated either)
+			
 			graphicsToDraw = newGraphicsToDraw; // prepare the graphicsToDraw list for the next cycle
 
 			// stop this thread's work timer
@@ -196,14 +184,14 @@ public class PetriDish implements Runnable {
 
 			if (graphicsCycleDelta > simulationCycleDelta) { // program is bottlenecked by graphics thread
 				timeRemainingNanos = app.getSimulationDelay() * 1000000 - graphicsCycleDelta;
-				if (timeRemainingNanos < 0) {
+				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost
 					System.out.println("WARNING: The graphics thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
 
 			} else { // program is bottlenecked by simulation thread
 				timeRemainingNanos = app.getSimulationDelay() * 1000000 - simulationCycleDelta;
-				if (timeRemainingNanos < 0) {
+				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost
 					System.out.println("WARNING: The simulation thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
@@ -252,6 +240,25 @@ public class PetriDish implements Runnable {
 			graphicsToDraw.add(c.getGraphic());
 		}
 
+	}
+	
+	/**
+	 * Helper method that currently spawns cells randomly during the simulation. TODO in the future, this method will fulfill certain GUI requests by acting on the simulation safely between updates.
+	 */
+	private void divineIntervention() {
+		
+		for (int i=0; i<rng.nextInt(100) - 96; i++) {
+			allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+		}
+//		if (rng.nextInt(1000) == 1) {
+//			allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+//					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 50));
+//		}
+//		if (rng.nextInt(2000) == 1) {
+//			allCells.add(new Predator(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
+//					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
+//		}
 	}
 
 	/**

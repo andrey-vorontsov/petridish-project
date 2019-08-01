@@ -1,27 +1,25 @@
 package avorontsov.petridish;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-
-// TODO organize these imports
 
 /**
  * The App class launches the application, starts associated threads and opens
@@ -43,7 +41,7 @@ public class PetriDishApp extends Application {
 	// all the JavaFX layers and events, it slows down whenever an event occurs
 	// (e.g. user click); if delay is uncapped, JavaFX behavior is also quite strange (bursts of motion)
 	
-	private Group petriRoot; // the root node of the simulation window scene graph (Group is used - no layout required)
+	private Group petriRoot; // the root node of the simulation window scene graph - all cell graphics Nodes are assigned as children of this Group
 	private PetriDish petri; // the thread responsible for running the simulation in parallel to the GUI
 								// thread
 	private Stage petriWindow; // the window in which the simulation will be shown
@@ -86,7 +84,7 @@ public class PetriDishApp extends Application {
 
 		initializeGuiWIndow(appWindow);
 
-		// gui window is ready, show them
+		// gui window is ready
 
 		appWindow.show();
 
@@ -100,12 +98,18 @@ public class PetriDishApp extends Application {
 	private void initializeGuiWIndow(Stage appWindow) {
 		
 		// setup the scene graph
+		// the layout used has a box at the top, bottom, and a center column that stretches between them
+		// new boxes will be added to the center column, stacked on each other.
+		
+		// note that in each layout area, GUI elements are added left to right
+		
 		BorderPane guiLayout = new BorderPane();
 		
 		HBox topBox = new HBox();
 		VBox centerColumn = new VBox();
 		HBox botBox = new HBox();
 		
+		// configure boxes with spacing, padding, and alignment
 		topBox.setPadding(new Insets(10, 5, 10, 5));
 		topBox.setSpacing(10);
 		topBox.setAlignment(Pos.CENTER);
@@ -120,14 +124,86 @@ public class PetriDishApp extends Application {
 		guiLayout.setCenter(centerColumn);
 		guiLayout.setBottom(botBox);
 		
+		// all boxes added to center column here
+		
 		HBox centerTopBox = new HBox();
 		centerTopBox.setSpacing(10);
-		centerTopBox.setAlignment(Pos.CENTER);
+		centerTopBox.setAlignment(Pos.BASELINE_LEFT);
 		centerColumn.getChildren().add(centerTopBox);
+		
+		// begin adding GUI elements to their layout boxes
+		
+		
+		// TOP BOX
 		
 		// welcome message/status info placeholder
 		Label currMsg = new Label("Welcome to Petri Dish.");
 		topBox.getChildren().add(currMsg);
+		
+		// END OF TOP BOX
+		
+		// CENTER COLUMN
+		
+		// FIRST
+		
+		// simulation speed text box and slider implementation
+		// coupled; both elements update the other
+		
+		// text box (accepts and validates input when enter key is pressed)
+		TextField simSpeedMsg = new TextField();	
+		simSpeedMsg.setText(simulationDelay + "");
+		simSpeedMsg.setMaxWidth(50);
+		
+		// simulation speed slider (any change is applied immediately)
+		Slider simSpeed = new Slider(0, 100, 30);
+		simSpeed.setBlockIncrement(1); // increments of 1 ms
+		simSpeed.setMajorTickUnit(10);
+		simSpeed.setMinorTickCount(1);
+		simSpeed.setShowTickMarks(true);
+
+		// text box: handling enter key input
+		simSpeedMsg.setOnKeyReleased(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent keyReleasedEvent) {
+				
+				// only when the enter key is pressed
+				if (keyReleasedEvent.getCode().equals(KeyCode.ENTER)) {
+					
+					// validate input to be a valid long
+					try {
+						simulationDelay = Long.parseLong(simSpeedMsg.getText().trim());
+						if (simulationDelay < simSpeed.getMin()) {
+							simSpeedMsg.setText((long) simSpeed.getMin() + ""); // snap to min
+						} else if(simulationDelay > simSpeed.getMax()) {
+							simSpeedMsg.setText((long) simSpeed.getMax() + ""); // snap to max
+						}
+					} catch (NumberFormatException e) {
+						simSpeedMsg.setText(simulationDelay + "");
+						// simulationSpeed is not updated
+					}
+					// update the slider to correspond to whatever the value is
+					simSpeed.setValue(simulationDelay);
+				}
+				
+			}
+			
+		});
+		
+		// handling slider input
+		simSpeed.valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+				// slider ensures that the input is always valid, no validation code here
+				simulationDelay = Math.round((double)newValue); // the internal long value is always the double value of the slider, rounded
+				simSpeedMsg.setText(simulationDelay + ""); // update the text field
+			}
+			
+		});
+
+		centerTopBox.getChildren().add(simSpeed);
+		centerTopBox.getChildren().add(simSpeedMsg);
 		
 		// pause/play button implementation
 		Button pause = new Button("Pause");
@@ -149,65 +225,11 @@ public class PetriDishApp extends Application {
 		centerTopBox.getChildren().add(pause);
 		// end of pause/play button
 		
-		// simulation speed text box and slider implementation
-		// text box (accepts and validates input when enter key is pressed)
-		TextField simSpeedMsg = new TextField();	
-		simSpeedMsg.setText(simulationDelay + "");
-		simSpeedMsg.setMaxWidth(50);
+		// END OF FIRST
 		
-		// simulation speed slider (any change is applied immediately)
-		Slider simSpeed = new Slider(0, 100, 30);
-		simSpeed.setBlockIncrement(1); // increments of 1 ms
-		simSpeed.setMajorTickUnit(10);
-		simSpeed.setMinorTickCount(1);
-		simSpeed.setShowTickMarks(true);
-
-		// handling enter key input from text field
-		simSpeedMsg.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-			@Override
-			public void handle(KeyEvent keyReleasedEvent) {
-				
-				// only when the enter key is pressed
-				if (keyReleasedEvent.getCode().equals(KeyCode.ENTER)) {
-					
-					// validate input to be a valid long
-					try {
-						simulationDelay = Long.parseLong(simSpeedMsg.getText());
-						if (simulationDelay < simSpeed.getMin()) {
-							simSpeedMsg.setText((long) simSpeed.getMin() + ""); // TODO check if safe
-						} else if(simulationDelay > simSpeed.getMax()) {
-							simSpeedMsg.setText((long) simSpeed.getMax() + ""); // TODO check if safe
-						}
-					} catch (NumberFormatException e) {
-						simSpeedMsg.setText(simulationDelay + ""); // TODO give an indication of needing a valid number
-						// simulationSpeed is not updated
-					}
-					// update the slider to correspond
-					simSpeed.setValue(simulationDelay);
-				}
-				
-			}
-			
-		});
+		// END OF CENTER COLUMN
 		
-		// handling slider input
-		simSpeed.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-				// slider ensures that the input is always valid
-				simulationDelay = Math.round((double)newValue); // TODO check if ok to do this
-				simSpeedMsg.setText(simulationDelay + "");
-				
-			}
-			
-		});
-
-		centerTopBox.getChildren().add(simSpeed);
-		centerTopBox.getChildren().add(simSpeedMsg);
-
-		// finished simulation speed controls
+		// BOTTOM BOX
 		
 		// simulation close and start new buttons
 		
@@ -217,15 +239,19 @@ public class PetriDishApp extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				if (restartSim.getText().equals("Close")) {
-					stopSimulationThread();
-					petriWindow.close();
-					petri = null; // TODO check if this will cause exceptions
+					if (petri != null) { // if a simulation is currently running
+						stopSimulationThread();
+						petriWindow.close();
+					}
+					petri = null;
 					restartSim.setText("Start");
 					currMsg.setText("No simulation running.");
 				} else {
-					initializeSimulationWindow();
-					petriWindow.show();
-					petri = new PetriDish(PetriDishApp.this);
+					if (petri == null) { // if no simulation is currently running
+						initializeSimulationWindow();
+						petriWindow.show();
+						petri = new PetriDish(PetriDishApp.this);
+					}
 					restartSim.setText("Close");
 					currMsg.setText("Restarted simulation.");
 				}
@@ -235,6 +261,8 @@ public class PetriDishApp extends Application {
 		botBox.getChildren().add(restartSim);
 		
 		// finished simulation close and start new
+		
+		// END OF BOTTOM BOX
 		
 		// set the GUI window's dimensions
 		Scene scene = new Scene(guiLayout, 350, 600);
@@ -251,15 +279,21 @@ public class PetriDishApp extends Application {
 		appWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) { // the GUI window closes the whole application before closing itself
-				stop();
-				petriWindow.close();
+				if (petri != null) { // if there is currently a simulation going
+					stop();
+					petriWindow.close();
+				}
 			}
 		});
 		// finished setting up the GUI window
 	}
 	
 	/**
-	 * Helper method to boot up and configure a fresh window to show the simulation
+	 * Helper method to  set up the simulation window, initially blank
+	 * 
+	 * This method is used on the fly to set up new simulations as requested. When called, it initializes the petridish window and scene graph but does not start the simulation. If a simulation already is running, it will start outputting to the set up window. The result is equivalent to clearSimulationWindow().
+	 * A simulation can run without a window, generating no output; an internal scene graph continues to be updated even with no window to show it.
+	 * If a simulation is attempted to be started before this method has been called at least once, the program will crash.
 	 */
 	private void initializeSimulationWindow() {
 		petriWindow = new Stage();
@@ -309,8 +343,7 @@ public class PetriDishApp extends Application {
 	}
 	
 	/**
-	 * The simulation will terminate once it finishes the simulation tick it was working
-	 * on at the time.
+	 * The simulation will terminate ASAP.
 	 */
 	public void stopSimulationThread() {
 		if (petri != null)
@@ -325,14 +358,14 @@ public class PetriDishApp extends Application {
 	}
 
 	/**
-	 * @return true only while the simulation has been paused by GUI input
+	 * @return true only while the simulation has been paused
 	 */
 	public boolean isSimulationPaused() {
 		return simulationPaused;
 	}
 
 	/**
-	 * @return the simulationDelay (ms)
+	 * @return the delay (ms) between every simulation update
 	 */
 	public long getSimulationDelay() {
 		return simulationDelay;

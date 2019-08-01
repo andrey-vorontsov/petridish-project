@@ -246,32 +246,27 @@ Correctly installed the processing library and was able to import it into my cod
 Probably the last shippable version for a long time.
 SHIPPABLE VERSION
 
+Version 0.0.7.4c
+After a thorough review of the processing library I decided to revert porting progress and cancel porting efforts.
+As a result, we are accepting the following issues associated with continued use of JavaFX for graphics.
+Known issue: Uncapped or very high simulation speed causes visually unstable framerate, because of the JavaFX implementation.
+Alternative solutions may be possible by introducing better handling for thread synchronization problems.
+
+Version 0.0.7.4d
+Cleaned up and organized code.
 
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
+Uncapped or very high simulation speed causes visually unstable framerate, because of the JavaFX implementation.
 
-ROADMAP (Current: 0.0.7.4b)
+ROADMAP (Current: 0.0.7.5)
 
 Features for 0.0.8
-	Refactor PetriDish graphics system
-		New overall program design
-			GUI/user event thread, built with JavaFX, will handle input and update state information
-			JavaFX launching system will launch the simulation thread and the Processing thread
-				Both JavaFX and Processing backends running alongside our thread
-			Simulation thread sends graphics info to Processing thread instead of JavaFX thread
-		Prerequisites
-			All cell implementations need new getGraphic() methods to use Processing objects
-			PetriDish class must be completely rewritten, ground-up, no alternative
-				Some code will end up being equivalent but in new framework
-			PetriDishApp launcher will need to interface with that new system to get everything started properly
-	Once this is all complete
-		Re-interface GUI controls
-		Properly implement uncapped framerate
-		
-Features for 0.0.9
+	Framerate tracking
+		Display framerate
 	Learn some about JavaFX Layouts and clean up the GUI visually
 	Code organization for main application, setup, etc.
 	
