@@ -1,3 +1,12 @@
+CONVENTIONS
+Version numbers w.x.y.z.a
+w - Product versions. 1 = completion; larger numbers mean new products
+x - Development versions. Many major feature changes.
+y - Development iterations. Work on one or several major features.
+z - Development snapshots. Work towards a feature.
+a - Patch. a,b,c, etc. Each version might be a minor bugfix or adjustment.
+
+
 Version 0.0.1
 Started working on the project.
 First functional version.
@@ -255,6 +264,15 @@ Alternative solutions may be possible by introducing better handling for thread 
 Version 0.0.7.4d
 Cleaned up and organized code.
 
+Version 0.0.7.5
+Cleaned up and organized GUI.
+SHIPPABLE VERSION
+
+Version 0.0.7.6
+Dimensions of a new simulation are now fully configurable.
+Built a basic number input infrastructure, and applied to existing text fields, increasingly robustness.
+
+
 KNOWN ISSUES
 
 Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
@@ -262,20 +280,34 @@ Plants sometimes get squished out of the way of their children or other cells, s
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed causes visually unstable framerate, because of the JavaFX implementation.
 
-ROADMAP (Current: 0.0.7.5)
+ROADMAP (Current: 0.0.7.6)
 
 Features for 0.0.8
+	Simulation starts paused
+	GUI
+		Enter key to submit field
+		Field auto-selects content
 	Framerate tracking
 		Display framerate
-	Learn some about JavaFX Layouts and clean up the GUI visually
-	Code organization for main application, setup, etc.
+
+Features for 0.0.9
+	Basic new simulation config
+		Number of each species to sprinkle at start
+	Sim control on-the-fly
+		Agar feed rate
+	GUI
+		Switch between two control sets depending on simulation state
+			Simulation running
+			No simulation running
 	
 Features for 0.1.0
-	Fix known issues
 	Simple animations for plants
-	Reasonably interesting initial spawning setup
+	GUI
+		Labels
+	Fix known issues
 	Reasonably balanced stats for the demo creatures
 		Cells die from age and drop agars
+		Cells gain energy for mass of eaten cell as well as its energy reserved
 	
 Features for 1.0.0
 	GUI
@@ -283,15 +315,15 @@ Features for 1.0.0
 			Can create cells of any variety
 			Can select a cell
 				to see its stats
+					Stats should update while simulation is running
 				to make changes to it
 					kill the cell
 					clone it
-					etc.
+					change stats
 				Can select many cells
+					Bulk actions
+						Kill
 			Can drag a cell to a new location in the dish
-		Simulation speed control
-			Robust frame rate tracking
-			Pause/unpause button has full interaction while paused
 		Saving to file
 			Configurable variables must be evaluated and moved out
 			Settings/config file
@@ -299,9 +331,14 @@ Features for 1.0.0
 			Loading from files
 		Other controls
 			Light intensity - plant growth rate
-			Various cell stats TBD
+			Various species-level cell stats
 			Mutation rate/genetics control
 			TBD
+		Stats information
+			Trophic pyramind
+				Energy flow diagram/info
+			Population counts
+			Average cell stats
 	Cell behaviors
 		Cells remember locations of recently seen objects
 		Cells remember 'what they were doing'

@@ -43,6 +43,10 @@ public class PetriDish implements Runnable {
 	private ArrayList<Node> graphicsToDraw = new ArrayList<Node>(); // populated by the simulation thread at the end of every update
 																		// contains graphics objects produced from every cell
 
+	// the dimensions of this simulation petri dish are fixed at instantiation time
+	private final int simulationWidth;
+	private final int simulationHeight;
+	
 	/**
 	 * Starts the petri dish simulation thread.
 	 * 
@@ -51,6 +55,8 @@ public class PetriDish implements Runnable {
 	 */
 	public PetriDish(PetriDishApp app) {
 		this.app = app;
+		simulationWidth = (int) app.getNewSimulationWidth();
+		simulationHeight = (int) app.getNewSimulationHeight();
 		new Thread(this).start();
 	}
 
@@ -218,21 +224,21 @@ public class PetriDish implements Runnable {
 		
 		// set up simulation debug preset TODO
 		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
-			allCells.add(new Grazer(this, rng, PetriDishApp.PETRI_DISH_WIDTH / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 50));
+			allCells.add(new Grazer(this, rng, simulationWidth / 4 + rng.nextInt(100) - 50,
+					simulationHeight / 2 + rng.nextInt(100) - 50, 0, 0, 50));
 		}
 		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
-			allCells.add(new Predator(this, rng, PetriDishApp.PETRI_DISH_WIDTH * 3 / 4 + rng.nextInt(100) - 50,
-					PetriDishApp.PETRI_DISH_HEIGHT / 2 + rng.nextInt(100) - 50, 0, 0, 100));
+			allCells.add(new Predator(this, rng, simulationWidth * 3 / 4 + rng.nextInt(100) - 50,
+					simulationHeight / 2 + rng.nextInt(100) - 50, 0, 0, 100));
 		}
 		for (int i = 0; i < 100; i++) { // scatter some food to start
 			allCells.add(new Agar(this, rng,
-					rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+					rng.nextInt((simulationWidth - 29)) + 15,
+					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 35));
 		}
 		for (int i = 0; i < 10; i++) { // three plants at totally random locations in the dish
-			allCells.add(new Plant(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 100));
+			allCells.add(new Plant(this, rng, rng.nextInt((simulationWidth - 29)) + 15,
+					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 100));
 		}
 
 		// fill the graphics list for initial setup
@@ -248,8 +254,8 @@ public class PetriDish implements Runnable {
 	private void divineIntervention() {
 		
 		for (int i=0; i<rng.nextInt(100) - 96; i++) {
-			allCells.add(new Agar(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
-					rng.nextInt(PetriDishApp.PETRI_DISH_HEIGHT - 29) + 15, 0, 0, 35));
+			allCells.add(new Agar(this, rng, rng.nextInt((int) (app.getPetriWindow().getWidth() - 29)) + 15,
+					rng.nextInt((int) (app.getPetriWindow().getHeight() - 29)) + 15, 0, 0, 35));
 		}
 //		if (rng.nextInt(1000) == 1) {
 //			allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
@@ -286,7 +292,7 @@ public class PetriDish implements Runnable {
 											// and it is not myself
 
 				visibleCells.add(curr);
-			}
+			} 
 		}
 		return visibleCells;
 	}
@@ -320,6 +326,27 @@ public class PetriDish implements Runnable {
 	 */
 	public Random getRNG() {
 		return rng;
+	}
+
+	/**
+	 * @return a reference to the GUI thread API enabling retrieval of GUI state information
+	 */
+	public PetriDishApp getApp() {
+		return app;
+	}
+
+	/**
+	 * @return the simulationWidth
+	 */
+	public int getSimulationWidth() {
+		return simulationWidth;
+	}
+
+	/**
+	 * @return the simulationHeight
+	 */
+	public int getSimulationHeight() {
+		return simulationHeight;
 	}
 
 	/**

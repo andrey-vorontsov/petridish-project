@@ -118,13 +118,13 @@ public class ActionOrder {
 		// stuck on wall)
 		if (newTargetX < 15) {
 			newTargetX = 15;
-		} else if (newTargetX > PetriDishApp.PETRI_DISH_WIDTH - 15) {
-			newTargetX = PetriDishApp.PETRI_DISH_WIDTH - 15;
+		} else if (newTargetX > me.getPetri().getSimulationWidth() - 15) {
+			newTargetX = me.getPetri().getSimulationWidth() - 15;
 		}
 		if (newTargetY < 15) {
 			newTargetY = 15;
-		} else if (newTargetY > PetriDishApp.PETRI_DISH_HEIGHT - 15) {
-			newTargetY = PetriDishApp.PETRI_DISH_HEIGHT - 15;
+		} else if (newTargetY > me.getPetri().getSimulationHeight() - 15) {
+			newTargetY = me.getPetri().getSimulationHeight() - 15;
 		}
 
 		newTargetingVector = me.getVectorToTarget(newTargetX, newTargetY); // if no changes were made to the targetX and

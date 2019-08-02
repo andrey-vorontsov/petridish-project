@@ -332,16 +332,16 @@ public abstract class Cell {
 		if (x < 15) {
 			xVelocity = 1;
 			x = 15;
-		} else if (x > PetriDishApp.PETRI_DISH_WIDTH - 15) {
+		} else if (x > petri.getSimulationWidth() - 15) {
 			xVelocity = -1;
-			x = PetriDishApp.PETRI_DISH_WIDTH - 15;
+			x = petri.getSimulationWidth() - 15;
 		}
 		if (y < 15) {
 			yVelocity = 1;
 			y = 15;
-		} else if (y > PetriDishApp.PETRI_DISH_HEIGHT - 15) {
+		} else if (y > petri.getSimulationHeight() - 15) {
 			yVelocity = -1;
-			y = PetriDishApp.PETRI_DISH_HEIGHT - 15;
+			y = petri.getSimulationHeight() - 15;
 		}
 	}
 
@@ -423,6 +423,13 @@ public abstract class Cell {
 	}
 
 	// getters and setters
+	
+	/**
+	 * @return a reference to the petri dish object that this cell is located in 
+	 */
+	public PetriDish getPetri() {
+		return petri;
+	}
 
 	/**
 	 * @return the Random object used by the simulation
