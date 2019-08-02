@@ -24,7 +24,8 @@ import java.util.ArrayList;
  */
 public class PetriDish implements Runnable {
 
-	// timers used to track performance
+	// timers and stuff used to track performance
+	long framesPerSecond; // initialized only after first simulation loop completes
 	long simulationCycleDelta;
 	long graphicsCycleDelta = 0; // a sentinel value. in any case the simulation thread waits for the graphics
 									// thread to complete its work, at which time it updates this value
@@ -55,8 +56,10 @@ public class PetriDish implements Runnable {
 	 */
 	public PetriDish(PetriDishApp app) {
 		this.app = app;
+		
 		simulationWidth = (int) app.getNewSimulationWidth();
 		simulationHeight = (int) app.getNewSimulationHeight();
+		
 		new Thread(this).start();
 	}
 
@@ -86,6 +89,8 @@ public class PetriDish implements Runnable {
 
 				@Override
 				public void run() {
+					
+					app.updateFrameRateDisplay(framesPerSecond); // before we draw the simulation itself, send the frame rate information from the last update
 
 					ObservableList<Node> allNodes = app.getPetriRoot().getChildren(); // fetch the graphics list
 					
@@ -182,7 +187,7 @@ public class PetriDish implements Runnable {
 					e.printStackTrace();
 				}
 			}
-
+			
 			// now both threads are finished and have reported their delta time
 
 			// calculate how much time we have left after our threads finish
@@ -190,14 +195,14 @@ public class PetriDish implements Runnable {
 
 			if (graphicsCycleDelta > simulationCycleDelta) { // program is bottlenecked by graphics thread
 				timeRemainingNanos = app.getSimulationDelay() * 1000000 - graphicsCycleDelta;
-				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost
+				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost, warning
 					System.out.println("WARNING: The graphics thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
 
 			} else { // program is bottlenecked by simulation thread
 				timeRemainingNanos = app.getSimulationDelay() * 1000000 - simulationCycleDelta;
-				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost
+				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost, warning
 					System.out.println("WARNING: The simulation thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
@@ -213,7 +218,13 @@ public class PetriDish implements Runnable {
 					e.printStackTrace();
 				}
 			}
-
+			
+			// finally, calculate the true time we spent on this cycle
+			// max of the minimum time and the actual times spent by each thread
+			long thisCycleDelta = Math.max(app.getSimulationDelay() * 1000000, Math.max(simulationCycleDelta, graphicsCycleDelta)); // the real time elapsed
+			
+			framesPerSecond = 1000000000/thisCycleDelta;
+			
 		} while (!done); // check if we have gotten an order to stop since the last tick
 	}
 	
@@ -347,6 +358,13 @@ public class PetriDish implements Runnable {
 	 */
 	public int getSimulationHeight() {
 		return simulationHeight;
+	}
+
+	/**
+	 * @return the framesPerSecond value of this petri dish simulation (calculated for every tick) (not averaged)
+	 */
+	public long getFramesPerSecond() {
+		return framesPerSecond;
 	}
 
 	/**

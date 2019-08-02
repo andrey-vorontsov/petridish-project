@@ -279,17 +279,17 @@ The enter key can now be used to manually submit a field rather than having to c
 Fields now automatically select when focused.
 Bug fix: Cells getting stuck against each other seems to have gradually died out on its own... possibly from changes to squish()
 
+Version 0.0.8
+Framerate is now dynamically calculated and displayed on the GUI window.
+Now we know just how many updates are actually happening a second (more than I thought).
+
 KNOWN ISSUES
 
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
-Uncapped or very high simulation speed causes visually unstable framerate, because of the JavaFX implementation.
+Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, because of the JavaFX implementation.
 
-ROADMAP (Current: 0.0.7.7)
-
-Features for 0.0.8
-	Framerate tracking
-		Display framerate
+ROADMAP (Current: 0.0.8)
 
 Features for 0.0.9
 	Basic new simulation config

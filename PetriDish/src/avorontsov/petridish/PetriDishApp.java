@@ -52,7 +52,7 @@ public class PetriDishApp extends Application {
 	private PetriDish petri; // the thread responsible for running the simulation in parallel to the GUI
 								// thread
 	private Stage petriWindow; // the window in which the simulation will be shown
-	
+		
 	// GUI state information
 	
 	private boolean simulationPaused; // true only when the simulation is paused
@@ -61,6 +61,9 @@ public class PetriDishApp extends Application {
 									// these min and max values are hardcoded in the slider and may be changed there
 	private int newSimulationWidth;
 	private int newSimulationHeight;
+	
+	// just to organize : this is the label to which the framerate is written
+	Label fps;
 
 	/**
 	 * Launches the Petri Dish application (JavaFX Application thread startup).
@@ -162,6 +165,10 @@ public class PetriDishApp extends Application {
 		// welcome message/status info placeholder
 		Label currMsg = new Label("Welcome to Petri Dish.");
 		topBox.getChildren().add(currMsg);
+		
+		// frame rate display
+		fps = new Label("0"); // TODO made into a field. bad decision? decide later
+		topBox.getChildren().add(fps);
 		
 		// END OF TOP BOX
 				
@@ -398,6 +405,15 @@ public class PetriDishApp extends Application {
 				event.consume();
 			}
 		});
+	}
+	
+	/**
+	 * Invoked by the simulation during every update to send info to the fps display.
+	 * 
+	 * @param framesPerSecond the frame rate as calculated by the simulation on the past update
+	 */
+	public void updateFrameRateDisplay(long framesPerSecond) {
+		fps.setText("FPS: " + framesPerSecond);
 	}
 
 	/**
