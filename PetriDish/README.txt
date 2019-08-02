@@ -282,12 +282,19 @@ Bug fix: Cells getting stuck against each other seems to have gradually died out
 Version 0.0.8
 Framerate is now dynamically calculated and displayed on the GUI window.
 Now we know just how many updates are actually happening a second (more than I thought).
+SHIPPABLE VERSION
+
+Version 0.0.8a
+Bug Fix: Fixed a slight mistake with on-the-fly agar feeding.
+FPS display has given some insights!
+Stress testing.
+SHIPPABLE VERSION
 
 KNOWN ISSUES
 
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
-Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, because of the JavaFX implementation.
+Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
 ROADMAP (Current: 0.0.8)
 

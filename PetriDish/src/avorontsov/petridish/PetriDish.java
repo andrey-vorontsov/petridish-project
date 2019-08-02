@@ -264,9 +264,9 @@ public class PetriDish implements Runnable {
 	 */
 	private void divineIntervention() {
 		
-		for (int i=0; i<rng.nextInt(100) - 96; i++) {
-			allCells.add(new Agar(this, rng, rng.nextInt((int) (app.getPetriWindow().getWidth() - 29)) + 15,
-					rng.nextInt((int) (app.getPetriWindow().getHeight() - 29)) + 15, 0, 0, 35));
+		for (int i=0; i<rng.nextInt(100); i++) {
+			allCells.add(new Agar(this, rng, rng.nextInt((int) (simulationWidth - 29)) + 15,
+					rng.nextInt((int) (simulationHeight - 29)) + 15, 0, 0, 35));
 		}
 //		if (rng.nextInt(1000) == 1) {
 //			allCells.add(new Grazer(this, rng, rng.nextInt(PetriDishApp.PETRI_DISH_WIDTH - 29) + 15,
