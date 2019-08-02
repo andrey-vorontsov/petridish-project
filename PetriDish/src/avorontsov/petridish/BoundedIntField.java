@@ -1,15 +1,17 @@
 package avorontsov.petridish;
 
+import javafx.scene.control.TextField;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TextField;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 
 /**
  * A modification of the JavaFX TextField class that accepts only inputs that
  * can be parsed to an integer within a set minimum and maximum (inclusive).
  * Retrieving its value with Integer.parseInt() is guaranteed to be safe.
- * 
- * Code adapted from https://gist.github.com/ricemery/4534910
  * 
  * @author Andrey Vorontsov
  */
@@ -56,24 +58,48 @@ public class BoundedIntField extends TextField {
 			}
 		});
 		
-		// when focus lost, force appropriate changes
+		// when focus lost, force validation of int value;
+		// when focus gained, select all text in the field
 		focusedProperty().addListener(new ChangeListener<Boolean>()
 		{
 		    @Override
 		    public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue)
 		    {
-		        if (oldValue) // happens when focus changes from true to false -> focus lost
-		        {
+		        if (oldValue) { // happens when focus changes from true to false -> focus lost
 		        	// force myInt into bounds and correct it if invalid
-		        	if (myInt < min)
+		        	if (myInt < min) {
 		        		myInt = min;
-		        	else if (myInt > max)
+		        	} else if (myInt > max) {
 		        		myInt = max;
+		        	}
 		        	// int has been placed in bounds
 		        	// if the field lost focus while the state was "-" or "", it will snap to 0
 		        	setText(myInt + "");
+		        } else { // focus gained
+		        	Platform.runLater(new Runnable() {
+		        		// execute in a delayed runnable. If selectAll() is called here, the mouse action will immediately follow and click into the field, deselecting the text.
+		        		// this way, the selection is done ASAP afterwards
+		        		
+						@Override
+						public void run() {
+							selectAll();
+						}
+		        		
+		        	});
 		        }
 		    }
+		});
+		
+		// pressing the enter key should release focus, which invokes the above listener as well
+		setOnKeyReleased(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode().equals(KeyCode.ENTER)) {
+					getParent().requestFocus(); // a kind of hacky way to release focus (using setFocused()) locks the user out of editing this field until they focus something else and come back
+				}
+			}
+			
 		});
 	}
 

@@ -271,22 +271,23 @@ SHIPPABLE VERSION
 Version 0.0.7.6
 Dimensions of a new simulation are now fully configurable.
 Built a basic number input infrastructure, and applied to existing text fields, increasingly robustness.
+Text fields automatically submit their value if losing focus.
 
+Version 0.0.7.7
+New simulations now start out paused.
+The enter key can now be used to manually submit a field rather than having to click out.
+Fields now automatically select when focused.
+Bug fix: Cells getting stuck against each other seems to have gradually died out on its own... possibly from changes to squish()
 
 KNOWN ISSUES
 
-Cells get stuck against each other trying to eat the same target; increasingly rare in current versions.
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed causes visually unstable framerate, because of the JavaFX implementation.
 
-ROADMAP (Current: 0.0.7.6)
+ROADMAP (Current: 0.0.7.7)
 
 Features for 0.0.8
-	Simulation starts paused
-	GUI
-		Enter key to submit field
-		Field auto-selects content
 	Framerate tracking
 		Display framerate
 

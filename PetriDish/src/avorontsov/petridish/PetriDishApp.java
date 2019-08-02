@@ -28,6 +28,8 @@ import javafx.event.EventHandler;
  * @author Andrey Vorontsov
  */
 public class PetriDishApp extends Application {
+	
+	public static final boolean DEFAULT_SIMULATION_PAUSE_STATE = true;
 
 	public static final int DEFAULT_PETRI_DISH_WIDTH = 750;
 	public static final int DEFAULT_PETRI_DISH_HEIGHT = 750;
@@ -85,7 +87,7 @@ public class PetriDishApp extends Application {
 		
 		// initialize GUI state information
 		
-		simulationPaused = false;
+		simulationPaused = DEFAULT_SIMULATION_PAUSE_STATE;
 		simulationDelay = DEFAULT_SIMULATION_TICK_DELAY_MS;
 		newSimulationHeight = DEFAULT_PETRI_DISH_HEIGHT;
 		newSimulationWidth = DEFAULT_PETRI_DISH_WIDTH;
@@ -214,7 +216,12 @@ public class PetriDishApp extends Application {
 		centerTopBox.getChildren().add(simSpeedMsg);
 		
 		// pause/play button implementation
-		Button pause = new Button("Pause");
+		Button pause = new Button();
+		if (simulationPaused == true) { // initialize to configured state
+			pause.setText("Play");
+		} else {
+			pause.setText("Pause");
+		}
 		pause.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
