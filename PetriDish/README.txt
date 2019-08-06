@@ -285,10 +285,14 @@ Now we know just how many updates are actually happening a second (more than I t
 SHIPPABLE VERSION
 
 Version 0.0.8a
-Bug Fix: Fixed a slight mistake with on-the-fly agar feeding.
-FPS display has given some insights!
-Stress testing.
+Bug Fix: Fixed a slight mistake with on-the-fly agar feeding trying to put agars offscreen.
+FPS display has given some insights! Stress testing.
 SHIPPABLE VERSION
+
+Version 0.0.8.1
+GUI has been modified to divide sets of controls into specialized panels, accessible by tabs.
+Simulations now have a fully configurable set of initial cell populations and rate of agar feeding during the simulation.
+However, no GUI interface for these controls is implemented.
 
 KNOWN ISSUES
 
@@ -296,31 +300,43 @@ Plants sometimes get squished out of the way of their children or other cells, s
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8)
+ROADMAP (Current: 0.0.8.1)
 
 Features for 0.0.9
-	Basic new simulation config
-		Number of each species to sprinkle at start
-	Sim control on-the-fly
-		Agar feed rate
-	GUI
-		Switch between two control sets depending on simulation state
-			Simulation running
-			No simulation running
-	
+
 Features for 0.1.0
 	Simple animations for plants
 	GUI
 		Labels
 	Fix known issues
 	Reasonably balanced stats for the demo creatures
+		Plant photosynthesis needs to be proportional to area (small plant doesn't harvest as much light)
 		Cells die from age and drop agars
 		Cells gain energy for mass of eaten cell as well as its energy reserved
+
+Features for 0.2.0
+	Customizable species
+		More abstract species class representation
+			Each "species" just a configured version of this class
+		Mouse interaction with petri dish
+			Can create cells of any loaded species
+		Use the customized species
+			Should be able to view and edit existing species
+				Import/export XML ability
+	Prerequisite: XML styling for abstract Cell information export/import
+	Species screen
+		Create a custom species of cell
+			Fully within GUI - possibly mostly with TextArea if necessary
+	Species-level stats
+		Brainstorm new, implement, encapsulate intelligently, and support existing
+			Interface with XML
+	Info screen
+		Population counts
+		Trophic pyramid
 	
 Features for 1.0.0
 	GUI
 		Mouse interaction with petri dish
-			Can create cells of any variety
 			Can select a cell
 				to see its stats
 					Stats should update while simulation is running
@@ -339,14 +355,11 @@ Features for 1.0.0
 			Loading from files
 		Other controls
 			Light intensity - plant growth rate
-			Various species-level cell stats
 			Mutation rate/genetics control
 			TBD
 		Stats information
-			Trophic pyramind
-				Energy flow diagram/info
-			Population counts
-			Average cell stats
+			Energy flow diagram/info
+			Average cell stats - genetics prerequisite
 	Cell behaviors
 		Cells remember locations of recently seen objects
 		Cells remember 'what they were doing'

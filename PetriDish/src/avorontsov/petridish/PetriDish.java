@@ -57,8 +57,8 @@ public class PetriDish implements Runnable {
 	public PetriDish(PetriDishApp app) {
 		this.app = app;
 		
-		simulationWidth = (int) app.getNewSimulationWidth();
-		simulationHeight = (int) app.getNewSimulationHeight();
+		simulationWidth = (int) app.newSimulationWidth;
+		simulationHeight = (int) app.newSimulationHeight;
 		
 		new Thread(this).start();
 	}

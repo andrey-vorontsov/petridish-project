@@ -6,15 +6,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Separator;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
@@ -48,22 +44,44 @@ public class PetriDishApp extends Application {
 	public static final int MIN_SIMULATION_TICK_DELAY_MS = 0;
 	public static final int MAX_SIMULATION_TICK_DELAY_MS = 100;
 	
+	// TODO temp values. Ideally a more robust system for this type of thing later on
+	// i.e. a specialized species data structure which will also track certain spawning/etc. hints
+	// e.g. species spawn rate; species initial population;
+	
+	// during sim
+	public static final int DEFAULT_AGAR_FEED_FACTOR = 4;
+
+	// startup sim
+	public static final int DEFAULT_AGAR_INITIAL_POP = 100;
+	public static final int DEFAULT_GRAZER_INITIAL_POP = 5;
+	public static final int DEFAULT_PRED_INITIAL_POP = 2;
+	public static final int DEFAULT_PLANT_INITIAL_POP = 12;
+	
 	private Group petriRoot; // the root node of the simulation window scene graph - all cell graphics Nodes are assigned as children of this Group
 	private PetriDish petri; // the thread responsible for running the simulation in parallel to the GUI
 								// thread
 	private Stage petriWindow; // the window in which the simulation will be shown
 		
-	// GUI state information
+	// GUI state information, protected for convenient access from PetriDish and other classes
 	
-	private boolean simulationPaused; // true only when the simulation is paused
-	private int simulationDelay; // ranges from 0 (framerate uncapped) to 100 (10 fps)
+	protected boolean simulationPaused; // true only when the simulation is paused
+	protected int simulationDelay; // ranges from 0 (framerate uncapped) to 100 (10 fps)
 									// changes are applied at the end of each simulation cycle
 									// these min and max values are hardcoded in the slider and may be changed there
-	private int newSimulationWidth;
-	private int newSimulationHeight;
+	
+	// info affecting a currently running simulation
+	protected int runningAgarFeedFactor;
+	
+	// init info for a newly created simulation
+	protected int newSimulationWidth;
+	protected int newSimulationHeight;
+	protected int newSimulationAgarPop;
+	protected int newSimulationGrazerPop;
+	protected int newSimulationPredPop;
+	protected int newSimulationPlantPop;
 	
 	// just to organize : this is the label to which the framerate is written
-	Label fps;
+	private Label fps;
 
 	/**
 	 * Launches the Petri Dish application (JavaFX Application thread startup).
@@ -94,10 +112,17 @@ public class PetriDishApp extends Application {
 		simulationDelay = DEFAULT_SIMULATION_TICK_DELAY_MS;
 		newSimulationHeight = DEFAULT_PETRI_DISH_HEIGHT;
 		newSimulationWidth = DEFAULT_PETRI_DISH_WIDTH;
+		
+		runningAgarFeedFactor = DEFAULT_AGAR_FEED_FACTOR;
+		
+		newSimulationAgarPop = DEFAULT_AGAR_INITIAL_POP;
+		newSimulationGrazerPop = DEFAULT_GRAZER_INITIAL_POP;
+		newSimulationPredPop = DEFAULT_PRED_INITIAL_POP;
+		newSimulationPlantPop = DEFAULT_PLANT_INITIAL_POP;
 
 		// initializing GUI window "control panel" as the master window
 
-		initializeGuiWIndow(appWindow);
+		initializeGuiWindow(appWindow);
 
 		// gui window is ready
 
@@ -110,229 +135,87 @@ public class PetriDishApp extends Application {
 	 * 
 	 * @param appWindow the window supplied by JavaFX
 	 */
-	private void initializeGuiWIndow(Stage appWindow) {
+	private void initializeGuiWindow(Stage appWindow) {
 		
 		// setup the scene graph
 		// the layout used has a box at the top, bottom, and a center column that stretches between them
-		// new boxes will be added to the center column, stacked on each other.
-		
-		// note that in each layout area, GUI elements are added left to right
-		
+		// note that in each layout area, GUI elements are added left to right or top to bottom
+
 		BorderPane guiLayout = new BorderPane();
 		
 		HBox topBox = new HBox();
-		VBox centerColumn = new VBox();
+		TabPane center = new TabPane();
 		HBox botBox = new HBox();
+		
+		guiLayout.setTop(topBox);
+		guiLayout.setCenter(center);
+		guiLayout.setBottom(botBox);
 		
 		// configure boxes with spacing, padding, and alignment
 		topBox.setPadding(new Insets(10, 5, 10, 5));
 		topBox.setSpacing(10);
 		topBox.setAlignment(Pos.CENTER);
-		centerColumn.setPadding(new Insets(10, 5, 10, 5));
-		centerColumn.setSpacing(10);
-		centerColumn.setAlignment(Pos.TOP_CENTER);
 		botBox.setPadding(new Insets(10, 5, 10, 5));
 		botBox.setSpacing(10);
 		botBox.setAlignment(Pos.CENTER);
 		
-		guiLayout.setTop(topBox);
-		guiLayout.setCenter(centerColumn);
-		guiLayout.setBottom(botBox);
-		
-		// all boxes added to center column here, with separators in between
-		
-		centerColumn.getChildren().add(new Separator());
-		
-		HBox centerTopBox = new HBox();
-		centerTopBox.setSpacing(10);
-		centerTopBox.setAlignment(Pos.CENTER_LEFT);
-		centerColumn.getChildren().add(centerTopBox);
-		
-		centerColumn.getChildren().add(new Separator());
-		
-		HBox centerSecondBox = new HBox();
-		centerSecondBox.setSpacing(10);
-		centerSecondBox.setAlignment(Pos.CENTER_LEFT);
-		centerColumn.getChildren().add(centerSecondBox);
-		
-		centerColumn.getChildren().add(new Separator());
-		
-		// begin adding GUI elements to their layout boxes
-		
-		
 		// TOP BOX
 		
-		// welcome message/status info placeholder
-		Label currMsg = new Label("Welcome to Petri Dish.");
-		topBox.getChildren().add(currMsg);
-		
-		// frame rate display
-		fps = new Label("0"); // TODO made into a field. bad decision? decide later
-		topBox.getChildren().add(fps);
-		
+				// welcome message/status info
+				Label currMsg = new Label("Welcome to Petri Dish.");
+				topBox.getChildren().add(currMsg);
+				
+				// frame rate display
+				fps = new Label("FPS: 0"); // TODO made into a field. bad decision? decide later
+				topBox.getChildren().add(fps);
+				
 		// END OF TOP BOX
 				
-		// CENTER COLUMN
-		
-		// FIRST
-		
-		// simulation speed text box and slider implementation
-		// coupled; both elements update the other
-		
-		// number input box (accepts and validates input)
-		BoundedIntField simSpeedMsg = new BoundedIntField(MIN_SIMULATION_TICK_DELAY_MS, MAX_SIMULATION_TICK_DELAY_MS);	
-		simSpeedMsg.setText(simulationDelay + "");
-		simSpeedMsg.setMaxWidth(50);
-		
-		// simulation speed slider (any change is applied immediately)
-		Slider simSpeed = new Slider(MIN_SIMULATION_TICK_DELAY_MS, MAX_SIMULATION_TICK_DELAY_MS, DEFAULT_SIMULATION_TICK_DELAY_MS);
-		simSpeed.setBlockIncrement(1); // increments of 1 ms
-		simSpeed.setMajorTickUnit(10);
-		simSpeed.setMinorTickCount(1);
-		simSpeed.setShowTickMarks(true);
-		
-		// int field updates the GUI state value when focus is lost
-		simSpeedMsg.focusedProperty().addListener(new ChangeListener<Boolean>()
-		{
-		    @Override
-		    public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue)
-		    {
-		        if (oldValue) // happens when focus changes from true to false -> focus lost
-		        {
-		        	// update internal value
-		        	simulationDelay = simSpeedMsg.getInteger();
-		        	// update the corresponding slider
-					simSpeed.setValue(simulationDelay);
-		        }
-		    }
-		});
-		
-		// handling slider input
-		simSpeed.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-				// slider ensures that the input is always valid, no validation code here
-				simulationDelay = (int) Math.round((double) newValue); // newValue will be double. int cast truncates, which is fine
-				simSpeedMsg.setText(simulationDelay + ""); // update the text field
-			}
-			
-		});
-
-		centerTopBox.getChildren().add(simSpeed);
-		centerTopBox.getChildren().add(simSpeedMsg);
-		
-		// pause/play button implementation
-		Button pause = new Button();
-		if (simulationPaused == true) { // initialize to configured state
-			pause.setText("Play");
-		} else {
-			pause.setText("Pause");
-		}
-		pause.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				if (pause.getText().equals("Pause")) {
-					pause.setText("Play");
-					simulationPaused = true;
-				} else {
-					pause.setText("Pause");
-					simulationPaused = false;
-				}
-				
-			}
-			
-		});
-		centerTopBox.getChildren().add(pause);
-		// end of pause/play button
-		
-		// END OF FIRST
-		
-		// SECOND
-		
-		// two text fields encode dimensions of new simulation
-		BoundedIntField simDimWidthMsg = new BoundedIntField(MIN_PETRI_DISH_DIM, MAX_PETRI_DISH_DIM);	
-		simDimWidthMsg.setText(newSimulationWidth + "");
-		simDimWidthMsg.setMaxWidth(75);
-
-		// int field updates the GUI state value when focus is lost
-		simDimWidthMsg.focusedProperty().addListener(new ChangeListener<Boolean>()
-		{
-		    @Override
-		    public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue)
-		    {
-		        if (oldValue) // happens when focus changes from true to false -> focus lost
-		        {
-		        	// update internal value
-		        	newSimulationWidth = simDimWidthMsg.getInteger();
-		        }
-		    }
-		});
-		
-		// two text fields encode dimensions of new simulation
-		BoundedIntField simDimHeightMsg = new BoundedIntField(MIN_PETRI_DISH_DIM, MAX_PETRI_DISH_DIM);	
-		simDimHeightMsg.setText(newSimulationHeight + "");
-		simDimHeightMsg.setMaxWidth(75);
-
-		// int field updates the GUI state value when focus is lost
-		simDimHeightMsg.focusedProperty().addListener(new ChangeListener<Boolean>()
-		{
-		    @Override
-		    public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue)
-		    {
-		        if (oldValue) // happens when focus changes from true to false -> focus lost
-		        {
-		        	// update internal value
-		        	newSimulationHeight = simDimHeightMsg.getInteger();
-		        }
-		    }
-		});
-		
-		centerSecondBox.getChildren().add(simDimWidthMsg);
-		centerSecondBox.getChildren().add(simDimHeightMsg);
-		
-		// END OF SECOND
-		
-		// END OF CENTER COLUMN
-		
 		// BOTTOM BOX
-		
-		// simulation close and start new buttons
-		
-		Button restartSim = new Button("Start");
-		restartSim.setOnAction(new EventHandler<ActionEvent>() {
+				
+				// simulation start/close new buttons
+				
+				Button restartSim = new Button("Start");
+				restartSim.setOnAction(new EventHandler<ActionEvent>() {
 
-			@Override
-			public void handle(ActionEvent event) {
-				if (restartSim.getText().equals("Close")) {
-					if (petri != null) { // if a simulation is currently running
-						stopSimulationThread();
-						petriWindow.close();
+					@Override
+					public void handle(ActionEvent event) {
+						if (restartSim.getText().equals("Close")) {
+							if (petri != null) { // if a simulation is currently running
+								stopSimulationThread();
+								petriWindow.close();
+							}
+							petri = null;
+							restartSim.setText("Start");
+							currMsg.setText("No simulation running.");
+						} else {
+							if (petri == null) { // if no simulation is currently running
+								initializeSimulationWindow();
+								petriWindow.show();
+								petri = new PetriDish(PetriDishApp.this);
+							}
+							restartSim.setText("Close");
+							currMsg.setText("Restarted simulation.");
+						}
 					}
-					petri = null;
-					restartSim.setText("Start");
-					currMsg.setText("No simulation running.");
-				} else {
-					if (petri == null) { // if no simulation is currently running
-						initializeSimulationWindow();
-						petriWindow.show();
-						petri = new PetriDish(PetriDishApp.this);
-					}
-					restartSim.setText("Close");
-					currMsg.setText("Restarted simulation.");
-				}
-			}
-			
-		});
-		botBox.getChildren().add(restartSim);
+					
+				});
+				botBox.getChildren().add(restartSim);
+				
+				// finished simulation close and start new
+				
+				// END OF BOTTOM BOX
+				
+		// ALL TABS LISTED HERE
+				
+
+		center.getTabs().add(new CreateTab(this));
+		center.getTabs().add(new EditTab(this));
 		
-		// finished simulation close and start new
-		
-		// END OF BOTTOM BOX
+		// FINISHED ADDING TABS
 		
 		// set the GUI window's dimensions
-		Scene scene = new Scene(guiLayout, 350, 600);
+		Scene scene = new Scene(guiLayout, 350, 750);
 		
 		// GUI window takes focus if user clicks outside any GUI element (deselection)
 		scene.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
@@ -341,13 +224,6 @@ public class PetriDishApp extends Application {
 		       guiLayout.requestFocus();
 		    }
 		});
-
-		// set the GUI window's stats incl. title, location
-		appWindow.setTitle("Control Panel");
-		appWindow.setScene(scene);
-		appWindow.setResizable(false);
-		appWindow.setX(25);
-		appWindow.setY(25);
 
 		// set up closing behavior
 
@@ -360,6 +236,14 @@ public class PetriDishApp extends Application {
 				}
 			}
 		});
+		
+		// set the GUI window's stats incl. title, location
+		appWindow.setTitle("Control Panel");
+		appWindow.setScene(scene);
+		appWindow.setResizable(false);
+		appWindow.setX(25);
+		appWindow.setY(25);
+		
 		// finished setting up the GUI window
 	}
 	
@@ -472,20 +356,6 @@ public class PetriDishApp extends Application {
 	 */
 	public long getSimulationDelay() {
 		return simulationDelay;
-	}
-
-	/**
-	 * @return the newSimulationWidth to be used for the next simulation created
-	 */
-	public long getNewSimulationWidth() {
-		return newSimulationWidth;
-	}
-
-	/**
-	 * @return the newSimulationHeight to be used for the next simulation created
-	 */
-	public long getNewSimulationHeight() {
-		return newSimulationHeight;
 	}
 
 }
