@@ -1,6 +1,8 @@
 package avorontsov.petridish;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -63,22 +65,24 @@ public class PetriDishApp extends Application {
 	private Stage petriWindow; // the window in which the simulation will be shown
 		
 	// GUI state information, protected for convenient access from PetriDish and other classes
+	// separate properties from the built-in GUI element properties are instantiated
+	// to improve clarity
 	
-	protected boolean simulationPaused; // true only when the simulation is paused
-	protected int simulationDelay; // ranges from 0 (framerate uncapped) to 100 (10 fps)
+	protected SimpleBooleanProperty simulationPaused; // true only when the simulation is paused
+	protected SimpleIntegerProperty simulationDelay; // ranges from 0 (framerate uncapped) to 100 (10 fps)
 									// changes are applied at the end of each simulation cycle
 									// these min and max values are hardcoded in the slider and may be changed there
 	
 	// info affecting a currently running simulation
-	protected int runningAgarFeedFactor;
+	protected SimpleIntegerProperty runningAgarFeedFactor;
 	
 	// init info for a newly created simulation
-	protected int newSimulationWidth;
-	protected int newSimulationHeight;
-	protected int newSimulationAgarPop;
-	protected int newSimulationGrazerPop;
-	protected int newSimulationPredPop;
-	protected int newSimulationPlantPop;
+	protected SimpleIntegerProperty newSimulationWidth;
+	protected SimpleIntegerProperty newSimulationHeight;
+	protected SimpleIntegerProperty newSimulationAgarPop;
+	protected SimpleIntegerProperty newSimulationGrazerPop;
+	protected SimpleIntegerProperty newSimulationPredPop;
+	protected SimpleIntegerProperty newSimulationPlantPop;
 	
 	// just to organize : this is the label to which the framerate is written
 	private Label fps;
@@ -108,17 +112,17 @@ public class PetriDishApp extends Application {
 		
 		// initialize GUI state information
 		
-		simulationPaused = DEFAULT_SIMULATION_PAUSE_STATE;
-		simulationDelay = DEFAULT_SIMULATION_TICK_DELAY_MS;
-		newSimulationHeight = DEFAULT_PETRI_DISH_HEIGHT;
-		newSimulationWidth = DEFAULT_PETRI_DISH_WIDTH;
+		simulationPaused = new SimpleBooleanProperty(DEFAULT_SIMULATION_PAUSE_STATE);
+		simulationDelay = new SimpleIntegerProperty(DEFAULT_SIMULATION_TICK_DELAY_MS);
+		newSimulationHeight = new SimpleIntegerProperty(DEFAULT_PETRI_DISH_HEIGHT);
+		newSimulationWidth = new SimpleIntegerProperty(DEFAULT_PETRI_DISH_WIDTH);
 		
-		runningAgarFeedFactor = DEFAULT_AGAR_FEED_FACTOR;
+		runningAgarFeedFactor = new SimpleIntegerProperty(DEFAULT_AGAR_FEED_FACTOR);
 		
-		newSimulationAgarPop = DEFAULT_AGAR_INITIAL_POP;
-		newSimulationGrazerPop = DEFAULT_GRAZER_INITIAL_POP;
-		newSimulationPredPop = DEFAULT_PRED_INITIAL_POP;
-		newSimulationPlantPop = DEFAULT_PLANT_INITIAL_POP;
+		newSimulationAgarPop = new SimpleIntegerProperty(DEFAULT_AGAR_INITIAL_POP);
+		newSimulationGrazerPop = new SimpleIntegerProperty(DEFAULT_GRAZER_INITIAL_POP);
+		newSimulationPredPop = new SimpleIntegerProperty(DEFAULT_PRED_INITIAL_POP);
+		newSimulationPlantPop = new SimpleIntegerProperty(DEFAULT_PLANT_INITIAL_POP);
 
 		// initializing GUI window "control panel" as the master window
 
@@ -265,7 +269,7 @@ public class PetriDishApp extends Application {
 		// petriRoot's children
 
 		// set the petri dish window dimensions from configuration
-		Scene petriScene = new Scene(petriRoot, newSimulationWidth, newSimulationHeight);
+		Scene petriScene = new Scene(petriRoot, newSimulationWidth.get(), newSimulationHeight.get());
 
 		// set the petri dish window's stats, incl. title, location
 		petriWindow.setTitle("Petri Dish");
@@ -342,20 +346,6 @@ public class PetriDishApp extends Application {
 	 */
 	public void clearSimulationWindow() {
 		petriRoot.getChildren().clear();
-	}
-
-	/**
-	 * @return true only while the simulation has been paused
-	 */
-	public boolean isSimulationPaused() {
-		return simulationPaused;
-	}
-
-	/**
-	 * @return the delay (ms) between every simulation update
-	 */
-	public long getSimulationDelay() {
-		return simulationDelay;
 	}
 
 }

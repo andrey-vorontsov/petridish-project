@@ -294,15 +294,17 @@ GUI has been modified to divide sets of controls into specialized panels, access
 Simulations now have a fully configurable set of initial cell populations and rate of agar feeding during the simulation.
 However, no GUI interface for these controls is implemented.
 
+Version 0.0.8.2
+Made improvements to code for GUI field modification, greatly simplifying some code.
+Basic GUI controls for initial cell populations and rate of agar feeding added to create and edit tabs.
+
 KNOWN ISSUES
 
 Plants sometimes get squished out of the way of their children or other cells, still.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8.1)
-
-Features for 0.0.9
+ROADMAP (Current: 0.0.8.2)
 
 Features for 0.1.0
 	Simple animations for plants

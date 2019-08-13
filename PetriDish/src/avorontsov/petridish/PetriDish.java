@@ -57,8 +57,8 @@ public class PetriDish implements Runnable {
 	public PetriDish(PetriDishApp app) {
 		this.app = app;
 		
-		simulationWidth = (int) app.newSimulationWidth;
-		simulationHeight = (int) app.newSimulationHeight;
+		simulationWidth = app.newSimulationWidth.get();
+		simulationHeight = app.newSimulationHeight.get();
 		
 		new Thread(this).start();
 	}
@@ -118,7 +118,7 @@ public class PetriDish implements Runnable {
 				
 				// if the simulation has been paused by the user since we last checked, put the loop on hold until we get unpaused
 				// this delays the completion of this cycle until unpaused and generates a warning message
-				while (app.isSimulationPaused()) {
+				while (app.simulationPaused.get()) {
 					if (done) {
 						break main; // oh, we're 100% finished
 					}
@@ -194,14 +194,14 @@ public class PetriDish implements Runnable {
 			long timeRemainingNanos;
 
 			if (graphicsCycleDelta > simulationCycleDelta) { // program is bottlenecked by graphics thread
-				timeRemainingNanos = app.getSimulationDelay() * 1000000 - graphicsCycleDelta;
+				timeRemainingNanos = app.simulationDelay.get() * 1000000 - graphicsCycleDelta;
 				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost, warning
 					System.out.println("WARNING: The graphics thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
 				}
 
 			} else { // program is bottlenecked by simulation thread
-				timeRemainingNanos = app.getSimulationDelay() * 1000000 - simulationCycleDelta;
+				timeRemainingNanos = app.simulationDelay.get() * 1000000 - simulationCycleDelta;
 				if (timeRemainingNanos < -1000000) { // at least 1 ms has been lost, warning
 					System.out.println("WARNING: The simulation thread is lagging. Lost "
 							+ (-1 * timeRemainingNanos) / 1000000 + " milliseconds."); // accurate to within 1 ms
@@ -221,7 +221,7 @@ public class PetriDish implements Runnable {
 			
 			// finally, calculate the true time we spent on this cycle
 			// max of the minimum time and the actual times spent by each thread
-			long thisCycleDelta = Math.max(app.getSimulationDelay() * 1000000, Math.max(simulationCycleDelta, graphicsCycleDelta)); // the real time elapsed
+			long thisCycleDelta = Math.max(app.simulationDelay.get() * 1000000, Math.max(simulationCycleDelta, graphicsCycleDelta)); // the real time elapsed
 			
 			framesPerSecond = 1000000000/thisCycleDelta;
 			
@@ -234,20 +234,20 @@ public class PetriDish implements Runnable {
 	private void setupSimulation() {
 		
 		// set up simulation debug preset TODO
-		for (int i = 0; i < 5; i++) { // a herd of herbivores, to the left
+		for (int i = 0; i < app.newSimulationGrazerPop.get(); i++) { // a herd of herbivores, to the left
 			allCells.add(new Grazer(this, rng, simulationWidth / 4 + rng.nextInt(100) - 50,
 					simulationHeight / 2 + rng.nextInt(100) - 50, 0, 0, 50));
 		}
-		for (int i = 0; i < 2; i++) { // a herd of predators, to the right
+		for (int i = 0; i < app.newSimulationPredPop.get(); i++) { // a herd of predators, to the right
 			allCells.add(new Predator(this, rng, simulationWidth * 3 / 4 + rng.nextInt(100) - 50,
 					simulationHeight / 2 + rng.nextInt(100) - 50, 0, 0, 100));
 		}
-		for (int i = 0; i < 100; i++) { // scatter some food to start
+		for (int i = 0; i < app.newSimulationAgarPop.get(); i++) { // scatter some food to start
 			allCells.add(new Agar(this, rng,
 					rng.nextInt((simulationWidth - 29)) + 15,
 					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 35));
 		}
-		for (int i = 0; i < 10; i++) { // three plants at totally random locations in the dish
+		for (int i = 0; i < app.newSimulationPlantPop.get(); i++) { // three plants at totally random locations in the dish
 			allCells.add(new Plant(this, rng, rng.nextInt((simulationWidth - 29)) + 15,
 					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 100));
 		}
@@ -264,7 +264,7 @@ public class PetriDish implements Runnable {
 	 */
 	private void divineIntervention() {
 		
-		for (int i=0; i<rng.nextInt(100); i++) {
+		for (int i=0; i<rng.nextInt(app.runningAgarFeedFactor.get() + 1); i++) {
 			allCells.add(new Agar(this, rng, rng.nextInt((int) (simulationWidth - 29)) + 15,
 					rng.nextInt((int) (simulationHeight - 29)) + 15, 0, 0, 35));
 		}
