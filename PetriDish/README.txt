@@ -302,20 +302,26 @@ Version 0.0.8.3
 Added basic GUI labels to existing controls, blatantly disregarding any aesthetic sense.
 Plant energy generation is now somewhat proportional to the Plant's size (area).
 
+Version 0.0.8.4
+Cells gain energy for mass of an eaten cell as well as stealing its energy reserves.
+Got rid of the arbitrary limit of spawning only one cell at a time from reproduction.
+Cells will now eventually die of old age (after a certain max age, they have a chance to die each update).
+Cells that die of old age or starvation now drop agars representing their remaining energy.
+Unfortunately the integrity of cell-related code has degraded quite a bit again (organization and compartmentalization conventions are subverted repeatedly).
+Known issue: Dead cells drop too many agars and said agars spawn all at the same location, causing strange cell clingyness. 
+
 KNOWN ISSUES
 
 Plants sometimes get squished around unexpectedly when they grow or reproduce.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8.3)
+ROADMAP (Current: 0.0.8.4)
 
 Features for 0.1.0
-	Fix known issues
+	Clean up some of that gorey cell code (particularly agar dropping at death code)
+	Fix agars spawning at the same location
 	Reasonably balanced stats for the demo creatures
-		Cells die from age and drop agars
-			Get rid of arbitrary reproduction rate constraint
-		Cells gain energy for mass of eaten cell as well as its energy reserved
 		Get rid of sleep starvation behavior (or make very brief)
 
 Features for 0.2.0
@@ -337,6 +343,8 @@ Features for 0.2.0
 	Info screen
 		Population counts
 		Trophic pyramid
+	Optimization
+		Cell visibility calculation is pretty heavy, does not need to be called this much
 	
 Features for 1.0.0
 	GUI

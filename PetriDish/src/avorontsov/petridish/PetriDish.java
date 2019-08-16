@@ -140,15 +140,15 @@ public class PetriDish implements Runnable {
 					// for each update, the cell is given lists of visible and touched cells
 					// also given the opportunity to return a reference to a single new offspring
 
-					Cell newCell = allCells.get(i)
+					ArrayList<Cell> newCells = allCells.get(i)
 							.update(getCellsInRange(allCells.get(i), allCells.get(i).getScaledVisionRange()),
 									getTouchingCells(allCells.get(i)));
 					
 					// after updating, save the refreshed graphic
 					newGraphicsToDraw.add(allCells.get(i).getGraphic());
 					
-					if (newCell != null) {
-						allCells.add(newCell); // if an offspring was produced the allCells list grows in size. note
+					if (newCells != null) {
+						allCells.addAll(newCells); // if an offspring was produced the allCells list grows in size. note
 												// that newborn cells are updated on the same cycle they are born
 					}
 

@@ -33,7 +33,7 @@ import javafx.scene.paint.Color;
  * 
  * So children should set:
  * SUPPRESS_EVENT_PRINTING, health, energy, mass, color, friction,
- * baseVisionRange, species
+ * baseVisionRange, species, maxAge
  * 
  * Additionally, children should:
  * 1. In the constructor, customize and add a CellBehaviorController
@@ -93,6 +93,7 @@ public abstract class Cell {
 
 	// 'genetic' information (to be replaced with a more permanent data structure)
 	protected Color color;
+	protected int maxAge;
 	protected double friction; // multiplicative coefficient for the velocity at each tick (smaller = more)
 	protected double baseVisionRange; // base distance the cell can see (radius of a circle around its center)
 										// hypothetically when the mass is zero (in reality, always more)
@@ -124,6 +125,7 @@ public abstract class Cell {
 		age = 0;
 		targetingVector = new CellMovementVector(0, 0);
 		currBehavior = "sleep";
+		maxAge = 3000;
 
 		cellID = nextCellID; // assign a unique ID to the cell object
 		nextCellID++;
@@ -137,19 +139,22 @@ public abstract class Cell {
 	 * 
 	 * @param visibleCells a list of cells visible to this cell, based on the cell's
 	 *                     vision range
-	 * @return an offspring produced by this cell during this update, unless one was
-	 *         not produced, in which case return null
+	 * @return any offspring produced by this cell during this update
 	 */
-	public Cell update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+	public ArrayList<Cell> update(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		age++; // cells have an age of 0 after being created; but new cells are updated on the
 				// same cycle they are created, so they end the cycle at age 1.
+		
+		ArrayList<Cell> newCells = new ArrayList<Cell>();
 
-		Cell newCell = act(visibleCells); // the cell invokes its CellBehaviorController to enact policies regarding
+		newCells.addAll(act(visibleCells)); // the cell invokes its CellBehaviorController to enact policies regarding
 											// movement, eating, and reproduction
 
-		customizedCellBehaviors(visibleCells, touchedCells); // any behaviors not defined in the CellBehaviorController
+		newCells.addAll(customizedCellBehaviors(visibleCells, touchedCells)); // any behaviors not defined in the CellBehaviorController
 																// are enforced here by custom implementation
 
+		newCells.addAll(dieOfOldAge());
+		
 		updatePhysics(); // the cell moves according to physics
 		
 		// update any cooldowns that behaviors might have
@@ -160,7 +165,7 @@ public abstract class Cell {
 			}
 		}
 
-		return newCell;
+		return newCells;
 	}
 
 	/**
@@ -169,14 +174,14 @@ public abstract class Cell {
 	 * 
 	 * @param visibleCells a list of cells this cell can see based on its vision
 	 *                     range
-	 * @return a Cell offspring, if one was produced by reproduction
+	 * @return a list of Cell offsprings, if any were produced by reproduction
 	 */
-	public Cell act(ArrayList<Cell> visibleCells) {
+	public ArrayList<Cell> act(ArrayList<Cell> visibleCells) {
 		if (behaviors == null) {
 			throw new NullPointerException("Cell " + this + " does not have a movement controller!");
 		}
 
-		Cell child = null; // prepare to reproduce
+		ArrayList<Cell> children = new ArrayList<Cell>(); // prepare to reproduce
 
 		// engage the behavior controller's encapsulated logic to choose an appropriate
 		// behavior to enforce this update
@@ -204,15 +209,16 @@ public abstract class Cell {
 		}
 
 		// for eating/energy gain behaviors, we currently enforce the following:
-		// "eat" - kill the target, take all of its energy
+		// "eat" - kill the target, take all of its energy and burn its mass for energy
 		// "nibble" - for Plants - chew on the target, leeching some energy
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("EAT")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("eat")) {
 				energy += nextOrder.getTarget().getEnergy();
+				energy += nextOrder.getTarget().getMass() / 12; // TODO efficiency of mass conversion gene
 				nextOrder.getTarget().kill("eaten");
 				if (!SUPPRESS_EVENT_PRINTING)
 					System.out.println(this + " consumed " + nextOrder.getTarget() + ", receiving "
-							+ nextOrder.getTarget().getEnergy() + " energy.");
+							+ (nextOrder.getTarget().getEnergy() + nextOrder.getTarget().getMass() / 12) + " energy.");
 			}
 			
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("nibble")) {
@@ -227,9 +233,9 @@ public abstract class Cell {
 		// "clone" - produce a new instance of this cell
 		if (nextOrder.getSourceBehavior().getBehaviorCategory().equals("REPRODUCE")) {
 			if (nextOrder.getSourceBehavior().getBehaviorType().equals("clone")) {
-					child = behaviorClone();
+					children = behaviorClone();
 					if (!SUPPRESS_EVENT_PRINTING)
-						System.out.println(this + " spawned " + child + ".");
+						System.out.println(this + " spawned " + children + ".");
 			}
 
 		}
@@ -242,7 +248,7 @@ public abstract class Cell {
 		// apply the energy cost of the action order
 		energy -= nextOrder.getSourceBehavior().getEnergyCost();
 
-		return child; // null, unless initialized by reproduction
+		return children; // null, unless initialized by reproduction
 
 	}
 
@@ -261,14 +267,26 @@ public abstract class Cell {
 	 * 
 	 * @param visibleCells a list of Cells this cell can see
 	 * @param touchedCells a list of Cells this cell is touching
+	 * 
+	 * @return any cells that are produced as a result of customized reproduction code etc, by default cells drop agars when they die for reasons other than being eaten
 	 */
-	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
-		if (age > 1) {
+	public ArrayList<Cell> customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+		ArrayList<Cell> droppedCells = new ArrayList<Cell>();
+		
+		if (age > 3 && mass > 35) { // anything too young or too small isn't allowed to push other things away
 			squish(touchedCells);
 		}
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
+			while (mass > 0) {
+				mass -= 12;
+				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				droppedEnergy.setEnergy(10);
+				droppedCells.add(droppedEnergy); // drop at least one agar
+				
+			}
 		}
+		return droppedCells;
 	}
 	
 	/**
@@ -282,10 +300,33 @@ public abstract class Cell {
 	 * behavior, we really didn't accomplish anything by making the steps to its
 	 * activation that much more convoluted.
 	 * 
-	 * @return a child cell, if one is produced
+	 * @return any child cells, if produced
 	 */
-	protected Cell behaviorClone() {
+	protected ArrayList<Cell> behaviorClone() {
 		return null;
+	}
+	
+
+	/**
+	 * Private. No need to override or even mention, cells can configure or turn off their max age easily.
+	 * 
+	 * @return a list of cells that are dropped at death
+	 */
+	private ArrayList<Cell> dieOfOldAge() {
+		ArrayList<Cell> droppedCells = new ArrayList<Cell>();
+
+		if (maxAge != -1 && age > maxAge && rng.nextInt(100) < 6) {
+			kill("old age");
+			while (mass > 0) {
+				mass -= 12;
+				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				droppedEnergy.setEnergy(10);
+				droppedCells.add(droppedEnergy); // drop at least one agar
+				
+			}
+		}
+		
+		return droppedCells;
 	}
 
 	/**
@@ -306,8 +347,11 @@ public abstract class Cell {
 			case "eaten":
 				System.out.println(this + " was eaten at age " + age + ".");
 				break;
+			case "old age":
+				System.out.println(this + "died of old age at age " + age + ".");
+				break;
 			default:
-				System.out.println(this + " died for the reason: " + reason);
+				System.out.println(this + " died for the reason \"" + reason + "\" at age " + age + ".");
 				break;
 			}
 		}

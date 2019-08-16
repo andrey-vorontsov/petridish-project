@@ -38,6 +38,7 @@ public class Grazer extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.LAWNGREEN;
+		maxAge = 3000;
 		friction = 0.85;
 		species = "Grazer";
 		baseVisionRange = 50;
@@ -100,7 +101,7 @@ public class Grazer extends Cell {
 	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
-	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+	public ArrayList<Cell> customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		if (energy > 75 && mass < 125) {
 			mass+= 10;
 			energy -= 4;
@@ -113,7 +114,7 @@ public class Grazer extends Cell {
 				System.out.println(this + " is starving!");
 		}
 
-		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
+		return super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
 
 	}
 	
@@ -123,10 +124,12 @@ public class Grazer extends Cell {
 	 * @see avorontsov.cells.Cell#behaviorClone()
 	 */
 	@Override
-	public Cell behaviorClone() {
+	public ArrayList<Cell> behaviorClone() {
 		energy = (energy-20)/2;
 		mass = mass/2;
-		return new Grazer(petri, rng, x, y, xVelocity, yVelocity, mass, energy);
+		ArrayList<Cell> newCell = new ArrayList<Cell>();
+		newCell.add(new Grazer(petri, rng, x, y, xVelocity, yVelocity, mass, energy));
+		return newCell;
 	}
 
 }

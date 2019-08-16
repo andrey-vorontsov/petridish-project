@@ -31,6 +31,7 @@ public class Predator extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.HOTPINK;
+		maxAge = 300;
 		friction = 0.825;
 		species = "Predator";
 		baseVisionRange = 100;
@@ -91,7 +92,7 @@ public class Predator extends Cell {
 	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
-	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+	public ArrayList<Cell> customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		if (energy > 90 && mass < 330) {
 			mass += 10;
 			energy -= 5;
@@ -104,7 +105,7 @@ public class Predator extends Cell {
 				System.out.println(this + " is starving!");
 		}
 		
-		super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
+		return super.customizedCellBehaviors(visibleCells, touchedCells); // squish() and starvation check
 
 	}
 	
@@ -114,10 +115,13 @@ public class Predator extends Cell {
 	 * @see avorontsov.cells.Cell#behaviorClone()
 	 */
 	@Override
-	public Cell behaviorClone() {
+	public ArrayList<Cell> behaviorClone() {
 		energy = (energy-20)/2;
 		mass = mass/2;
-		return new Predator(petri, rng, x, y, xVelocity, yVelocity, mass, energy);
+		
+		ArrayList<Cell> newCell = new ArrayList<Cell>();
+		newCell.add(new Predator(petri, rng, x, y, xVelocity, yVelocity, mass, energy));
+		return newCell;
 	}
 
 }

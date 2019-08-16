@@ -27,7 +27,7 @@ import javafx.event.EventHandler;
  */
 public class PetriDishApp extends Application {
 	
-	public static final boolean DEFAULT_SIMULATION_PAUSE_STATE = true;
+	public static final boolean DEFAULT_SIMULATION_PAUSE_STATE = false;
 
 	public static final int DEFAULT_PETRI_DISH_WIDTH = 750;
 	public static final int DEFAULT_PETRI_DISH_HEIGHT = 750;

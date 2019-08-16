@@ -37,6 +37,7 @@ public class Plant extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.FORESTGREEN;
+		maxAge = -1;
 		friction = 0; // cannot move
 		species = "Plant";
 		baseVisionRange = 100; // needs to be able to see to evaluate density of its population
@@ -67,7 +68,7 @@ public class Plant extends Cell {
 	 * @see Cell#customizedCellBehaviors(ArrayList, ArrayList)
 	 */
 	@Override
-	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
+	public ArrayList<Cell> customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		if (energy < 350) {
 			if (mass < 60)
 				energy += 0.5;
@@ -92,15 +93,26 @@ public class Plant extends Cell {
 		}
 		// replace the functionality of the superclass method
 		// which calls the customized squish() and checks for death by starvation
-		if (getAge() > 1) {
+		if (getAge() > 1 && mass > 120) {
 			squish(touchedCells);
 		}
+		
+		ArrayList<Cell> droppedCells = new ArrayList<Cell>();
+		
 		if (energy <= 0) {
 			kill("starvation");
+			while (mass > 0) {
+				mass -= 12;
+				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				droppedEnergy.setEnergy(10);
+				droppedCells.add(droppedEnergy); // drop at least one agar
+				
+			}
 		}
 		
 		updateGraphicSideLength(); // updates this cell's custom graphic
 		
+		return droppedCells;
 	}
 
 	/**
@@ -137,10 +149,13 @@ public class Plant extends Cell {
 	 * @see avorontsov.cells.Cell#behaviorClone()
 	 */
 	@Override
-	public Cell behaviorClone() {
+	public ArrayList<Cell> behaviorClone() {
 		energy -= 100;
 		mass -= 35;
-		return new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, xVelocity, yVelocity, 35, 25);
+		
+		ArrayList<Cell> newCell = new ArrayList<Cell>();
+		newCell.add(new Plant(petri, rng, x + rng.nextDouble() - 0.5, y + rng.nextDouble() - 0.5, xVelocity, yVelocity, 35, 25));
+		return newCell;
 	}
 
 	/**
