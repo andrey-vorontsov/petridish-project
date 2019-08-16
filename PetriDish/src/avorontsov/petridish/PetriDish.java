@@ -247,7 +247,7 @@ public class PetriDish implements Runnable {
 					rng.nextInt((simulationWidth - 29)) + 15,
 					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 35));
 		}
-		for (int i = 0; i < app.newSimulationPlantPop.get(); i++) { // three plants at totally random locations in the dish
+		for (int i = 0; i < app.newSimulationPlantPop.get(); i++) { // plants at totally random locations
 			allCells.add(new Plant(this, rng, rng.nextInt((simulationWidth - 29)) + 15,
 					rng.nextInt((simulationHeight - 29)) + 15, 0, 0, 100));
 		}

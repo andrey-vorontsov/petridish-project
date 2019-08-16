@@ -298,23 +298,25 @@ Version 0.0.8.2
 Made improvements to code for GUI field modification, greatly simplifying some code.
 Basic GUI controls for initial cell populations and rate of agar feeding added to create and edit tabs.
 
+Version 0.0.8.3
+Added basic GUI labels to existing controls, blatantly disregarding any aesthetic sense.
+Plant energy generation is now somewhat proportional to the Plant's size (area).
+
 KNOWN ISSUES
 
-Plants sometimes get squished out of the way of their children or other cells, still.
+Plants sometimes get squished around unexpectedly when they grow or reproduce.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8.2)
+ROADMAP (Current: 0.0.8.3)
 
 Features for 0.1.0
-	Simple animations for plants
-	GUI
-		Labels
 	Fix known issues
 	Reasonably balanced stats for the demo creatures
-		Plant photosynthesis needs to be proportional to area (small plant doesn't harvest as much light)
 		Cells die from age and drop agars
+			Get rid of arbitrary reproduction rate constraint
 		Cells gain energy for mass of eaten cell as well as its energy reserved
+		Get rid of sleep starvation behavior (or make very brief)
 
 Features for 0.2.0
 	Customizable species

@@ -69,17 +69,24 @@ public class Plant extends Cell {
 	@Override
 	public void customizedCellBehaviors(ArrayList<Cell> visibleCells, ArrayList<Cell> touchedCells) {
 		if (energy < 350) {
-			energy += 1;
+			if (mass < 60)
+				energy += 0.5;
+			else if (mass < 215)
+				energy += .75;
+			else if (mass < 450)
+				energy += 1.25;
+			else
+				energy += 1;
 		}
-		if (energy > 200 && mass < 750 && getRNG().nextInt(100) < 10) {
+		if (energy > 200 && mass < 750 && getRNG().nextInt(100) < 7) {
 			mass += 20;
-			energy -= 10;
+			energy -= 15;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " grew one size.");
 		}
 		if (energy < 30 && mass > 30) {
 			mass -= 20;
-			energy += 8;
+			energy += 10;
 			if (!SUPPRESS_EVENT_PRINTING)
 				System.out.println(this + " is starving!");
 		}
@@ -93,6 +100,7 @@ public class Plant extends Cell {
 		}
 		
 		updateGraphicSideLength(); // updates this cell's custom graphic
+		
 	}
 
 	/**
@@ -146,6 +154,11 @@ public class Plant extends Cell {
 		updateGraphicSideLength();
 		Rectangle graphic = new Rectangle(x-(side/2), y-(side/2), side, side);
 		graphic.setFill(color);
+		
+		// this code doesn't really belong anywhere so it goes here
+		// plants have a little wavy animation (this looks bad and I commented it out)
+		// graphic.setRotate((double)(getAge() % 500)/500 * 360);
+		
 		return graphic;
 	}
 	

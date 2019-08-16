@@ -1,8 +1,12 @@
 package avorontsov.petridish;
 
 import javafx.scene.control.Tab;
+
+import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -26,29 +30,32 @@ public class CreateTab extends Tab {
 		setClosable(false);
 
 		// organized in a single VBox
-		VBox editTabBox = new VBox();
-		editTabBox.setPadding(new Insets(10, 5, 10, 5));
-		editTabBox.setSpacing(10);
-		editTabBox.setAlignment(Pos.TOP_CENTER);
-		setContent(editTabBox);
+		VBox createTabBox = new VBox();
+		createTabBox.setPadding(new Insets(10, 5, 10, 5));
+		createTabBox.setSpacing(10);
+		createTabBox.setAlignment(Pos.TOP_CENTER);
+		setContent(createTabBox);
 		// done setting up box
 
 		// organized into HBoxes, with separators
-		editTabBox.getChildren().add(new Separator());
+		createTabBox.getChildren().add(new Separator());
+		// each section labeled
+		createTabBox.getChildren().add(new Label("New Simulation Size"));
 
 		HBox topBox = new HBox();
-		editTabBox.getChildren().add(topBox);
+		createTabBox.getChildren().add(topBox);
 		topBox.setSpacing(10);
 		topBox.setAlignment(Pos.CENTER_LEFT);
 
-		editTabBox.getChildren().add(new Separator());
+		createTabBox.getChildren().add(new Separator());
+		createTabBox.getChildren().add(new Label("New Simulation Cell Pops"));
 
 		HBox secondBox = new HBox();
-		editTabBox.getChildren().add(secondBox);
+		createTabBox.getChildren().add(secondBox);
 		secondBox.setSpacing(10);
 		secondBox.setAlignment(Pos.CENTER_LEFT);
 
-		editTabBox.getChildren().add(new Separator());
+		createTabBox.getChildren().add(new Separator());
 		// finished setting up organization
 
 		// begin adding GUI elements to their HBoxes
@@ -97,10 +104,45 @@ public class CreateTab extends Tab {
 		simPlantPopMsg.integerProperty().bindBidirectional(app.newSimulationPlantPop);
 		
 		// add those input boxes to the second box
+		// with their own labels in VBoxes
 		
-		secondBox.getChildren().add(simAgarPopMsg);
-		secondBox.getChildren().add(simGrazerPopMsg);
-		secondBox.getChildren().add(simPredPopMsg);
-		secondBox.getChildren().add(simPlantPopMsg);
+		ArrayList<VBox> labelContainers = new ArrayList<VBox>();
+		
+		// make the boxes
+		
+		VBox simAgarPopMsgContainer = new VBox();
+		VBox simGrazerPopMsgContainer = new VBox();
+		VBox simPredPopMsgContainer = new VBox();
+		VBox simPlantPopMsgContainer = new VBox();
+		
+		// configure the boxes
+		
+		labelContainers.add(simAgarPopMsgContainer);
+		labelContainers.add(simGrazerPopMsgContainer);
+		labelContainers.add(simPredPopMsgContainer);
+		labelContainers.add(simPlantPopMsgContainer);
+		
+		for (VBox v : labelContainers) {
+			v.setPadding(new Insets(10, 5, 10, 5));
+			v.setSpacing(10);
+			v.setAlignment(Pos.TOP_CENTER);
+		}
+		
+		simAgarPopMsgContainer.getChildren().add(new Label("Agar"));
+		simAgarPopMsgContainer.getChildren().add(simAgarPopMsg);
+		
+		simGrazerPopMsgContainer.getChildren().add(new Label("Grazer"));
+		simGrazerPopMsgContainer.getChildren().add(simGrazerPopMsg);
+		
+		simPredPopMsgContainer.getChildren().add(new Label("Predator"));
+		simPredPopMsgContainer.getChildren().add(simPredPopMsg);
+		
+		simPlantPopMsgContainer.getChildren().add(new Label("Plant"));
+		simPlantPopMsgContainer.getChildren().add(simPlantPopMsg);
+		
+		for (VBox v : labelContainers) {
+			secondBox.getChildren().add(v);
+		}
+		
 	}
 }

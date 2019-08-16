@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -27,29 +28,33 @@ public class EditTab extends Tab {
 		setClosable(false);
 
 		// organized in a single VBox
-		VBox createTabBox = new VBox();
-		createTabBox.setPadding(new Insets(10, 5, 10, 5));
-		createTabBox.setSpacing(10);
-		createTabBox.setAlignment(Pos.TOP_CENTER);
-		setContent(createTabBox);
+		VBox editTabBox = new VBox();
+		editTabBox.setPadding(new Insets(10, 5, 10, 5));
+		editTabBox.setSpacing(10);
+		editTabBox.setAlignment(Pos.TOP_CENTER);
+		setContent(editTabBox);
 		// done setting up box
 
 		// organized into several stacked HBoxes with separators in between
-		createTabBox.getChildren().add(new Separator());
+		// each section labeled
+		editTabBox.getChildren().add(new Separator());
+		
+		editTabBox.getChildren().add(new Label("Simulation Speed"));
 
 		HBox topBox = new HBox();
-		createTabBox.getChildren().add(topBox);
+		editTabBox.getChildren().add(topBox);
 		topBox.setSpacing(10);
 		topBox.setAlignment(Pos.CENTER_LEFT);
 
-		createTabBox.getChildren().add(new Separator());
+		editTabBox.getChildren().add(new Separator());
+		editTabBox.getChildren().add(new Label("Agar Feed Rate"));
 
 		HBox secondBox = new HBox(); // second box currently unused
-		createTabBox.getChildren().add(secondBox);
+		editTabBox.getChildren().add(secondBox);
 		secondBox.setSpacing(10);
 		secondBox.setAlignment(Pos.CENTER_LEFT);
 
-		createTabBox.getChildren().add(new Separator());
+		editTabBox.getChildren().add(new Separator());
 		// finished setting up organization
 
 		// begin adding GUI elements to their layout boxes
@@ -98,8 +103,9 @@ public class EditTab extends Tab {
 
 		// done configuring elements
 
-		// add elements
+		// add elements with labels
 		topBox.getChildren().add(simSpeed);
+		
 		topBox.getChildren().add(simSpeedMsg);
 		topBox.getChildren().add(pause);
 		
