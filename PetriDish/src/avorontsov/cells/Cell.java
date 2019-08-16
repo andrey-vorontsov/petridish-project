@@ -279,8 +279,8 @@ public abstract class Cell {
 		if (energy <= 0) { // the cell checks itself for death by starvation
 			kill("starvation");
 			while (mass > 0) {
-				mass -= 12;
-				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				mass -= 40;
+				Agar droppedEnergy = new Agar(petri, rng, x + (rng.nextDouble() * 4 - 2), y + (rng.nextDouble() * 4 - 2), 0, 0, 20);
 				droppedEnergy.setEnergy(10);
 				droppedCells.add(droppedEnergy); // drop at least one agar
 				
@@ -318,8 +318,8 @@ public abstract class Cell {
 		if (maxAge != -1 && age > maxAge && rng.nextInt(100) < 6) {
 			kill("old age");
 			while (mass > 0) {
-				mass -= 12;
-				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				mass -= 40;
+				Agar droppedEnergy = new Agar(petri, rng, x + (rng.nextDouble() * 4 - 2), y  + (rng.nextDouble() * 4 - 2), 0, 0, 20);
 				droppedEnergy.setEnergy(10);
 				droppedCells.add(droppedEnergy); // drop at least one agar
 				
@@ -348,7 +348,7 @@ public abstract class Cell {
 				System.out.println(this + " was eaten at age " + age + ".");
 				break;
 			case "old age":
-				System.out.println(this + "died of old age at age " + age + ".");
+				System.out.println(this + " died of old age at age " + age + ".");
 				break;
 			default:
 				System.out.println(this + " died for the reason \"" + reason + "\" at age " + age + ".");
@@ -406,8 +406,8 @@ public abstract class Cell {
 						pushUnit.getYComponent() * pushMagnitude);
 				// use the scaled vector to place the other cell at the appropriate distance,
 				// plus a tiny margin
-				c.setX(x + push.getXComponent() + 0.01);
-				c.setY(y + push.getYComponent() + 0.01);
+				c.setX(x + 1.05 * push.getXComponent());
+				c.setY(y + 1.05 * push.getYComponent());
 			}
 		}
 	}

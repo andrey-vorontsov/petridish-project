@@ -310,17 +310,21 @@ Cells that die of old age or starvation now drop agars representing their remain
 Unfortunately the integrity of cell-related code has degraded quite a bit again (organization and compartmentalization conventions are subverted repeatedly).
 Known issue: Dead cells drop too many agars and said agars spawn all at the same location, causing strange cell clingyness. 
 
+Version 0.0.8.5
+Bug fix: Dead cells drop all their agars at the exact same spot.
+Cells now drop fewer agars (higher energy loss on death).
+Increased squish distance very slightly to help reduce cell overlaps.
+Bug fix: Caught a coding mistake; squishing now no longer has a tendency to knock cells towards the bottom right.
+
 KNOWN ISSUES
 
 Plants sometimes get squished around unexpectedly when they grow or reproduce.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8.4)
+ROADMAP (Current: 0.0.8.5)
 
 Features for 0.1.0
-	Clean up some of that gorey cell code (particularly agar dropping at death code)
-	Fix agars spawning at the same location
 	Reasonably balanced stats for the demo creatures
 		Get rid of sleep starvation behavior (or make very brief)
 
@@ -345,7 +349,9 @@ Features for 0.2.0
 		Trophic pyramid
 	Optimization
 		Cell visibility calculation is pretty heavy, does not need to be called this much
-	
+		Lots of repeated code in the various abstractions/not produced by the Cell code, improve consistency
+			e.g. the agar dropping code is copy pasted in three fucking places why?
+			
 Features for 1.0.0
 	GUI
 		Mouse interaction with petri dish

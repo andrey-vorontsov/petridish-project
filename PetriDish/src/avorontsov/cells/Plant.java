@@ -102,8 +102,8 @@ public class Plant extends Cell {
 		if (energy <= 0) {
 			kill("starvation");
 			while (mass > 0) {
-				mass -= 12;
-				Agar droppedEnergy = new Agar(petri, rng, x, y, 0, 0, 20);
+				mass -= 40;
+				Agar droppedEnergy = new Agar(petri, rng, x + (rng.nextDouble() * 4 - 2), y + (rng.nextDouble() * 4 - 2), 0, 0, 20);
 				droppedEnergy.setEnergy(10);
 				droppedCells.add(droppedEnergy); // drop at least one agar
 				
@@ -132,11 +132,11 @@ public class Plant extends Cell {
 				
 				// push their offspring extra far
 				if (c.getSpecies().equals("Plant")) {
-					c.setX(x + 3 * push.getXComponent() + 0.01);
-					c.setY(y + 3 * push.getYComponent() + 0.01);
+					c.setX(x + 3 * push.getXComponent());
+					c.setY(y + 3 * push.getYComponent());
 				} else {
-					c.setX(x + push.getXComponent() + 0.01);
-					c.setY(y + push.getYComponent() + 0.01);
+					c.setX(x + 1.1 * push.getXComponent());
+					c.setY(y + 1.1 * push.getYComponent());
 				}
 			}
 		}
