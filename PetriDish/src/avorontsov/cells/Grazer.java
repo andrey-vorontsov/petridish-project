@@ -81,7 +81,7 @@ public class Grazer extends Cell {
 		behaviorSet.addBehavior(grazePlants);
 		
 		Behavior sleepWhenStarving = new Behavior("sleep", 4);
-		sleepWhenStarving.setThisCellMaxEnergy(10);
+		sleepWhenStarving.setThisCellMaxEnergy(3);
 		sleepWhenStarving.setEnergyCost(.1);
 		behaviorSet.addBehavior(sleepWhenStarving);
 		

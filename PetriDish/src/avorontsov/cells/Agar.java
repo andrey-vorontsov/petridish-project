@@ -24,7 +24,7 @@ public class Agar extends Cell {
 		health = 0;
 		energy = 25;
 		color = Color.YELLOW;
-		maxAge = -1;
+		maxAge = -1; // can't die of old age
 		friction = 0; // cannot move
 		species = "Agar";
 		baseVisionRange = 0; // cannot see

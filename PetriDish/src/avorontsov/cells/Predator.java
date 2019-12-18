@@ -31,8 +31,8 @@ public class Predator extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.HOTPINK;
-		maxAge = 300;
-		friction = 0.825;
+		maxAge = 2500;
+		friction = 0.81;
 		species = "Predator";
 		baseVisionRange = 100;
 		
@@ -56,24 +56,24 @@ public class Predator extends Cell {
 		behaviorSet.addBehavior(cloneMyself);
 		
 		Behavior huntingGrazers = new Behavior("hunt", "Grazer", 3);
-		huntingGrazers.setTargetCellMaxDistance(45);
+		huntingGrazers.setTargetCellMaxDistance(38);
 		huntingGrazers.setTargetCellMinRelMass(51); // the predator must be at least this bigger
-		huntingGrazers.setTargetCellMinDistance(8); // avoid overshooting/oversteering
-		huntingGrazers.setThisCellMinEnergy(20); // don't risk it unless we have a bit of energy left over
+		huntingGrazers.setTargetCellMinDistance(12); // avoid overshooting/oversteering
+		huntingGrazers.setThisCellMinEnergy(30); // don't risk it unless we have a bit of energy left over
 		huntingGrazers.setEnergyCost(3); // the vector is three times longer; so this is fair
 		behaviorSet.addBehavior(huntingGrazers);
 		
 		Behavior pursuitGrazers = new Behavior("pursue", "Grazer", 4);
 		pursuitGrazers.setTargetCellMinRelMass(50); // the predator must be at least this bigger
-		pursuitGrazers.setEnergyCost(.25);
+		pursuitGrazers.setEnergyCost(.5);
 		behaviorSet.addBehavior(pursuitGrazers);
 		
 		Behavior pursuitAgars = new Behavior("pursue", "Agar", 3);
-		pursuitAgars.setEnergyCost(.25);
+		pursuitAgars.setEnergyCost(.5);
 		behaviorSet.addBehavior(pursuitAgars); // agars pursued indiscrimnately
 		
 		Behavior sleepWhenStarving = new Behavior("sleep", 5);
-		sleepWhenStarving.setThisCellMaxEnergy(7);
+		sleepWhenStarving.setThisCellMaxEnergy(3);
 		sleepWhenStarving.setEnergyCost(.1);
 		behaviorSet.addBehavior(sleepWhenStarving);
 		

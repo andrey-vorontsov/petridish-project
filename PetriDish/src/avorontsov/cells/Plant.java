@@ -37,7 +37,7 @@ public class Plant extends Cell {
 		health = 100;
 		this.energy = energy;
 		color = Color.FORESTGREEN;
-		maxAge = -1;
+		maxAge = -1; // can't die of old age
 		friction = 0; // cannot move
 		species = "Plant";
 		baseVisionRange = 100; // needs to be able to see to evaluate density of its population

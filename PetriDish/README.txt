@@ -316,41 +316,40 @@ Cells now drop fewer agars (higher energy loss on death).
 Increased squish distance very slightly to help reduce cell overlaps.
 Bug fix: Caught a coding mistake; squishing now no longer has a tendency to knock cells towards the bottom right.
 
+Version 0.1.0
+Removed tendency of starving cells to come to rest (doesn't look that good).
+Nerfed predator lunging behavior.
+Some more minor balance changes will follow.
+
+Version 0.1.0a
+Fixed predator maxage (previously was at a testing value).
+Other minor tweaks to behaviors (energy cost, etc.) to reduce predator strength.
+
+
 KNOWN ISSUES
 
 Plants sometimes get squished around unexpectedly when they grow or reproduce.
 Grazers look pretty awkward piling on to and spinning around Plants.
 Uncapped or very high simulation speed (generally 0-1 ms delay) causes unstable framerate, but only when the simulation load is light.
 
-ROADMAP (Current: 0.0.8.5)
+ROADMAP (Current: 0.1.0)
 
-Features for 0.1.0
-	Reasonably balanced stats for the demo creatures
-		Get rid of sleep starvation behavior (or make very brief)
+Features for 0.1.0.1
+
+Features for 0.1.1
+		
 
 Features for 0.2.0
-	Customizable species
-		More abstract species class representation
-			Each "species" just a configured version of this class
-		Mouse interaction with petri dish
-			Can create cells of any loaded species
-		Use the customized species
-			Should be able to view and edit existing species
-				Import/export XML ability
-	Prerequisite: XML styling for abstract Cell information export/import
-	Species screen
-		Create a custom species of cell
-			Fully within GUI - possibly mostly with TextArea if necessary
-	Species-level stats
+	Species-level stats (new class to handle cell trait data)
 		Brainstorm new, implement, encapsulate intelligently, and support existing
-			Interface with XML
 	Info screen
 		Population counts
 		Trophic pyramid
+		Graph of populations over time
 	Optimization
 		Cell visibility calculation is pretty heavy, does not need to be called this much
-		Lots of repeated code in the various abstractions/not produced by the Cell code, improve consistency
-			e.g. the agar dropping code is copy pasted in three fucking places why?
+			The agar dropping code is copy pasted three times - why?
+			In general, improve consistency and clarity
 			
 Features for 1.0.0
 	GUI
